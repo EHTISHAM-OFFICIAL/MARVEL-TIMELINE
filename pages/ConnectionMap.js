@@ -8,7 +8,7 @@ export function ConnectionMap({ userData, onOpen }) {
   const prefs = userData.preferences;
   const svgRef = useRef(null);
   const dragRef = useRef(null);
-  const [transform, setTransform] = useState({ x: 20, y: 20, scale: 0.85 });
+  const [transform, setTransform] = useState({ x: 20, y: 20, scale: 0.5 });
   const [filter, setFilter] = useState("all");
 
   const visible = useMemo(() => PROJECTS.filter((p) =>
@@ -37,10 +37,21 @@ export function ConnectionMap({ userData, onOpen }) {
 
   const nodeMap = useMemo(() => Object.fromEntries(nodes.map((n) => [n.id, n])), [nodes]);
 
-  const onMouseDown = (e) => { dragRef.current = { x:e.clientX, y:e.clientY, ox:transform.x, oy:transform.y }; };
+  const canvasBounds = useMemo(() => ({ width: Math.max(230, (filter === "all" ? UNIVERSES.length : 1) * 230), height: Math.max(100, nodes.reduce((m,n) => Math.max(m,n.y + 70), 0)) }), [nodes, filter]);
+  const clampTransform = (t) => {
+    const el = svgRef.current;
+    if (!el) return t;
+    const vw = el.clientWidth || 900, vh = el.clientHeight || 600, pad = 30;
+    const contentW = canvasBounds.width * t.scale, contentH = canvasBounds.height * t.scale;
+    const minX = Math.min(pad, vw - contentW - pad), maxX = Math.max(pad, vw - contentW - pad);
+    const minY = Math.min(pad, vh - contentH - pad), maxY = Math.max(pad, vh - contentH - pad);
+    return { ...t, x: Math.max(minX, Math.min(maxX, t.x)), y: Math.max(minY, Math.min(maxY, t.y)) };
+  };
+
+  const onMouseDown = (e) => { if (e.button !== 0) return; dragRef.current = { x:e.clientX, y:e.clientY, ox:transform.x, oy:transform.y }; };
   const onMouseMove = (e) => {
     if (!dragRef.current) return;
-    setTransform((t) => ({ ...t, x: dragRef.current.ox + e.clientX - dragRef.current.x, y: dragRef.current.oy + e.clientY - dragRef.current.y }));
+    setTransform(clampTransform({ ...transform, x: dragRef.current.ox + e.clientX - dragRef.current.x, y: dragRef.current.oy + e.clientY - dragRef.current.y }));
   };
   const onMouseUp = () => { dragRef.current = null; };
 
@@ -49,7 +60,7 @@ export function ConnectionMap({ userData, onOpen }) {
     if (!el) return;
     const wheel = (e) => {
       e.preventDefault();
-      setTransform((t) => ({ ...t, scale: Math.max(0.25, Math.min(2.5, t.scale - e.deltaY * 0.001)) }));
+      setTransform((t) => clampTransform({ ...t, scale: Math.max(0.2, Math.min(1.5, t.scale - e.deltaY * 0.001)) }));
     };
     el.addEventListener("wheel", wheel, { passive:false });
     return () => el.removeEventListener("wheel", wheel);
@@ -63,7 +74,7 @@ export function ConnectionMap({ userData, onOpen }) {
       <div className="map-filters">
         <button className=${"chip " + (filter === "all" ? "active" : "")} onClick=${() => setFilter("all")}>All Universes</button>
         ${UNIVERSES.map((u) => html`
-          <button key=${u.id} className=${"chip " + (filter === u.id ? "active" : "")} style=${{ borderColor: filter === u.id ? u.color : undefined }} onClick=${() => { setFilter(u.id); setTransform({x:20,y:20,scale:0.9}); }}>
+          <button key=${u.id} className=${"chip " + (filter === u.id ? "active" : "")} style=${{ borderColor: filter === u.id ? u.color : undefined }} onClick=${() => { setFilter(u.id); setTransform({x:20,y:20,scale:0.5}); }}>
             ${u.name}
           </button>
         `)}
@@ -71,11 +82,12 @@ export function ConnectionMap({ userData, onOpen }) {
 
       <div className="graph-wrap">
         <div className="graph-controls">
-          <button onClick=${() => setTransform((t) => ({...t, scale:Math.min(2.5,t.scale+0.15)}))}>+</button>
-          <button onClick=${() => setTransform((t) => ({...t, scale:Math.max(0.25,t.scale-0.15)}))}>−</button>
-          <button onClick=${() => setTransform({x:20,y:20,scale:0.85})}>⌂</button>
+          <button onClick=${() => setTransform((t) => clampTransform({...t, scale:Math.min(1.5,t.scale+0.15)}))}>+</button>
+          <button onClick=${() => setTransform((t) => clampTransform({...t, scale:Math.max(0.2,t.scale-0.15)}))}>−</button>
+          <button onClick=${() => setTransform({x:20,y:20,scale:0.5})}>⌂</button>
         </div>
         <svg ref=${svgRef} className="graph-svg" onMouseDown=${onMouseDown} onMouseMove=${onMouseMove} onMouseUp=${onMouseUp} onMouseLeave=${onMouseUp}>
+          <rect x="0" y="0" width="100%" height="100%" fill="var(--bg-2)" />
           <g transform=${"translate("+transform.x+","+transform.y+") scale("+transform.scale+")"}>
             ${filter === "all" ? UNIVERSES.map((u,ui) => {
               const laneNodes = nodes.filter((n) => n.project.universe === u.id);

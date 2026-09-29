@@ -46,6 +46,7 @@ function App() {
   };
 
   const userData = store.data;
+  useEffect(() => { document.documentElement.dataset.theme = userData.preferences.theme || "midnight"; }, [userData.preferences.theme]);
 
   let pageEl;
   switch (page) {

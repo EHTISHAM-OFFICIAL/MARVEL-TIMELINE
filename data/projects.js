@@ -626,6 +626,7 @@ export const PROJECTS = [
     releaseYear: 2021,
     seasons: 2,
     episodes: 12,
+    episodesBySeason: [6, 6],
     universe: "mcu-multiverse",
     phase: 4,
     canonStatus: "mcu-multiverse",

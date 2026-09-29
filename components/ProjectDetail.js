@@ -55,7 +55,7 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
           \${project.spoilerConnections ? html\`
             <div className="detail-section">
               <h3>Connections</h3>
-              <\${SpoilerSection} text=\${project.spoilerConnections} revealed=\${spoilersShown} onReveal=\${() => actions.revealSpoilers(project.id)} />
+              <${SpoilerSection} text=\${project.spoilerConnections} revealed=\${spoilersShown} onReveal=\${() => actions.revealSpoilers(project.id)} />
             </div>
           \` : null}
           \${project.characters?.length ? html\`

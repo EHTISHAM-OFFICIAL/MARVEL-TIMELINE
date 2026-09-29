@@ -1,12 +1,17 @@
 import { html } from "htm/react";
-import { useState } from "htm/react";
+import { useState, useEffect, useRef } from "htm/react";
 import { UNIVERSES } from "../data/universes.js";
 import { PROJECTS } from "../data/projects.js";
 import { statusOf, episodeProgress, isSeries } from "../utils/helpers.js";
 import { ProgressBar } from "../components/ProgressBar.js";
+import { PosterProjectCard } from "../components/PosterProjectCard.js";
 
 export function Universes({ userData, onOpen, actions }) {
   const [selected, setSelected] = useState(null);
+  const detailRef = useRef(null);
+  useEffect(() => {
+    if (selected && detailRef.current) detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [selected]);
   const prefs = userData.preferences;
   const selectedUniverse = selected ? UNIVERSES.find((u) => u.id === selected) : null;
   return html`
@@ -29,7 +34,7 @@ export function Universes({ userData, onOpen, actions }) {
               <div className="u-desc">${u.description}</div>
               <div className="universe-stats"><span>${done}/${projects.length} projects</span>${totalEpisodes ? html`<span>${watchedEpisodes}/${totalEpisodes} episodes</span>` : null}</div>
               <${ProgressBar} value=${done} max=${projects.length} />
-              <div className="universe-footer"><span className="text-faint">${hidden ? "Hidden from filters" : "Visible in tracker"}</span><button className="btn ghost sm" onClick=${(e) => { e.stopPropagation(); actions.toggleUniverseHidden(u.id); }}>${hidden ? "Show" : "Hide"}</button></div>
+              <div className="universe-footer"><span className="text-faint">${hidden ? "Hidden from filters" : "Click to open full catalog"}</span><button className="btn ghost sm" onClick=${(e) => { e.stopPropagation(); actions.toggleUniverseHidden(u.id); }}>${hidden ? "Show" : "Hide"}</button></div>
             </article>
           `;
         })}
@@ -38,20 +43,28 @@ export function Universes({ userData, onOpen, actions }) {
         const projects = PROJECTS.filter((p) => p.universe === selectedUniverse.id).sort((a,b) => a.releaseOrderIndex-b.releaseOrderIndex);
         const done = projects.filter((p) => statusOf(p.id, userData) === "completed").length;
         return html`
-          <div className="universe-detail-panel">
-            <div className="universe-detail-head"><div><div className="modal-kicker" style=${{ color: selectedUniverse.color }}>CONTINUITY</div><h2>${selectedUniverse.name}</h2><p className="text-dim">${selectedUniverse.description}</p></div><button className="btn" onClick=${() => setSelected(null)}>Close</button></div>
-            <div className="universe-detail-meta"><span>${projects.length} projects</span><span>${done} completed</span><span>${projects.length ? Math.round((done/projects.length)*100) : 0}% complete</span></div>
-            <div className="grid">
+          <section ref=${detailRef} className="universe-detail-panel">
+            <div className="universe-detail-head">
+              <div>
+                <div className="modal-kicker" style=${{ color: selectedUniverse.color }}>CONTINUITY CATALOG</div>
+                <h2>${selectedUniverse.name}</h2>
+                <p className="text-dim">${selectedUniverse.description}</p>
+              </div>
+              <button className="btn" onClick=${() => setSelected(null)}>Close Catalog</button>
+            </div>
+            <div className="universe-detail-meta">
+              <span>${projects.length} projects</span>
+              <span>${done} completed</span>
+              <span>${projects.length ? Math.round((done/projects.length)*100) : 0}% complete</span>
+            </div>
+            <div className="poster-grid universe-poster-grid">
               ${projects.map((p) => html`
-                <div key=${p.id} className="universe-project-row" onClick=${() => onOpen(p.id)}>
-                  <div className="universe-project-main"><span className=${"status-dot status-" + statusOf(p.id, userData)}></span><div><strong>${p.title}</strong><small>${p.releaseYear} · ${p.type.replace(/-/g," ")}</small></div></div>
-                  ${isSeries(p) ? html`<span className="badge">${episodeProgress(p,userData).watched}/${p.episodes} eps</span>` : html`<span className="badge">${statusOf(p.id,userData)}</span>`}
-                </div>
+                <${PosterProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen} />
               `)}
             </div>
-          </div>
+          </section>
         `;
-      })() : null}
+      })() : null}}
     </div>
   `;
 }

@@ -1,0 +1,93 @@
+export const UNIVERSES = [
+  {
+    id: "mcu-earth-616",
+    name: "Marvel Cinematic Universe",
+    shortName: "MCU",
+    earth: "Earth-616",
+    color: "#e23636",
+    description: "The primary Marvel Cinematic Universe continuity and its main connected projects.",
+  },
+  {
+    id: "mcu-multiverse",
+    name: "MCU Multiverse",
+    shortName: "MCU Multiverse",
+    earth: "Multiverse",
+    color: "#8b5cf6",
+    description: "MCU projects centered on alternate realities, branching timelines, and multiversal connections.",
+  },
+  {
+    id: "raimi-spider-man",
+    name: "Raimi Spider-Man",
+    shortName: "Raimi",
+    earth: "Raimi",
+    color: "#c62828",
+    description: "Sam Raimi's Spider-Man continuity, kept separate from the main MCU while tracking its later multiverse relevance.",
+  },
+  {
+    id: "amazing-spider-man",
+    name: "The Amazing Spider-Man",
+    shortName: "TASM",
+    earth: "TASM",
+    color: "#2563eb",
+    description: "The Amazing Spider-Man continuity starring Andrew Garfield.",
+  },
+  {
+    id: "sony-spider-man-universe",
+    name: "Sony Spider-Man Universe",
+    shortName: "SSU",
+    earth: "Sony",
+    color: "#7c3aed",
+    description: "Sony's Spider-Man-related live-action universe outside the primary MCU continuity.",
+  },
+  {
+    id: "fox-x-men",
+    name: "Fox X-Men Universe",
+    shortName: "X-Men",
+    earth: "Fox",
+    color: "#0ea5e9",
+    description: "The X-Men film continuity produced primarily under 20th Century Fox.",
+  },
+  {
+    id: "wolverine-deadpool",
+    name: "Wolverine & Deadpool",
+    shortName: "Wolverine / Deadpool",
+    earth: "Legacy",
+    color: "#dc2626",
+    description: "The Wolverine and Deadpool branch of Marvel's legacy film continuities and their later connections.",
+  },
+  {
+    id: "fantastic-four-legacy",
+    name: "Fantastic Four Legacy",
+    shortName: "Fantastic Four",
+    earth: "Legacy",
+    color: "#f59e0b",
+    description: "Legacy Fantastic Four film continuities tracked separately from the MCU.",
+  },
+  {
+    id: "marvel-television",
+    name: "Marvel Television",
+    shortName: "Marvel TV",
+    earth: "TV",
+    color: "#14b8a6",
+    description: "Marvel television projects and related live-action series tracked by their continuity relationship.",
+  },
+  {
+    id: "marvel-animation",
+    name: "Marvel Animation",
+    shortName: "Animation",
+    earth: "Animated",
+    color: "#22c55e",
+    description: "Marvel animated series and films, including projects with multiverse or franchise connections.",
+  },
+];
+
+export function getUniverse(id) {
+  return UNIVERSES.find((u) => u.id === id) || {
+    id: id || "unknown",
+    name: "Unknown Continuity",
+    shortName: "Unknown",
+    earth: "—",
+    color: "#64748b",
+    description: "Continuity metadata is not available.",
+  };
+}

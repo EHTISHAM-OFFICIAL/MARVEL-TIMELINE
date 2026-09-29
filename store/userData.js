@@ -47,6 +47,9 @@ function normalizeProject(value) {
     watchedDate:
       typeof value.watchedDate === "string" ? value.watchedDate : "",
     spoilersRevealed: Boolean(value.spoilersRevealed),
+    episodes: value.episodes && typeof value.episodes === "object"
+      ? Object.fromEntries(Object.entries(value.episodes).filter(([, v]) => v === true))
+      : {},
   };
 }
 
@@ -118,6 +121,38 @@ export function useUserData() {
         },
       },
     }));
+  }, []);
+
+  const toggleEpisode = useCallback((projectId, episodeNumber) => {
+    setData((current) => {
+      const project = normalizeProject(current.projects[projectId]);
+      const episodes = { ...(project.episodes || {}) };
+      const key = String(episodeNumber);
+      if (episodes[key]) delete episodes[key];
+      else episodes[key] = true;
+      return {
+        ...current,
+        projects: {
+          ...current.projects,
+          [projectId]: { ...project, episodes },
+        },
+      };
+    });
+  }, []);
+
+  const markAllEpisodes = useCallback((projectId, total, watched) => {
+    setData((current) => {
+      const project = normalizeProject(current.projects[projectId]);
+      const episodes = {};
+      if (watched) for (let i = 1; i <= total; i++) episodes[String(i)] = true;
+      return {
+        ...current,
+        projects: {
+          ...current.projects,
+          [projectId]: { ...project, episodes },
+        },
+      };
+    });
   }, []);
 
   const setStatus = useCallback(
@@ -212,6 +247,8 @@ export function useUserData() {
     setRating,
     setNotes,
     toggleFavorite,
+    toggleEpisode,
+    markAllEpisodes,
     setWatchedDate,
     revealSpoilers,
     setPreference,

@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useMemo } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { StatusDot } from "../components/StatusBadge.js";
-import { statusOf, passesMode } from "../utils/helpers.js";
+import { statusOf, passesMode, isSeries, episodeProgress } from "../utils/helpers.js";
 
 export function Progress({ userData, onOpen }) {
   const prefs = userData.preferences;
@@ -26,6 +26,13 @@ export function Progress({ userData, onOpen }) {
     (p) => statusOf(p.id, userData) === "completed",
   );
   const watching = order.filter((p) => statusOf(p.id, userData) === "watching");
+  const episodeStats = order.reduce((acc, p) => {
+    if (!isSeries(p)) return acc;
+    const ep = episodeProgress(p, userData);
+    acc.watched += ep.watched;
+    acc.total += ep.total;
+    return acc;
+  }, { watched: 0, total: 0 });
   const next = order.find((p) => statusOf(p.id, userData) === "not-started");
 
   const byPhase = {};
@@ -124,6 +131,10 @@ export function Progress({ userData, onOpen }) {
             ${order.length - completed.length - watching.length}
           </div>
           <div className="label">Remaining</div>
+        </div>
+        <div className="stat">
+          <div className="num">${episodeStats.watched}<small>/${episodeStats.total}</small></div>
+          <div className="label">Episodes Watched</div>
         </div>
       </div>
 

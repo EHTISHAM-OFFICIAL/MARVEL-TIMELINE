@@ -48,3 +48,16 @@ export const CONNECTION_LABELS = {
   "legacy-context": "Legacy Context",
   optional: "Optional",
 };
+
+
+export function isSeries(project) {
+  return ["tv-series", "limited-series", "animated-series"].includes(project?.type);
+}
+
+export function episodeProgress(project, data) {
+  if (!isSeries(project) || !project.episodes) return { watched: 0, total: 0, percent: 0 };
+  const episodes = data.projects[project.id]?.episodes || {};
+  const watched = Object.keys(episodes).filter((key) => episodes[key] === true).length;
+  const total = Number(project.episodes) || 0;
+  return { watched, total, percent: total ? Math.round((watched / total) * 100) : 0 };
+}

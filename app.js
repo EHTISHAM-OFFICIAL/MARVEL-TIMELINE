@@ -35,6 +35,8 @@ function App() {
     setRating: store.setRating,
     setNotes: store.setNotes,
     toggleFavorite: store.toggleFavorite,
+    toggleEpisode: store.toggleEpisode,
+    markAllEpisodes: store.markAllEpisodes,
     setWatchedDate: store.setWatchedDate,
     revealSpoilers: store.revealSpoilers,
     setPreference: store.setPreference,

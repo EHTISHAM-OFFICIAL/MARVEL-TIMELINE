@@ -1,12 +1,13 @@
 import { html } from "htm/react";
 import { StatusDot } from "./StatusBadge.js";
-import { getUniverse, formatRuntime, statusOf } from "../utils/helpers.js";
+import { getUniverse, formatRuntime, statusOf, isSeries, episodeProgress } from "../utils/helpers.js";
 
 export function ProjectCard({ project, userData, onOpen }) {
   const u = getUniverse(project.universe);
   const status = statusOf(project.id, userData);
   const userP = userData.projects[project.id] || {};
   const runtime = formatRuntime(project.runtimeMinutes);
+  const ep = episodeProgress(project, userData);
   const length = ["movie", "special", "animated-movie"].includes(project.type)
     ? runtime
     : project.seasons
@@ -40,6 +41,14 @@ export function ProjectCard({ project, userData, onOpen }) {
       </div>
       <div className="title">${project.title}</div>
       <div className="desc">${project.shortDescription}</div>
+      ${isSeries(project) && ep.total
+        ? html`
+            <div className="card-episode-progress">
+              <div className="flex-between"><span>Episodes</span><strong>${ep.watched}/${ep.total}</strong></div>
+              <div className="progress"><div style=${{ width: ep.percent + "%" }}></div></div>
+            </div>
+          `
+        : null}
       <div className="meta">
         <${StatusDot} status=${status} />
         <span>${project.releaseYear}</span>

@@ -95,17 +95,19 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
                 </div>
               </div>
               <div className="episode-grid">
-                ${Array.from({ length: ep.total }, (_, i) => {
-                  const n = i + 1;
-                  const watched = Boolean(watchedEpisodes[String(n)]);
-                  return html`
-                    <button key=${n} className=${"episode-row " + (watched ? "watched" : "")} onClick=${() => actions.toggleEpisode(project.id, n)}>
-                      <span className="episode-check">${watched ? "✓" : "○"}</span>
-                      <span>Episode ${n}</span>
-                      <span className="episode-state">${watched ? "Watched" : "Not watched"}</span>
-                    </button>
-                  `;
-                })}
+                ${(project.episodesBySeason || [ep.total]).flatMap((count, seasonIndex) =>
+                  Array.from({ length: count }, (_, episodeIndex) => {
+                    const globalNumber = (project.episodesBySeason || [ep.total]).slice(0, seasonIndex).reduce((a, b) => a + b, 0) + episodeIndex + 1;
+                    const watched = Boolean(watchedEpisodes[String(globalNumber)]);
+                    return html`
+                      <button key=${"s" + (seasonIndex + 1) + "e" + (episodeIndex + 1)} className=${"episode-row " + (watched ? "watched" : "")} onClick=${() => actions.toggleEpisode(project.id, globalNumber)}>
+                        <span className="episode-check">${watched ? "✓" : "○"}</span>
+                        <span>S${seasonIndex + 1} · E${episodeIndex + 1}</span>
+                        <span className="episode-state">${watched ? "Watched" : "Not watched"}</span>
+                      </button>
+                    `;
+                  })
+                )}
               </div>
             </div>
           ` : null}

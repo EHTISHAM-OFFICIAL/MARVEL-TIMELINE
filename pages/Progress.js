@@ -51,7 +51,19 @@ export function Progress({ userData, onOpen }) {
     );
   };
 
+  const totalCompleted = completed.length;
+  const totalFavorites = order.filter((p) => (userData.projects[p.id] || {}).favorite).length;
+  const rated = order.filter((p) => Number((userData.projects[p.id] || {}).rating) > 0).length;
+  const fullyTracked = order.filter((p) => { if (!isSeries(p)) return statusOf(p.id,userData) === "completed"; const e=episodeProgress(p,userData); return e.total > 0 && e.watched === e.total; }).length;
   const achievements = [
+    { id:"first-step", icon:"🎬", name:"First Scene", desc:"Complete your first project", unlocked: totalCompleted >= 1 },
+    { id:"five", icon:"🥉", name:"Getting Started", desc:"Complete 5 projects", unlocked: totalCompleted >= 5 },
+    { id:"ten", icon:"⭐", name:"Ten Down", desc:"Complete 10 projects", unlocked: totalCompleted >= 10 },
+    { id:"twenty-five", icon:"🏅", name:"Quarter Century", desc:"Complete 25 projects", unlocked: totalCompleted >= 25 },
+    { id:"favorite-five", icon:"💎", name:"Collector", desc:"Add 5 favorites", unlocked: totalFavorites >= 5 },
+    { id:"rated-ten", icon:"📝", name:"Critic", desc:"Rate 10 projects", unlocked: rated >= 10 },
+    { id:"series-master", icon:"📺", name:"Season Finale", desc:"Fully track 5 series", unlocked: fullyTracked >= 5 },
+    { id:"episode-100", icon:"⚡", name:"Episode Hunter", desc:"Watch 100 episodes", unlocked: episodeStats.watched >= 100 },
     {
       id: "phase-1",
       icon: "🏆",
@@ -96,15 +108,15 @@ export function Progress({ userData, onOpen }) {
     },
     {
       id: "fifty",
-      icon: "⭐",
-      name: "50 Projects Watched",
+      icon: "🏆",
+      name: "Half-Century",
       desc: "Complete 50 projects",
       unlocked: completed.length >= 50,
     },
     {
       id: "hundred",
-      icon: "🌟",
-      name: "100 Projects Watched",
+      icon: "👑",
+      name: "Century Club",
       desc: "Complete 100 projects",
       unlocked: completed.length >= 100,
     },

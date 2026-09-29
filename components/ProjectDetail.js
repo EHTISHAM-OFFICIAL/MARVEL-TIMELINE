@@ -10,8 +10,13 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
   const project = getProject(projectId);
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [onClose]);
   if (!project) return null;
 

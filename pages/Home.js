@@ -1,251 +1,29 @@
 import { html } from "htm/react";
 import { useMemo } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
-import { UNIVERSES } from "../data/universes.js";
 import { ProjectCard } from "../components/ProjectCard.js";
-import { ProgressBar } from "../components/ProgressBar.js";
-import { getUniverse, statusOf, passesMode } from "../utils/helpers.js";
+import { PosterProjectCard } from "../components/PosterProjectCard.js";
+import { getUniverse, statusOf, passesMode, isSeries, episodeProgress } from "../utils/helpers.js";
 
 export function Home({ userData, onOpen, onNavigate }) {
-  const prefs = userData.preferences;
-  const visible = useMemo(
-    () =>
-      PROJECTS.filter(
-        (p) =>
-          passesMode(p, prefs.explorationMode) &&
-          !prefs.hiddenUniverses.includes(p.universe),
-      ),
-    [prefs.explorationMode, prefs.hiddenUniverses],
-  );
-
-  const movies = visible.filter((p) =>
-    ["movie", "animated-movie", "special"].includes(p.type),
-  );
-  const series = visible.filter((p) => p.type.includes("series"));
-
-  const moviesDone = movies.filter(
-    (p) => statusOf(p.id, userData) === "completed",
-  ).length;
-  const seriesDone = series.filter(
-    (p) => statusOf(p.id, userData) === "completed",
-  ).length;
-  const total = visible.length;
-  const done = visible.filter(
-    (p) => statusOf(p.id, userData) === "completed",
-  ).length;
-
-  const continueWatching = visible.filter(
-    (p) => statusOf(p.id, userData) === "watching",
-  );
-  const favorites = visible.filter(
-    (p) => (userData.projects[p.id] || {}).favorite,
-  );
-
-  const recentlyCompleted = useMemo(() => {
-    return visible
-      .filter(
-        (p) =>
-          statusOf(p.id, userData) === "completed" &&
-          (userData.projects[p.id] || {}).watchedDate,
-      )
-      .sort((a, b) => {
-        const da = (userData.projects[a.id] || {}).watchedDate || "";
-        const db = (userData.projects[b.id] || {}).watchedDate || "";
-        return db.localeCompare(da);
-      })
-      .slice(0, 6);
-  }, [visible, userData]);
-
-  const nextUp = useMemo(() => {
-    const order =
-      prefs.defaultTimeline === "chronological"
-        ? visible
-            .filter((p) => p.chronologicalOrderIndex != null)
-            .sort(
-              (a, b) => a.chronologicalOrderIndex - b.chronologicalOrderIndex,
-            )
-        : visible
-            .slice()
-            .sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex);
-    return order.find((p) => statusOf(p.id, userData) === "not-started");
-  }, [visible, userData, prefs.defaultTimeline]);
-
-  const byUniverse = useMemo(() => {
-    const map = {};
-    visible.forEach((p) => {
-      if (!map[p.universe]) map[p.universe] = { total: 0, done: 0 };
-      map[p.universe].total++;
-      if (statusOf(p.id, userData) === "completed") map[p.universe].done++;
-    });
-    return map;
-  }, [visible, userData]);
-
-  const byPhase = useMemo(() => {
-    const map = {};
-    visible.forEach((p) => {
-      if (!p.phase) return;
-      if (!map[p.phase]) map[p.phase] = { total: 0, done: 0 };
-      map[p.phase].total++;
-      if (statusOf(p.id, userData) === "completed") map[p.phase].done++;
-    });
-    return map;
-  }, [visible, userData]);
-
+  const prefs=userData.preferences;
+  const visible=useMemo(()=>PROJECTS.filter(p=>passesMode(p,prefs.explorationMode)&&!prefs.hiddenUniverses.includes(p.universe)),[prefs.explorationMode,prefs.hiddenUniverses]);
+  const done=visible.filter(p=>statusOf(p.id,userData)==="completed").length;
+  const watching=visible.filter(p=>statusOf(p.id,userData)==="watching");
+  const favorites=visible.filter(p=>(userData.projects[p.id]||{}).favorite);
+  const episodeStats=visible.reduce((a,p)=>{if(isSeries(p)){const e=episodeProgress(p,userData);a.watched+=e.watched;a.total+=e.total;}return a;},{watched:0,total:0});
+  const nextUp=useMemo(()=>{const order=visible.slice().sort((a,b)=>prefs.defaultTimeline==="chronological"?(a.chronologicalOrderIndex??99999)-(b.chronologicalOrderIndex??99999):a.releaseOrderIndex-b.releaseOrderIndex);return order.find(p=>statusOf(p.id,userData)==="not-started");},[visible,userData,prefs.defaultTimeline]);
+  const recent=useMemo(()=>visible.filter(p=>statusOf(p.id,userData)==="completed"&&(userData.projects[p.id]||{}).watchedDate).sort((a,b)=>((userData.projects[b.id]||{}).watchedDate||"").localeCompare((userData.projects[a.id]||{}).watchedDate||"")).slice(0,6),[visible,userData]);
+  const featured=visible.slice().sort((a,b)=>a.releaseOrderIndex-b.releaseOrderIndex).slice(0,8);
+  const percent=visible.length?Math.round(done/visible.length*100):0;
   return html`
-    <div>
-      <h1>MARVEL JOURNEY</h1>
-      <p className="subtitle">Your personal tracking dashboard</p>
-
-      <div className="stat-grid">
-        <div className="stat">
-          <div className="num">${done}<small> / ${total}</small></div>
-          <div className="label">Overall Completion</div>
-          <${ProgressBar} value=${done} max=${total} />
-        </div>
-        <div className="stat">
-          <div className="num">
-            ${moviesDone}<small> / ${movies.length}</small>
-          </div>
-          <div className="label">Movies & Specials</div>
-          <${ProgressBar}
-            value=${moviesDone}
-            max=${movies.length}
-            className="blue"
-          />
-        </div>
-        <div className="stat">
-          <div className="num">
-            ${seriesDone}<small> / ${series.length}</small>
-          </div>
-          <div className="label">Series</div>
-          <${ProgressBar}
-            value=${seriesDone}
-            max=${series.length}
-            className="purple"
-          />
-        </div>
-        <div className="stat">
-          <div className="num">${favorites.length}</div>
-          <div className="label">Favorites</div>
-        </div>
-      </div>
-
-      ${nextUp
-        ? html`
-            <div className="section-header"><h2>Next Up</h2></div>
-            <div
-              className="card"
-              style=${{
-                "--accent": getUniverse(nextUp.universe).color,
-                cursor: "pointer",
-              }}
-              onClick=${() => onOpen(nextUp.id)}
-            >
-              <div className="type-badge">
-                ${prefs.defaultTimeline === "chronological"
-                  ? "Story order"
-                  : "Release order"}
-              </div>
-              <div className="title" style=${{ fontSize: "17px" }}>
-                ${nextUp.title}
-              </div>
-              <div className="desc">${nextUp.shortDescription}</div>
-              <div className="meta"><span>${nextUp.releaseYear}</span></div>
-            </div>
-          `
-        : null}
-      ${continueWatching.length > 0
-        ? html`
-            <div className="section-header"><h2>Continue Watching</h2></div>
-            <div className="grid">
-              ${continueWatching.map(
-                (p) =>
-                  html`<${ProjectCard}
-                    key=${p.id}
-                    project=${p}
-                    userData=${userData}
-                    onOpen=${onOpen}
-                  />`,
-              )}
-            </div>
-          `
-        : null}
-      ${recentlyCompleted.length > 0
-        ? html`
-            <div className="section-header"><h2>Recently Completed</h2></div>
-            <div className="grid">
-              ${recentlyCompleted.map(
-                (p) =>
-                  html`<${ProjectCard}
-                    key=${p.id}
-                    project=${p}
-                    userData=${userData}
-                    onOpen=${onOpen}
-                  />`,
-              )}
-            </div>
-          `
-        : null}
-      ${favorites.length > 0
-        ? html`
-            <div className="section-header"><h2>Favorites</h2></div>
-            <div className="grid">
-              ${favorites.map(
-                (p) =>
-                  html`<${ProjectCard}
-                    key=${p.id}
-                    project=${p}
-                    userData=${userData}
-                    onOpen=${onOpen}
-                  />`,
-              )}
-            </div>
-          `
-        : null}
-
-      <div className="section-header"><h2>Progress by Universe</h2></div>
-      <div className="grid wide">
-        ${Object.entries(byUniverse)
-          .sort((a, b) => b[1].total - a[1].total)
-          .map(([uid, stats]) => {
-            const u = getUniverse(uid);
-            return html`
-              <div
-                key=${uid}
-                className="universe-card"
-                onClick=${() => onNavigate("universes")}
-              >
-                <div className="earth" style=${{ color: u.color }}>
-                  ${u.earth !== "—" ? u.earth : "—"}
-                </div>
-                <div className="u-name">${u.name}</div>
-                <div className="u-desc">
-                  ${stats.done} / ${stats.total} completed
-                </div>
-                <${ProgressBar} value=${stats.done} max=${stats.total} />
-              </div>
-            `;
-          })}
-      </div>
-
-      <div className="section-header"><h2>Progress by MCU Phase</h2></div>
-      <div className="grid wide">
-        ${[1, 2, 3, 4, 5, 6].map((phase) => {
-          const s = byPhase[phase];
-          if (!s) return null;
-          return html`
-            <div
-              key=${phase}
-              className="universe-card"
-              onClick=${() => onNavigate("timeline")}
-            >
-              <div className="earth">PHASE ${phase}</div>
-              <div className="u-name">${s.done} / ${s.total} completed</div>
-              <${ProgressBar} value=${s.done} max=${s.total} className="blue" />
-            </div>
-          `;
-        })}
-      </div>
-    </div>
-  `;
+    <div className="home-page">
+      <section className="home-hero"><div className="hero-grid"></div><div className="hero-content"><div className="hero-kicker">THE MARVEL ARCHIVE</div><h1>YOUR MARVEL<br/><span>JOURNEY.</span></h1><p>One cinematic command center for everything you are watching, completing, rating and discovering.</p><div className="hero-actions">${nextUp?html`<button className="btn btn-primary" onClick=${()=>onOpen(nextUp.id)}>▶ Continue to ${nextUp.title}</button>`:null}<button className="btn" onClick=${()=>onNavigate("timeline")}>Explore Timeline →</button></div></div><div className="hero-orbit"><div className="hero-orbit-ring"></div><div className="hero-orbit-core">M</div></div></section>
+      <section className="home-command"><div><span className="eyebrow">COMMAND CENTER</span><h2>Your journey at a glance</h2></div><div className="home-progress-ring" style=${{"--progress":percent*3.6+"deg"}}><strong>${percent}%</strong><small>complete</small></div><div className="home-stat"><b>${done}</b><span>Projects completed</span></div><div className="home-stat"><b>${watching.length}</b><span>Currently watching</span></div><div className="home-stat"><b>${episodeStats.watched}</b><span>Episodes watched</span></div><div className="home-stat"><b>${favorites.length}</b><span>Favorites</span></div></section>
+      ${nextUp?html`<section className="home-next card" style=${{"--accent":getUniverse(nextUp.universe).color}} onClick=${()=>onOpen(nextUp.id)}><div><span className="eyebrow">NEXT DESTINATION · ${prefs.defaultTimeline==="chronological"?"STORY ORDER":"RELEASE ORDER"}</span><h2>${nextUp.title}</h2><p>${nextUp.shortDescription}</p></div><div className="next-arrow">→</div></section>`:null}
+      ${watching.length?html`<section><div className="section-header"><h2>Continue Watching</h2><button className="text-btn" onClick=${()=>onNavigate("progress")}>View progress →</button></div><div className="poster-grid home-poster-grid">${watching.slice(0,6).map(p=>html`<${PosterProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen}/>` )}</div></section>`:null}
+      <section><div className="section-header"><h2>Featured Archive</h2><button className="text-btn" onClick=${()=>onNavigate("timeline")}>Open full timeline →</button></div><div className="poster-grid home-poster-grid">${featured.map(p=>html`<${PosterProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen}/>` )}</div></section>
+      ${recent.length?html`<section><div className="section-header"><h2>Recently Completed</h2></div><div className="grid">${recent.map(p=>html`<${ProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen}/>` )}</div></section>`:null}
+      <section className="home-explore"><div><span className="eyebrow">EXPLORE THE ARCHIVE</span><h2>Choose your path</h2><p>Jump between timelines, universes, franchises and connections without losing your personal progress.</p></div><div className="explore-actions"><button onClick=${()=>onNavigate("universes")}>🌌 Universes</button><button onClick=${()=>onNavigate("franchises")}>✦ Franchises</button><button onClick=${()=>onNavigate("map")}>⌘ Connection Map</button><button onClick=${()=>onNavigate("progress")}>🏆 Achievements</button></div></section>
+    </div>`;
 }

@@ -1,0 +1,62 @@
+import { html } from "htm/react";
+
+export const NAV_ITEMS = [
+  { id: "home", label: "Home", icon: "◉" },
+  { id: "timeline", label: "Timeline", icon: "▤" },
+  { id: "universes", label: "Universes", icon: "◈" },
+  { id: "franchises", label: "Franchises", icon: "◆" },
+  { id: "tv", label: "TV & Streaming", icon: "▣" },
+  { id: "animation", label: "Animation", icon: "◐" },
+  { id: "map", label: "Connection Map", icon: "⬡" },
+  { id: "search", label: "Search", icon: "🔍" },
+  { id: "progress", label: "My Progress", icon: "▲" },
+  { id: "favorites", label: "Favorites", icon: "★" },
+  { id: "settings", label: "Settings", icon: "⚙" },
+];
+
+export const MOBILE_NAV = [
+  { id: "home", label: "Home", icon: "◉" },
+  { id: "timeline", label: "Timeline", icon: "▤" },
+  { id: "universes", label: "Universes", icon: "◈" },
+  { id: "search", label: "Search", icon: "🔍" },
+  { id: "progress", label: "Progress", icon: "▲" },
+];
+
+export function Sidebar({ page, onNavigate }) {
+  return html`
+    <aside className="sidebar">
+      <div className="logo">MARVEL<span>Timeline Tracker</span></div>
+      <nav>
+        ${NAV_ITEMS.map(
+          (item) => html`
+            <button
+              key=${item.id}
+              className=${"nav-item " + (page === item.id ? "active" : "")}
+              onClick=${() => onNavigate(item.id)}
+            >
+              <span className="ico">${item.icon}</span> ${item.label}
+            </button>
+          `,
+        )}
+      </nav>
+    </aside>
+  `;
+}
+
+export function MobileNav({ page, onNavigate }) {
+  return html`
+    <nav className="mobile-nav">
+      ${MOBILE_NAV.map(
+        (item) => html`
+          <button
+            key=${item.id}
+            className=${"nav-item " + (page === item.id ? "active" : "")}
+            onClick=${() => onNavigate(item.id)}
+          >
+            <span className="ico">${item.icon}</span> ${item.label}
+          </button>
+        `,
+      )}
+    </nav>
+  `;
+}

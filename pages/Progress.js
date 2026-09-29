@@ -132,6 +132,10 @@ export function Progress({ userData, onOpen }) {
           </div>
           <div className="label">Remaining</div>
         </div>
+        <div className="stat">
+          <div className="num">${episodeStats.watched}<small>/${episodeStats.total}</small></div>
+          <div className="label">Episodes Watched</div>
+        </div>
       </div>
 
       <div className="section-header"><h2>Achievements</h2></div>

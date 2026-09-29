@@ -175,9 +175,5 @@ export function Progress({ userData, onOpen }) {
             </div>`;
           })}</div>`}
     </div>
-          `;
-        })}
-      </div>
-    </div>
   `;
 }

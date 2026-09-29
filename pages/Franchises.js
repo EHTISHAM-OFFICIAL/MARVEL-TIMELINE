@@ -4,10 +4,12 @@ import { FRANCHISES } from "../data/franchises.js";
 import { PROJECTS } from "../data/projects.js";
 import { getUniverse, getFranchise, passesMode } from "../utils/helpers.js";
 import { ProjectCard } from "../components/ProjectCard.js";
+import { PosterProjectCard } from "../components/PosterProjectCard.js";
 
 export function Franchises({ userData, onOpen }) {
   const prefs = userData.preferences;
   const [activeFranchise, setActiveFranchise] = useState(null);
+  const [layout, setLayout] = useState("grid");
   const franchise = activeFranchise ? getFranchise(activeFranchise) : null;
 
   if (franchise) {
@@ -17,7 +19,6 @@ export function Franchises({ userData, onOpen }) {
         passesMode(p, prefs.explorationMode) &&
         !prefs.hiddenUniverses.includes(p.universe),
     );
-
     const byUniverse = {};
     projects.forEach((p) => {
       if (!byUniverse[p.universe]) byUniverse[p.universe] = [];
@@ -26,43 +27,55 @@ export function Franchises({ userData, onOpen }) {
 
     return html`
       <div>
-        <button
-          className="btn ghost sm"
-          onClick=${() => setActiveFranchise(null)}
-          style=${{ marginBottom: "16px" }}
-        >
-          ← All Franchises
-        </button>
-        <h1>${franchise.name}</h1>
-        <p className="subtitle">
-          ${projects.length} projects across ${Object.keys(byUniverse).length}
-          universe${Object.keys(byUniverse).length > 1 ? "s" : ""}
-        </p>
+        <div className="page-heading-row">
+          <div>
+            <button className="btn ghost sm" onClick=${() => setActiveFranchise(null)} style=${{ marginBottom: "12px" }}>← All Franchises</button>
+            <h1>${franchise.name}</h1>
+            <p className="subtitle">
+              ${projects.length} projects across ${Object.keys(byUniverse).length}
+              universe${Object.keys(byUniverse).length > 1 ? "s" : ""}
+            </p>
+          </div>
+          <div className="view-toggle" aria-label="Franchise layout">
+            <button className=${layout === "grid" ? "active" : ""} onClick=${() => setLayout("grid")}>▦ Grid</button>
+            <button className=${layout === "list" ? "active" : ""} onClick=${() => setLayout("list")}>☰ List</button>
+          </div>
+        </div>
 
         ${Object.entries(byUniverse).map(([uid, list]) => {
           const u = getUniverse(uid);
+          const sorted = list.slice().sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex);
           return html`
             <div key=${uid} style=${{ marginBottom: "32px" }}>
               <div className="section-header">
                 <h2 style=${{ color: u.color }}>${u.name}</h2>
-                <span className="text-faint" style=${{ fontSize: "12px" }}
-                  >${u.earth !== "—" ? u.earth : ""}</span
-                >
+                <span className="text-faint" style=${{ fontSize: "12px" }}>
+                  ${u.earth !== "—" ? u.earth : ""}
+                </span>
               </div>
-              <div className="grid">
-                ${list
-                  .sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex)
-                  .map(
-                    (p) => html`
-                      <${ProjectCard}
-                        key=${p.id}
-                        project=${p}
-                        userData=${userData}
-                        onOpen=${onOpen}
-                      />
-                    `,
-                  )}
-              </div>
+              ${layout === "grid"
+                ? html`<div className="poster-grid">
+                    ${sorted.map(
+                      (p) =>
+                        html`<${PosterProjectCard}
+                          key=${p.id}
+                          project=${p}
+                          userData=${userData}
+                          onOpen=${onOpen}
+                        />`,
+                    )}
+                  </div>`
+                : html`<div className="grid">
+                    ${sorted.map(
+                      (p) =>
+                        html`<${ProjectCard}
+                          key=${p.id}
+                          project=${p}
+                          userData=${userData}
+                          onOpen=${onOpen}
+                        />`,
+                    )}
+                  </div>`}
             </div>
           `;
         })}

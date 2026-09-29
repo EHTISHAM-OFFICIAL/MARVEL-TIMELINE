@@ -11,6 +11,7 @@ const DEFAULT_DATA = {
     defaultTimeline: "release",
     showAllSpoilers: false,
     hiddenUniverses: [],
+    theme: "midnight",
   },
 };
 
@@ -21,6 +22,7 @@ function cloneDefault() {
     preferences: {
       ...DEFAULT_DATA.preferences,
       hiddenUniverses: [],
+      theme: "midnight",
     },
   };
 }
@@ -71,6 +73,7 @@ function normalizeData(value) {
       )
     : [];
 
+  const allowedThemes = ["midnight","stark","cosmic","wakanda","mystic","retro"];
   return {
     version: 1,
     projects,
@@ -85,6 +88,7 @@ function normalizeData(value) {
           : base.preferences.defaultTimeline,
       showAllSpoilers: Boolean(preferences.showAllSpoilers),
       hiddenUniverses: hidden,
+      theme: allowedThemes.includes(preferences.theme) ? preferences.theme : base.preferences.theme,
     },
   };
 }

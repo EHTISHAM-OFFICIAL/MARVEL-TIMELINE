@@ -1,47 +1,28 @@
 import { html, useEffect, useState } from "htm/react";
 import { StatusDot } from "./StatusBadge.js";
 import { getUniverse, statusOf, episodeProgress, isSeries } from "../utils/helpers.js";
+import { getTMDBPoster, hasTMDBToken } from "../utils/tmdb.js";
 
 const posterCache = new Map();
 
-function PosterImage({ title, type }) {
-  const [src, setSrc] = useState(() => posterCache.get(title) || "");
+function PosterImage({ project }) {
+  const [src, setSrc] = useState(() => posterCache.get(project.id) || "");
   const [loaded, setLoaded] = useState(Boolean(src));
-
+  const [missing, setMissing] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    if (posterCache.has(title)) {
-      setSrc(posterCache.get(title));
-      setLoaded(true);
-      return () => { cancelled = true; };
-    }
     const controller = new AbortController();
-    const url = "https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=700&titles=" +
-      encodeURIComponent(title) + "&origin=*";
-    fetch(url, { signal: controller.signal })
-      .then((r) => r.json())
-      .then((data) => {
-        const pages = data?.query?.pages || {};
-        const page = Object.values(pages)[0];
-        const image = page?.thumbnail?.source;
-        if (image && !cancelled) {
-          posterCache.set(title, image);
-          setSrc(image);
-          setLoaded(true);
-        }
-      })
-      .catch(() => {});
+    if (!hasTMDBToken()) { setMissing(true); return () => controller.abort(); }
+    getTMDBPoster(project, controller.signal).then((image) => {
+      if (cancelled) return;
+      if (image) { posterCache.set(project.id, image); setSrc(image); setLoaded(false); setMissing(false); } else setMissing(true);
+    });
     return () => { cancelled = true; controller.abort(); };
-  }, [title]);
-
+  }, [project.id, project.title, project.releaseYear]);
   return html`
-    <div className="poster-media">
-      ${src ? html`<img src=${src} alt=${title + " poster"} loading="lazy" onLoad=${() => setLoaded(true)} className=${loaded ? "loaded" : ""} />` : null}
-      <div className="poster-fallback">
-        <span className="poster-fallback-mark">MARVEL</span>
-        <strong>${title}</strong>
-        <small>${type.replace(/-/g, " ")}</small>
-      </div>
+    <div className=${"poster-media " + (loaded ? "has-image" : "")}>
+      ${src ? html`<img src=${src} alt=${project.title + " poster"} loading="lazy" onLoad=${() => setLoaded(true)} onError=${() => { setLoaded(false); setMissing(true); }} className=${loaded ? "loaded" : ""} />` : null}
+      <div className="poster-fallback"><span className="poster-fallback-mark">MARVEL</span><strong>${project.title}</strong><small>${missing ? "Poster unavailable" : "Loading poster…"}</small></div>
       <div className="poster-shade"></div>
     </div>
   `;
@@ -61,7 +42,7 @@ export function PosterProjectCard({ project, userData, onOpen }) {
           onOpen(project.id);
         }
       }}>
-      <${PosterImage} title=${project.title} type=${project.type} />
+      <${PosterImage} project=${project} />
       <div className="poster-card-body">
         <div className="poster-topline">
           <span className="poster-type">${project.type.replace(/-/g, " ")}</span>

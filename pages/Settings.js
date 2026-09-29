@@ -151,6 +151,18 @@ export function Settings({ userData, actions }) {
         </div>
       </div>
 
+      <div className="detail-section">
+        <label>Poster Data — TMDB</label>
+        <p className="text-faint" style=${{ fontSize: "12px", marginTop: "0" }}>Add your TMDB API Read Access Token to load official movie and TV posters. The token is stored only in this browser.</p>
+        <input type="password" value=${localStorage.getItem("marvel-timeline-tmdb-token") || ""} placeholder="TMDB API Read Access Token"
+          onChange=${(e) => { const value = e.target.value.trim(); if (value) localStorage.setItem("marvel-timeline-tmdb-token", value); else localStorage.removeItem("marvel-timeline-tmdb-token"); }} style=${{ width: "100%" }} />
+        <div className="flex gap-8" style=${{ marginTop: "10px", flexWrap: "wrap" }}>
+          <button className="btn" onClick=${() => location.reload()}>Apply Poster API</button>
+          <button className="btn" onClick=${() => { localStorage.removeItem("marvel-timeline-tmdb-token"); location.reload(); }}>Clear Token</button>
+        </div>
+        <p className="text-faint" style=${{ fontSize: "11px", marginTop: "8px" }}>TMDB attribution is required. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+      </div>
+
       <div
         className="detail-section"
         style=${{ borderTop: "1px solid var(--border)", paddingTop: "20px" }}

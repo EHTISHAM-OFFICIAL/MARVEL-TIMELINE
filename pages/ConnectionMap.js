@@ -43,8 +43,8 @@ export function ConnectionMap({ userData, onOpen }) {
     if (!el) return t;
     const vw = el.clientWidth || 900, vh = el.clientHeight || 600, pad = 30;
     const contentW = canvasBounds.width * t.scale, contentH = canvasBounds.height * t.scale;
-    const minX = Math.min(pad, vw - contentW - pad), maxX = Math.max(pad, vw - contentW - pad);
-    const minY = Math.min(pad, vh - contentH - pad), maxY = Math.max(pad, vh - contentH - pad);
+    const minX = Math.min(pad, vw - contentW - pad), maxX = pad;
+    const minY = Math.min(pad, vh - contentH - pad), maxY = pad;
     return { ...t, x: Math.max(minX, Math.min(maxX, t.x)), y: Math.max(minY, Math.min(maxY, t.y)) };
   };
 

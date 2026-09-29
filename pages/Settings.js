@@ -46,6 +46,24 @@ export function Settings({ userData, actions }) {
       <h1>Settings</h1>
       <p className="subtitle">Customize how you explore the Marvel catalog</p>
 
+      <div className="detail-section theme-section">
+        <label>Visual Theme</label>
+        <p className="text-faint theme-help">Choose the atmosphere for your entire tracker. Your choice is saved locally.</p>
+        <div className="theme-grid">
+          ${[
+            ["midnight","Midnight","Cinematic black · crimson"],
+            ["stark","Stark","Clean steel · red"],
+            ["cosmic","Cosmic","Deep space · violet"],
+            ["wakanda","Wakanda","Obsidian · royal purple"],
+            ["mystic","Mystic","Arcane night · cyan"],
+            ["retro","Retro Marvel","Classic dark · golden"],
+          ].map(([id,name,desc]) => html`
+            <button type="button" className=${"theme-option " + (prefs.theme === id ? "active" : "")} onClick=${() => actions.setPreference("theme", id)}>
+              <span className=${"theme-swatch theme-" + id}></span><span><strong>${name}</strong><small>${desc}</small></span>${prefs.theme === id ? html`<b>✓</b>` : null}
+            </button>`)}
+        </div>
+      </div>
+
       <div className="detail-section">
         <label>Exploration Mode</label>
         <select

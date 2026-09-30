@@ -23,14 +23,35 @@ export function useAuth() {
 
   useEffect(() => {
     let alive = true;
-    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
-      if (!alive) return;
-      setUser(nextUser);
-      setLoading(false);
-    });
+    let unsubscribe = null;
+
+    // Do not subscribe to Firebase Auth until its browser persistence has
+    // finished restoring. Subscribing immediately can briefly report
+    // null during startup, which is especially problematic on /admin because
+    // the app may render the login screen before the restored admin session
+    // arrives.
+    authPersistenceReady
+      .then(() => {
+        if (!alive) return;
+        unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+          if (!alive) return;
+          setUser(nextUser);
+          setLoading(false);
+        });
+      })
+      .catch((error) => {
+        console.warn("Firebase Auth persistence initialization failed.", error);
+        if (!alive) return;
+        unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+          if (!alive) return;
+          setUser(nextUser);
+          setLoading(false);
+        });
+      });
+
     return () => {
       alive = false;
-      unsubscribe();
+      if (unsubscribe) unsubscribe();
     };
   }, []);
 

@@ -3,9 +3,17 @@ import { collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc } 
 import { db } from "../firebase.js";
 import { DEFAULT_SITE_CONFIG, setRuntimeConfig } from "./siteConfig.js";
 
+// Bootstrap administrator. This is only a UI optimization; Firestore Rules
+// independently enforce the same UID server-side.
+export const BOOTSTRAP_ADMIN_UID = "025r87YHM0bE9B7onPItzwp5jct1";
+
 export function useAdminAccess(user){
  const [state,setState]=useState({loading:Boolean(user),isAdmin:false,error:""});
  useEffect(()=>{let alive=true;if(!user){setState({loading:false,isAdmin:false,error:""});return()=>{alive=false;};}setState({loading:true,isAdmin:false,error:""});
+ if(user.uid===BOOTSTRAP_ADMIN_UID){
+  if(alive)setState({loading:false,isAdmin:true,error:""});
+  return()=>{alive=false;};
+ }
  getDoc(doc(db,"admins",user.uid)).then(s=>{
   if(!alive)return;
   if(s.exists()&&s.data()?.enabled===true){
@@ -13,7 +21,7 @@ export function useAdminAccess(user){
   }else{
     setState({loading:false,isAdmin:false,error:"This account is not authorized to open the administrator panel."});
   }
-}).catch(error=>{
+ }).catch(error=>{
   if(!alive)return;
   setState({
     loading:false,

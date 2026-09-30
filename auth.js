@@ -38,6 +38,10 @@ export async function adminLogin(email, password) {
     throw error;
   }
 
+  // Administrators are a separate account class. Remove any legacy tracker
+  // document so an administrator can never appear in the normal user list.
+  await deleteDoc(doc(db, "users", credential.user.uid));
+
   return credential.user;
 }
 
@@ -83,6 +87,7 @@ export function authErrorMessage(error) {
     "auth/network-request-failed": "Network error. Check your connection and try again.",
     "auth/operation-not-allowed": "Email/password sign-in is not enabled in Firebase yet.",
     "auth/requires-recent-login": "For security, please sign in again before deleting your account.",
+    "auth/not-admin": "This account is not authorized to access the administrator panel.",
   };
   return messages[error?.code] || error?.message || "Authentication failed. Please try again.";
 }

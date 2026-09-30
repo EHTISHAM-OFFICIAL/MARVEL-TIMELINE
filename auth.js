@@ -23,8 +23,19 @@ export function useAuth() {
   return { user, loading };
 }
 
-export const login = (email, password) =>
-  signInWithEmailAndPassword(auth, email.trim(), password);
+export async function login(email, password) {
+  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+  const adminSnap = await getDoc(doc(db, "admins", credential.user.uid));
+
+  if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
+    await signOut(auth);
+    const error = new Error("This administrator account must use the administrator sign-in at /admin.");
+    error.code = "auth/admin-account";
+    throw error;
+  }
+
+  return credential.user;
+}
 
 export async function adminLogin(email, password) {
   // Firebase proves the password. The Firestore admin record proves authorization.
@@ -88,6 +99,7 @@ export function authErrorMessage(error) {
     "auth/operation-not-allowed": "Email/password sign-in is not enabled in Firebase yet.",
     "auth/requires-recent-login": "For security, please sign in again before deleting your account.",
     "auth/not-admin": "This account is not authorized to access the administrator panel.",
+    "auth/admin-account": "This administrator account must use the administrator sign-in at /admin.",
   };
   return messages[error?.code] || error?.message || "Authentication failed. Please try again.";
 }

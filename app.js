@@ -30,7 +30,7 @@ function App() {
     ? null
     : adminAccess.isAdmin;
   const store = useUserData(authState.user, accountMode);
-  const siteConfig = useSiteConfig();
+  const siteConfig = useSiteConfig(authState.user);
   const getRoute = () => isAdminRoute() ? "admin" : "home";
   const [page, setPage] = useState(getRoute);
   const [openProjectId, setOpenProjectId] = useState(null);

@@ -10,7 +10,7 @@ import {
   signOut,
   updateProfile,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { auth, db } from "./firebase.js";
 
 export function useAuth() {
@@ -25,6 +25,21 @@ export function useAuth() {
 
 export const login = (email, password) =>
   signInWithEmailAndPassword(auth, email.trim(), password);
+
+export async function adminLogin(email, password) {
+  // Firebase proves the password. The Firestore admin record proves authorization.
+  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+  const adminSnap = await getDoc(doc(db, "admins", credential.user.uid));
+
+  if (!adminSnap.exists() || adminSnap.data()?.enabled !== true) {
+    await signOut(auth);
+    const error = new Error("This account is not authorized to access the administrator panel.");
+    error.code = "auth/not-admin";
+    throw error;
+  }
+
+  return credential.user;
+}
 
 export async function signup(email, password, displayName) {
   const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);

@@ -13,7 +13,9 @@ service cloud.firestore {
     }
 
     match /admins/{adminId} {
-      allow read: if isAdmin();
+      // A signed-in user may read only their own admin record so the app can
+      // determine whether /admin is available. Admins can manage all records.
+      allow read: if signedIn() && (request.auth.uid == adminId || isAdmin());
       allow create, update, delete: if isAdmin();
     }
 

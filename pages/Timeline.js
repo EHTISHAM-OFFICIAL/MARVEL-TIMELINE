@@ -1,6 +1,6 @@
 import { html, useState, useMemo } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
-import { getUniverse, statusOf, passesMode } from "../utils/helpers.js";
+import { getUniverse, statusOf, passesMode, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 import { StatusDot } from "../components/StatusBadge.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
 
@@ -10,13 +10,13 @@ export function Timeline({ userData, onOpen }) {
   const [layout, setLayout] = useState("grid");
 
   const visible = useMemo(
-    () => PROJECTS.filter((p) => passesMode(p, prefs.explorationMode) && !prefs.hiddenUniverses.includes(p.universe)),
+    () => expandProjectsBySeasons(PROJECTS).filter((p) => passesMode(p, prefs.explorationMode) && !prefs.hiddenUniverses.includes(p.universe)),
     [prefs.explorationMode, prefs.hiddenUniverses],
   );
 
   const sorted = useMemo(() => {
     const list = visible.slice();
-    if (view === "chronological") return list.sort((a,b) => (a.chronologicalOrderIndex ?? Number.MAX_SAFE_INTEGER) - (b.chronologicalOrderIndex ?? Number.MAX_SAFE_INTEGER) || a.releaseOrderIndex - b.releaseOrderIndex);
+    if (view === "chronological") return list.sort((a,b) => (a.chronologicalOrderIndex ?? Number.MAX_SAFE_INTEGER) - (b.chronologicalOrderIndex ?? Number.MAX_SAFE_INTEGER) || displayReleaseOrder(a) - displayReleaseOrder(b));
     if (view === "phase") return list.sort((a,b) => (a.phase ?? Number.MAX_SAFE_INTEGER) - (b.phase ?? Number.MAX_SAFE_INTEGER) || a.releaseOrderIndex - b.releaseOrderIndex);
     if (view === "universe") return list.sort((a,b) => getUniverse(a.universe).name.localeCompare(getUniverse(b.universe).name) || a.releaseOrderIndex - b.releaseOrderIndex);
     return list.sort((a,b) => a.releaseOrderIndex - b.releaseOrderIndex);

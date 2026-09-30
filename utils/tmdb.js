@@ -15,5 +15,6 @@ export function hasTMDBToken() {
 }
 
 export async function getTMDBPoster(project) {
-  return getRuntimeConfig().posters?.[project.id] || "";
+  const posters = getRuntimeConfig().posters || {};
+  return posters?.[project.id] || posters?.[project.baseProjectId || project.id] || "";
 }

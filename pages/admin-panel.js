@@ -1,5 +1,6 @@
 import { html, useEffect, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
+import { expandProjectsBySeasons } from "../utils/helpers.js";
 import { DEFAULT_SITE_CONFIG, applyThemePackage } from "../store/siteConfig.js";
 import {
   loadAdminConfig,
@@ -75,12 +76,28 @@ const formatEpisodeKey = (key) => {
 };
 
 const getWatchHistory = (d) =>
-  PROJECTS.map((project) => {
-    const state = d?.projects?.[project.id];
+  expandProjectsBySeasons(PROJECTS).map((project) => {
+    const baseId = project.baseProjectId || project.id;
+    const state = d?.projects?.[baseId];
     if (!state) return null;
-    const watchedEpisodes = Object.entries(state.episodes || {}).filter(
+    const allWatchedEpisodes = Object.entries(state.episodes || {}).filter(
       ([, value]) => Boolean(value),
     );
+    const base = PROJECTS.find((p) => p.id === baseId);
+    const offset = project.seasonNumber && Array.isArray(base?.episodesBySeason)
+      ? base.episodesBySeason
+          .slice(0, project.seasonNumber - 1)
+          .reduce((a, b) => a + b, 0)
+      : 0;
+    const total = Number(project.episodes || 0);
+    const watchedEpisodes = project.seasonNumber
+      ? allWatchedEpisodes
+          .filter(([key]) => Number(key) > offset && Number(key) <= offset + total)
+          .map(([key]) => [
+            "S" + project.seasonNumber + " · E" + (Number(key) - offset),
+            true,
+          ])
+      : allWatchedEpisodes.map(([key, value]) => [formatEpisodeKey(key), value]);
     const watched =
       state.status === "completed" ||
       state.status === "watching" ||

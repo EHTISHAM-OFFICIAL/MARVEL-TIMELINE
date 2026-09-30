@@ -16,11 +16,10 @@ export const MOBILE_NAV = [
 ];
 
 export function Sidebar({ page, onNavigate, user, onSignOut, isAdmin=false, siteConfig }) {
-  const items = isAdmin ? [...NAV_ITEMS, { id: "admin", label: "Admin Console", icon: "⌘" }] : NAV_ITEMS;
   return html`
     <aside className="sidebar">
       <div className="logo">${siteConfig?.site?.brand || "MARVEL"}<span>${siteConfig?.site?.tagline || "Timeline Tracker"}</span></div>
-      <nav>${items.map((item) => html`
+      <nav>${NAV_ITEMS.map((item) => html`
         <button key=${item.id} className=${"nav-item " + (page === item.id ? "active" : "")} onClick=${() => onNavigate(item.id)}>
           <span className="ico">${item.icon}</span> ${item.label}
         </button>` )}</nav>

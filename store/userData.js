@@ -165,10 +165,13 @@ export function useUserData(user) {
 
   useEffect(() => {
     if (!user || !ready || syncError) return;
-    saveCloudData(user, data).catch((error) => {
-      console.error("Could not save Marvel cloud data:", error);
-      setSyncError("Cloud sync failed. Please check your connection.");
-    });
+    const timer = setTimeout(() => {
+      saveCloudData(user, data).catch((error) => {
+        console.error("Could not save Marvel cloud data:", error);
+        setSyncError("Cloud sync failed. Please check your connection.");
+      });
+    }, 500);
+    return () => clearTimeout(timer);
   }, [user?.uid, ready, data]);
 
   const updateProject = useCallback((projectId, patch) => {

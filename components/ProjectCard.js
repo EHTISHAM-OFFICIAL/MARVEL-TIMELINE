@@ -5,7 +5,7 @@ import { getUniverse, formatRuntime, statusOf, isSeries, episodeProgress } from 
 export function ProjectCard({ project, userData, onOpen }) {
   const u = getUniverse(project.universe);
   const status = statusOf(project.id, userData);
-  const userP = userData.projects[project.id] || {};
+  const userP = userData.projects[project.baseProjectId || project.id] || {};
   const runtime = formatRuntime(project.runtimeMinutes);
   const ep = episodeProgress(project, userData);
   const length = ["movie", "special", "animated-movie"].includes(project.type)

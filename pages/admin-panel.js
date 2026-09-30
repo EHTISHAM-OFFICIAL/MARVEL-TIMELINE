@@ -32,7 +32,7 @@ const fields = [
   ["glow1", "Top glow"],
   ["glow2", "Bottom glow"],
 ];
-const metrics = (d) => {
+const localDateTimeValue = (iso) => {\n  if (!iso) return "";\n  const d = new Date(iso);\n  if (Number.isNaN(d.getTime())) return "";\n  const pad = (n) => String(n).padStart(2, "0");\n  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());\n};\n\nconst metrics = (d) => {
   const p = Object.values(d.projects || {});
   return {
     completed: p.filter((x) => x.status === "completed").length,
@@ -527,16 +527,7 @@ export function Admin({ user, onSignOut }) {
                       ...c,
                       site: { ...c.site, welcomeText: e.target.value },
                     }))}
-                /><label className="switch-row"
-                  ><input
-                    type="checkbox"
-                    checked=${Boolean(config.site?.maintenance)}
-                    onChange=${(e) =>
-                      setConfig((c) => ({
-                        ...c,
-                        site: { ...c.site, maintenance: e.target.checked },
-                      }))}
-                  /><span>Maintenance mode</span></label
+                /><div className="maintenance-control">\n                  <div className="maintenance-control-head">\n                    <div><h3>Maintenance mode</h3><p>Temporarily block the public website while you work on it.</p></div>\n                    <label className="switch-row maintenance-switch"><input type="checkbox" checked=${Boolean(config.site?.maintenance)} onChange=${(e) => setConfig((c) => ({ ...c, site: { ...c.site, maintenance: e.target.checked, maintenanceReopenAt: e.target.checked ? (c.site?.maintenanceReopenAt || null) : null } }))} /><span>${config.site?.maintenance ? "Enabled" : "Disabled"}</span></label>\n                  </div>\n                  <label>Maintenance heading</label><input value=${config.site?.maintenanceTitle || "We are tuning the archive"} onInput=${(e) => setConfig((c) => ({ ...c, site: { ...c.site, maintenanceTitle: e.target.value } }))} />\n                  <label>Maintenance message</label><textarea value=${config.site?.maintenanceMessage || "The website is temporarily unavailable while maintenance is being performed."} onInput=${(e) => setConfig((c) => ({ ...c, site: { ...c.site, maintenanceMessage: e.target.value } }))} />\n                  <div className="maintenance-schedule"><div><label>Optional automatic reopen</label><p>Choose the date and time when maintenance should automatically end.</p></div><input type="datetime-local" disabled=${!config.site?.maintenance} value=${localDateTimeValue(config.site?.maintenanceReopenAt)} onInput=${(e) => setConfig((c) => ({ ...c, site: { ...c.site, maintenanceReopenAt: e.target.value ? new Date(e.target.value).toISOString() : null } }))} /></div>\n                  ${config.site?.maintenanceReopenAt ? html`<div className="maintenance-schedule-status">Scheduled to reopen: <strong>${new Date(config.site.maintenanceReopenAt).toLocaleString()}</strong></div>` : null}\n                </div>
                 ><button
                   className="btn primary"
                   disabled=${busy}

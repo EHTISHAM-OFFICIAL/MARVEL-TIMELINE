@@ -1,4 +1,5 @@
-import { getRuntimeConfig } from "../store/siteConfig.js";\nconst TOKEN_KEY = "marvel-timeline-tmdb-token";
+import { getRuntimeConfig } from "../store/siteConfig.js";
+const TOKEN_KEY = "marvel-timeline-tmdb-token";
 const cache = new Map();
 const pending = new Map();
 export function getTMDBToken() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch { return ""; } }
@@ -29,5 +30,6 @@ async function searchTMDB(project, signal) {
   })().catch(() => "");
   pending.set(key, promise); try { return await promise; } finally { pending.delete(key); }
 }
-export async function getTMDBPoster(project, signal) {\n  const publicPoster = getRuntimeConfig().posters?.[project.id];\n  if (publicPoster) return publicPoster;\n  const path = await searchTMDB(project, signal);\n  return path ? "https://image.tmdb.org/t/p/w500" + path : "";\n}
+export async function getTMDBPoster(project, signal) {
+  const publicPoster = getRuntimeConfig().posters?.[project.id];\n  if (publicPoster) return publicPoster;\n  const path = await searchTMDB(project, signal);\n  return path ? "https://image.tmdb.org/t/p/w500" + path : "";\n}
 export { TOKEN_KEY };

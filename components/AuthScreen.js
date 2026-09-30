@@ -9,7 +9,10 @@ export function AuthScreen({ adminMode=false }) {
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => {
+    if (!adminMode) return "";
+    try { return sessionStorage.getItem("marvel-admin-login-error") || ""; } catch { return ""; }
+  });
 
   const switchMode = (next) => { setMode(next); setMessage(""); setError(""); };
 
@@ -22,11 +25,27 @@ export function AuthScreen({ adminMode=false }) {
       if (password !== confirm) { setError("Passwords do not match."); return; }
     }
     setBusy(true);
+    if (adminMode) {
+      try { sessionStorage.removeItem("marvel-admin-login-error"); } catch {}
+    }
     try {
-      if (mode === "login") await (adminMode ? adminLogin(email, password) : login(email, password));
-      else await signup(email, password, displayName);
-    } catch (err) { setError(authErrorMessage(err)); }
-    finally { setBusy(false); }
+      if (mode === "login") {
+        if (adminMode) {
+          await adminLogin(email, password);
+          try { sessionStorage.removeItem("marvel-admin-login-error"); } catch {}
+        } else {
+          await login(email, password);
+        }
+      } else {
+        await signup(email, password, displayName);
+      }
+    } catch (err) {
+      const friendly = authErrorMessage(err);
+      setError(friendly);
+      if (adminMode) {
+        try { sessionStorage.setItem("marvel-admin-login-error", friendly); } catch {}
+      }
+    } finally { setBusy(false); }
   };
 
   const forgot = async () => {

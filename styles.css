@@ -2333,3 +2333,65 @@ label { color: var(--text-dim); }
 .maintenance-card h2{margin:0 0 12px;font-size:30px;letter-spacing:-.7px}.maintenance-card p{max-width:520px;margin:0 auto;color:var(--text-dim);line-height:1.7}
 .maintenance-reopen{margin-top:20px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-3);color:var(--text-faint);font-size:12px}.maintenance-reopen strong{color:var(--text)}
 @media(max-width:700px){.maintenance-control-head{align-items:flex-start;flex-direction:column}.maintenance-switch{justify-content:flex-start}.maintenance-schedule{grid-template-columns:1fr}.maintenance-card{padding:32px 22px}.maintenance-card h2{font-size:25px}}
+
+
+/* Universal form control polish */
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+textarea,
+select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-3);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.4;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):hover,
+textarea:hover,
+select:hover {
+  border-color: var(--border-bright);
+  background: var(--card);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
+textarea:focus,
+select:focus {
+  border-color: var(--red);
+  background: var(--card);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 12%, transparent), inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+select {
+  cursor: pointer;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-faint);
+  opacity: 1;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* Keep compact controls and specialized widgets compact. */
+.theme-color-picker { width: 48px !important; min-height: 42px !important; padding: 3px !important; }
+.theme-color-text { min-height: 42px !important; }

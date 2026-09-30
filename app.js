@@ -23,6 +23,7 @@ import { useSiteConfig, applyThemePackage } from "./store/siteConfig.js";
 function App() {
   const authState = useAuth();
   const adminAccess = useAdminAccess(authState.user);
+  const isAdminRoute = () => window.location.pathname.replace(/\/+$/, "") === "/admin";
   // On /admin, never start the normal user-data path while administrator verification has failed.
   // That used to produce a misleading second "Missing or insufficient permissions" error.
   const accountMode = adminAccess.loading || (isAdminRoute() && adminAccess.error)
@@ -30,7 +31,6 @@ function App() {
     : adminAccess.isAdmin;
   const store = useUserData(authState.user, accountMode);
   const siteConfig = useSiteConfig();
-  const isAdminRoute = () => window.location.pathname.replace(/\/+$/, "") === "/admin";
   const getRoute = () => isAdminRoute() ? "admin" : "home";
   const [page, setPage] = useState(getRoute);
   const [openProjectId, setOpenProjectId] = useState(null);

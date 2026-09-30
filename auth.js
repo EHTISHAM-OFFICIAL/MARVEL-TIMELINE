@@ -10,7 +10,7 @@ import {
   signOut,
   updateProfile,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { auth, db } from "./firebase.js";
 
 export function useAuth() {

@@ -37,10 +37,10 @@ function App() {
     setWatchedDate: store.setWatchedDate, revealSpoilers: store.revealSpoilers, setPreference: store.setPreference,
     toggleUniverseHidden: store.toggleUniverseHidden, importData: store.importData, reset: store.reset,
   };
-  useEffect(() => { applyThemePackage(store.data?.preferences?.theme || siteConfig.activeTheme); }, [store.data?.preferences?.theme, siteConfig.activeTheme, siteConfig.themes]);
+  useEffect(() => { applyThemePackage(store.data?.preferences?.theme || siteConfig.activeTheme); document.title = (siteConfig.site?.brand || "MARVEL TIMELINE") + " — " + (siteConfig.site?.tagline || "Marvel Tracker"); }, [store.data?.preferences?.theme, siteConfig.activeTheme, siteConfig.themes, siteConfig.site]);
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} />`;
-  if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;
+  if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;\n  if (siteConfig.site?.maintenance && !adminAccess.loading && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner">✦</div><h2>We are tuning the archive</h2><p>${siteConfig.site?.welcomeText || "The site is temporarily unavailable."}</p></div></main>`;
   const userData = store.data;
   let pageEl;
   switch (page) {
@@ -59,7 +59,7 @@ function App() {
     default: pageEl = html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`;
   }
   return html`<div className="app">
-    <${Sidebar} page=${page} onNavigate=${setPage} user=${authState.user} onSignOut=${logout} isAdmin=${adminAccess.isAdmin} />
+    <${Sidebar} page=${page} onNavigate=${setPage} user=${authState.user} onSignOut=${logout} isAdmin=${adminAccess.isAdmin} siteConfig=${siteConfig} />
     <main className="main">
       ${store.syncError ? html`<div className="sync-warning">⚠ ${store.syncError} <button onClick=${() => location.reload()}>Retry</button></div>` : null}
       ${pageEl}

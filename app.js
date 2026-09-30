@@ -1,6 +1,6 @@
 import { html, render } from "htm/react";
 import { useState, useEffect, useCallback } from "htm/react";
-import { useAuth, logout } from "./auth.js";
+import { useAuth, logout, deleteAccount, authErrorMessage } from "./auth.js";
 import { useUserData } from "./store/userData.js";
 import { AuthScreen } from "./components/AuthScreen.js";
 import { Sidebar, MobileNav } from "./components/Navigation.js";
@@ -51,6 +51,27 @@ function App() {
   }, []);
   const openProject = useCallback((id) => setOpenProjectId(id), []);
   const closeProject = useCallback(() => setOpenProjectId(null), []);
+  const handleDeleteAccount = useCallback(async () => {
+    if (!authState.user) return;
+    const confirmed = confirm(
+      "Delete your account permanently? Your Marvel tracking data, favorites, ratings, notes, episode progress, preferences, and account access will be deleted. This cannot be undone."
+    );
+    if (!confirmed) return;
+
+    const password = prompt("For security, enter your account password to confirm deletion.");
+    if (password === null) return;
+    if (!password) {
+      alert("A password is required to delete the account.");
+      return;
+    }
+
+    try {
+      await deleteAccount(password);
+      alert("Your account has been permanently deleted.");
+    } catch (error) {
+      alert(authErrorMessage(error));
+    }
+  }, [authState.user]);
   const actions = {
     setStatus: store.setStatus, setRating: store.setRating, setNotes: store.setNotes,
     toggleFavorite: store.toggleFavorite, toggleEpisode: store.toggleEpisode, markAllEpisodes: store.markAllEpisodes,
@@ -80,7 +101,7 @@ function App() {
     default: pageEl = html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`;
   }
   return html`<div className="app">
-    <${Sidebar} page=${page} onNavigate=${navigate} user=${authState.user} onSignOut=${logout} isAdmin=${adminAccess.isAdmin} siteConfig=${siteConfig} />
+    <${Sidebar} page=${page} onNavigate=${navigate} user=${authState.user} onSignOut=${logout} onDeleteAccount=${handleDeleteAccount} isAdmin=${adminAccess.isAdmin} siteConfig=${siteConfig} />
     <main className="main">
       ${store.syncError ? html`<div className="sync-warning">⚠ ${store.syncError} <button onClick=${() => location.reload()}>Retry</button></div>` : null}
       ${pageEl}
@@ -88,6 +109,7 @@ function App() {
     <${MobileNav} page=${page} onNavigate=${navigate} isAdmin=${adminAccess.isAdmin} />
     ${openProjectId ? html`<${ProjectDetail} projectId=${openProjectId} userData=${userData} actions=${actions} onClose=${closeProject} />` : null}
   </div>`;
+
 }
 
 render(html`<${App} />`, document.getElementById("root"));

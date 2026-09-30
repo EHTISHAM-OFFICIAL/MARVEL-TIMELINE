@@ -56,7 +56,8 @@ function App() {
     case "search": pageEl = html`<${Search} userData=${userData} onOpen=${openProject} />`; break;
     case "progress": pageEl = html`<${Progress} userData=${userData} onOpen=${openProject} />`; break;
     case "favorites": pageEl = html`<${Favorites} userData=${userData} onOpen=${openProject} />`; break;
-    case "settings": pageEl = html`<${Settings} userData=${userData} actions=${actions} user=${authState.user} onSignOut=${logout} />`; break;\n    case "admin": pageEl = adminAccess.isAdmin ? html`<${Admin} user=${authState.user} onSignOut=${logout} />` : html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`; break;
+    case "settings": pageEl = html`<${Settings} userData=${userData} actions=${actions} user=${authState.user} onSignOut=${logout} />`; break;
+    case "admin": pageEl = adminAccess.isAdmin ? html`<${Admin} user=${authState.user} onSignOut=${logout} />` : html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`; break;
     default: pageEl = html`<${Home} userData=${userData} onOpen=${openProject} onNavigate=${navigate} />`;
   }
   return html`<div className="app">

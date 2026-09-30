@@ -31,5 +31,9 @@ async function searchTMDB(project, signal) {
   pending.set(key, promise); try { return await promise; } finally { pending.delete(key); }
 }
 export async function getTMDBPoster(project, signal) {
-  const publicPoster = getRuntimeConfig().posters?.[project.id];\n  if (publicPoster) return publicPoster;\n  const path = await searchTMDB(project, signal);\n  return path ? "https://image.tmdb.org/t/p/w500" + path : "";\n}
+  const publicPoster = getRuntimeConfig().posters?.[project.id];
+  if (publicPoster) return publicPoster;
+  const path = await searchTMDB(project, signal);
+  return path ? "https://image.tmdb.org/t/p/w500" + path : "";
+}
 export { TOKEN_KEY };

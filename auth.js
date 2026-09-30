@@ -37,10 +37,10 @@ export async function adminLogin(email, password) {
     throw error;
   }
 
-  // The admin sign-in has its own entry point. Explicitly move to /admin
-  // so the administrator flow can never accidentally fall through to the
-  // normal tracker route.
-  window.location.replace("/admin");
+  // The administrator login page is already mounted at /admin. Do not reload
+  // the document here: Firebase Auth state is asynchronous, and a hard
+  // navigation can race the initial auth restoration. Let App react to the
+  // authenticated user and render the admin console in the existing SPA.
   return credential.user;
 }
 

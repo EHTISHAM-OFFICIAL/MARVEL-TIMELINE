@@ -23,7 +23,12 @@ import { useSiteConfig, applyThemePackage } from "./store/siteConfig.js";
 function App() {
   const authState = useAuth();
   const adminAccess = useAdminAccess(authState.user);
-  const store = useUserData(authState.user, adminAccess.loading ? null : adminAccess.isAdmin);
+  // On /admin, never start the normal user-data path while administrator verification has failed.
+  // That used to produce a misleading second "Missing or insufficient permissions" error.
+  const accountMode = adminAccess.loading || (isAdminRoute() && adminAccess.error)
+    ? null
+    : adminAccess.isAdmin;
+  const store = useUserData(authState.user, accountMode);
   const siteConfig = useSiteConfig();
   const isAdminRoute = () => window.location.pathname.replace(/\/+$/, "") === "/admin";
   const getRoute = () => isAdminRoute() ? "admin" : "home";
@@ -93,7 +98,10 @@ function App() {
   if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
   if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><h2>Administrator access unavailable</h2><p>${adminAccess.error || "This account is not authorized to access the administrator panel."}</p><button className="btn" onClick=${logout}>Return to sign in</button></div></main>`;
-  if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;
+  if (!store.ready) {
+    if (store.syncError) return html`<main className="auth-loading"><div className="cloud-error-card"><div className="cloud-error-icon">!</div><h2>Cloud sync unavailable</h2><p>${store.syncError}</p><div className="cloud-error-actions"><button className="btn" onClick=${() => location.reload()}>Retry</button><button className="btn" onClick=${logout}>Sign out</button></div></div></main>`;
+    return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;
+  }
   if (siteConfig.site?.maintenance && !adminAccess.loading && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner">✦</div><h2>We are tuning the archive</h2><p>${siteConfig.site?.welcomeText || "The site is temporarily unavailable."}</p></div></main>`;
   const userData = store.data;
   let pageEl;

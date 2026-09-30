@@ -29,18 +29,29 @@ export const login = (email, password) =>
 export async function adminLogin(email, password) {
   // Firebase proves the password. The Firestore admin record proves authorization.
   const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
-  const adminSnap = await getDoc(doc(db, "admins", credential.user.uid));
 
-  if (!adminSnap.exists() || adminSnap.data()?.enabled !== true) {
-    await signOut(auth);
-    const error = new Error("This account is not authorized to access the administrator panel.");
-    error.code = "auth/not-admin";
+  try {
+    const adminSnap = await getDoc(doc(db, "admins", credential.user.uid));
+
+    if (!adminSnap.exists() || adminSnap.data()?.enabled !== true) {
+      await signOut(auth);
+      const error = new Error("This account is not authorized to access the administrator panel.");
+      error.code = "auth/not-admin";
+      throw error;
+    }
+
+    return credential.user;
+  } catch (error) {
+    // Never leave a partially authenticated admin session behind when the
+    // authorization check cannot be completed.
+    try { await signOut(auth); } catch {}
+    if (error?.code === "permission-denied") {
+      const friendly = new Error("We couldn’t verify administrator access. Please check that this account has an enabled administrator record.");
+      friendly.code = "auth/admin-verification-failed";
+      throw friendly;
+    }
     throw error;
   }
-
-  // Sign-in only authenticates and authorizes. Do not perform account cleanup
-  // during the login transaction; that made admin sign-in unnecessarily fragile.
-  return credential.user;
 }
 
 export async function signup(email, password, displayName) {
@@ -87,7 +98,8 @@ export function authErrorMessage(error) {
     "auth/requires-recent-login": "For security, please sign in again before deleting your account.",
     "auth/not-admin": "This account is not authorized to access the administrator panel.",
     "auth/admin-account": "This administrator account must use the administrator sign-in at /admin.",
-    "permission-denied": "Administrator authorization could not be verified. Check the administrator record and Firestore rules.",
+    "auth/admin-verification-failed": "We couldn’t verify administrator access. Please check the administrator record and make sure the latest Firestore rules are deployed.",
+    "permission-denied": "You don’t have permission to access this account data. Please sign in again or contact the administrator.",
     "unauthenticated": "Your Firebase session expired. Please sign in again.",
   };
   return messages[error?.code] || error?.message || "Authentication failed. Please try again.";

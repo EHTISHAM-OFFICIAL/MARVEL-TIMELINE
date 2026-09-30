@@ -176,7 +176,11 @@ export function useUserData(user, accountIsAdmin = false) {
         console.error("Could not load Marvel cloud data:", error);
         if (!cancelled) {
           setData(loadLocalData() || cloneDefault());
-          setSyncError("We couldn’t connect to your account data. Your changes are still available here, but they may not be saved online.");
+          const code = error?.code || "unknown-error";
+          const detail = code === "permission-denied"
+            ? "Firebase denied access to this account’s tracker document. This usually means the deployed Firestore rules do not match the current Firebase project, or the signed-in UID is not being allowed by the rules."
+            : `Firebase could not load your tracker data (${code}).`;
+          setSyncError(`${detail} Your local changes are still available, but cloud saving is paused until this is fixed.`);
         }
       } finally {
         if (!cancelled) setReady(true);

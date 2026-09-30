@@ -18,7 +18,7 @@ import { Favorites } from "./pages/Favorites.js";
 import { Settings } from "./pages/Settings.js";
 import { Admin } from "./pages/admin-panel.js?v=20260930-admin-module1";
 import { useAdminAccess } from "./store/admin.js";
-import { useSiteConfig, applyThemePackage } from "./store/siteConfig.js";
+import { useSiteConfig, applyThemePackage, isMaintenanceActive } from "./store/siteConfig.js";
 
 function App() {
   const authState = useAuth();
@@ -32,7 +32,8 @@ function App() {
   const store = useUserData(authState.user, accountMode);
   const siteConfig = useSiteConfig(authState.user);
   const getRoute = () => isAdminRoute() ? "admin" : "home";
-  const [page, setPage] = useState(getRoute);
+  const [maintenanceTick, setMaintenanceTick] = useState(0),
+    [page, setPage] = useState(getRoute);
   const [openProjectId, setOpenProjectId] = useState(null);
   const [showAdminAuthorizedPrompt, setShowAdminAuthorizedPrompt] = useState(() => {
     try {
@@ -41,6 +42,10 @@ function App() {
       return false;
     }
   });
+  useEffect(() => {
+    const timer = window.setInterval(() => setMaintenanceTick((n) => n + 1), 30000);
+    return () => window.clearInterval(timer);
+  }, []);
   useEffect(() => { window.scrollTo(0, 0); }, [page]);
   useEffect(() => {
     const onPopState = () => setPage(getRoute());
@@ -121,6 +126,8 @@ function App() {
   };
   useEffect(() => { applyThemePackage(store.data?.preferences?.theme || siteConfig.activeTheme); document.title = (siteConfig.site?.brand || "MARVEL TIMELINE") + " — " + (siteConfig.site?.tagline || "Marvel Tracker"); }, [store.data?.preferences?.theme, siteConfig.activeTheme, siteConfig.themes, siteConfig.site]);
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
+  const maintenanceActive = isMaintenanceActive(siteConfig);
+  if (maintenanceActive && !isAdminRoute()) return html`<main className="maintenance-screen"><div className="maintenance-card"><div className="maintenance-icon">⌁</div><span className="maintenance-kicker">TEMPORARILY UNAVAILABLE</span><h1>${siteConfig.site?.brand || "MARVEL TIMELINE"}</h1><h2>${siteConfig.site?.maintenanceTitle || "We are tuning the archive"}</h2><p>${siteConfig.site?.maintenanceMessage || "The website is temporarily unavailable while maintenance is being performed."}</p>${siteConfig.site?.maintenanceReopenAt ? html`<div className="maintenance-reopen">Expected to reopen automatically at <strong>${new Date(siteConfig.site.maintenanceReopenAt).toLocaleString()}</strong>.</div>` : null}</div></main>`;
   if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
   if (showAdminAuthorizedPrompt && authState.user && adminAccess.isAdmin) return html`<main className="admin-authorized-overlay">

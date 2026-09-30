@@ -3,18 +3,18 @@ import { useMemo } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { getUniverse, statusOf, passesMode, isSeries, episodeProgress } from "../utils/helpers.js";
+import { getUniverse, statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 
 export function Home({ userData, user, siteConfig, onOpen, onNavigate }) {
   const prefs=userData.preferences;
-  const visible=useMemo(()=>PROJECTS.filter(p=>passesMode(p,prefs.explorationMode)&&!prefs.hiddenUniverses.includes(p.universe)),[prefs.explorationMode,prefs.hiddenUniverses]);
+  const visible=useMemo(()=>expandProjectsBySeasons(PROJECTS).filter(p=>passesMode(p,prefs.explorationMode)&&!prefs.hiddenUniverses.includes(p.universe)),[prefs.explorationMode,prefs.hiddenUniverses]);
   const done=visible.filter(p=>statusOf(p.id,userData)==="completed").length;
   const watching=visible.filter(p=>statusOf(p.id,userData)==="watching");
   const favorites=visible.filter(p=>(userData.projects[p.id]||{}).favorite);
   const episodeStats=visible.reduce((a,p)=>{if(isSeries(p)){const e=episodeProgress(p,userData);a.watched+=e.watched;a.total+=e.total;}return a;},{watched:0,total:0});
-  const nextUp=useMemo(()=>{const order=visible.slice().sort((a,b)=>prefs.defaultTimeline==="chronological"?(a.chronologicalOrderIndex??99999)-(b.chronologicalOrderIndex??99999):a.releaseOrderIndex-b.releaseOrderIndex);return order.find(p=>statusOf(p.id,userData)==="not-started");},[visible,userData,prefs.defaultTimeline]);
+  const nextUp=useMemo(()=>{const order=visible.slice().sort((a,b)=>prefs.defaultTimeline==="chronological"?(a.chronologicalOrderIndex??99999)-(b.chronologicalOrderIndex??99999):displayReleaseOrder(a)-displayReleaseOrder(b));return order.find(p=>statusOf(p.id,userData)==="not-started");},[visible,userData,prefs.defaultTimeline]);
   const recent=useMemo(()=>visible.filter(p=>statusOf(p.id,userData)==="completed"&&(userData.projects[p.id]||{}).watchedDate).sort((a,b)=>((userData.projects[b.id]||{}).watchedDate||"").localeCompare((userData.projects[a.id]||{}).watchedDate||"")).slice(0,6),[visible,userData]);
-  const featured=visible.slice().sort((a,b)=>a.releaseOrderIndex-b.releaseOrderIndex).slice(0,8);
+  const featured=visible.slice().sort((a,b)=>displayReleaseOrder(a)-displayReleaseOrder(b)).slice(0,8);
   const percent=visible.length?Math.round(done/visible.length*100):0;
   return html`
     <div className="home-page">

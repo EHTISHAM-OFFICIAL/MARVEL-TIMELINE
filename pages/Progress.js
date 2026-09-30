@@ -54,8 +54,8 @@ export function Progress({ userData, onOpen }) {
   };
 
   const totalCompleted = completed.length;
-  const totalFavorites = order.filter((p) => (userData.projects[p.id] || {}).favorite).length;
-  const rated = order.filter((p) => Number((userData.projects[p.id] || {}).rating) > 0).length;
+  const totalFavorites = order.filter((p) => (userData.projects[p.baseProjectId || p.id] || {}).favorite).length;
+  const rated = order.filter((p) => Number((userData.projects[p.baseProjectId || p.id] || {}).rating) > 0).length;
   const fullyTracked = order.filter((p) => { if (!isSeries(p)) return statusOf(p.id,userData) === "completed"; const e=episodeProgress(p,userData); return e.total > 0 && e.watched === e.total; }).length;
   const completionPercent = order.length ? Math.round((totalCompleted / order.length) * 100) : 0;
   const spiderList = order.filter((p) => (p.franchises || []).includes("spider-man"));

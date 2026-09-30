@@ -1797,3 +1797,88 @@ input:focus,textarea:focus,select:focus { border-color:var(--red); box-shadow:0 
 .welcome-banner{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:18px;padding:18px 20px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(135deg,var(--card),var(--bg-2))}.welcome-banner h2{margin:3px 0 2px;font-size:24px}.welcome-banner p{margin:0;color:var(--text-dim);font-size:14px}.welcome-avatar{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:rgba(230,36,41,.13);border:1px solid var(--border);color:var(--red-bright);font-size:18px;font-weight:800}
 @media(max-width:900px){.admin-layout{grid-template-columns:1fr}.admin-nav{flex-direction:row;overflow:auto}.admin-nav button{white-space:nowrap}.admin-stat-grid,.admin-quick{grid-template-columns:repeat(2,1fr)}.theme-studio{grid-template-columns:1fr}.admin-topbar{flex-direction:column}.admin-user{min-width:0}.admin-row{grid-template-columns:1.8fr 1fr 1fr 24px}.admin-row>span:nth-child(4){display:none}}
 @media(max-width:600px){.theme-fields{grid-template-columns:1fr}.admin-stat-grid{grid-template-columns:1fr 1fr}.admin-quick{grid-template-columns:1fr}.welcome-banner{align-items:flex-start}.admin-row{grid-template-columns:1fr 1fr 24px}.admin-row>span:nth-child(3){display:none}}
+
+
+/* Accessibility and theme contrast pass */
+html { font-size: 15.5px; }
+body { color: var(--text); }
+p, .subtitle, .detail-section p, .admin-panel p, .admin-heading p { color: var(--text-dim); }
+.text-dim { color: var(--text-dim) !important; }
+.text-faint { color: var(--text-faint) !important; }
+label { color: var(--text-dim); }
+.card .meta, .card .desc, .universe-card .u-desc, .timeline-item .t-meta { color: var(--text-dim); }
+.card .type-badge, .universe-card .earth, .timeline-item .year, .detail-section h3, .stat .num small, .stat .label { color: var(--text-faint); }
+.nav-item { color: var(--text-dim); }
+.nav-item:hover { color: var(--text); }
+.theme-option small, .admin-row-head, .admin-list-row small { color: var(--text-faint); }
+.admin-panel p, .admin-heading p, .admin-topbar p, .admin-help { font-size: 14px; }
+.admin-stat span { color: var(--text-dim); }
+.admin-stat b { color: var(--text); }
+.preview-window p, .preview-card small { color: var(--text-dim); }
+.profile-menu-item:hover { background: var(--bg-3) !important; color: var(--text) !important; }
+
+:root[data-theme="midnight"],
+:root[data-theme="stark"],
+:root[data-theme="cosmic"],
+:root[data-theme="wakanda"],
+:root[data-theme="mystic"],
+:root[data-theme="retro"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="daylight"],
+:root[data-theme="starkLight"],
+:root[data-theme="dailyBugle"],
+:root[data-theme="wakandaLight"] {
+  color-scheme: light;
+}
+
+:root[data-theme="daylight"] body::before,
+:root[data-theme="starkLight"] body::before,
+:root[data-theme="dailyBugle"] body::before,
+:root[data-theme="wakandaLight"] body::before {
+  background:
+    radial-gradient(ellipse 75% 45% at 50% -10%, color-mix(in srgb,var(--red) 8%,transparent), transparent 62%),
+    radial-gradient(ellipse 55% 40% at 100% 100%, color-mix(in srgb,var(--purple) 6%,transparent), transparent 65%);
+}
+
+:root[data-theme="daylight"] .sidebar,
+:root[data-theme="daylight"] .mobile-nav,
+:root[data-theme="starkLight"] .sidebar,
+:root[data-theme="starkLight"] .mobile-nav,
+:root[data-theme="dailyBugle"] .sidebar,
+:root[data-theme="dailyBugle"] .mobile-nav,
+:root[data-theme="wakandaLight"] .sidebar,
+:root[data-theme="wakandaLight"] .mobile-nav {
+  background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+}
+
+:root[data-theme="daylight"] .btn.primary,
+:root[data-theme="starkLight"] .btn.primary,
+:root[data-theme="dailyBugle"] .btn.primary,
+:root[data-theme="wakandaLight"] .btn.primary,
+:root[data-theme="daylight"] .chip.active,
+:root[data-theme="starkLight"] .chip.active,
+:root[data-theme="dailyBugle"] .chip.active,
+:root[data-theme="wakandaLight"] .chip.active {
+  color: #fff;
+}
+
+:root[data-theme="daylight"] .admin-drawer,
+:root[data-theme="starkLight"] .admin-drawer,
+:root[data-theme="dailyBugle"] .admin-drawer,
+:root[data-theme="wakandaLight"] .admin-drawer {
+  background: rgba(20, 24, 30, .48);
+}
+
+:root[data-theme="daylight"] .ach.locked,
+:root[data-theme="starkLight"] .ach.locked,
+:root[data-theme="dailyBugle"] .ach.locked,
+:root[data-theme="wakandaLight"] .ach.locked {
+  opacity: .62;
+}
+
+/* Slightly larger small UI text so information remains readable at normal desktop scale. */
+.card .meta, .card .desc, .universe-card .u-desc { font-size: 12.5px; }
+.detail-section h3 { font-size: 12.5px; }
+.stat .label { font-size: 11.5px; }

@@ -77,10 +77,16 @@ export async function adminLogin(email, password) {
     throw error;
   }
 
-  // Stay inside the current React session. The app is already on /admin,
-  // and useAuth() will receive this authenticated user immediately. A hard
-  // navigation here can race Firebase Auth persistence restoration and send
-  // the browser back through the login screen.
+  // Tell the app to show an explicit authorization handoff instead of
+  // silently dropping the administrator into the console. sessionStorage is
+  // intentionally used only as a short-lived UI flag; Firebase Auth remains
+  // the source of truth for authentication and Firestore Rules remain the
+  // source of truth for authorization.
+  try {
+    sessionStorage.setItem("marvel-admin-authorized-prompt", "1");
+    sessionStorage.removeItem("marvel-admin-public-view");
+  } catch {}
+
   return credential.user;
 }
 

@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useState, useEffect, useRef } from "htm/react";
 import { UNIVERSES } from "../data/universes.js";
 import { PROJECTS } from "../data/projects.js";
-import { statusOf, episodeProgress, isSeries } from "../utils/helpers.js";
+import { statusOf, episodeProgress, isSeries, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 import { ProgressBar } from "../components/ProgressBar.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
 
@@ -18,10 +18,10 @@ export function Universes({ userData, onOpen, actions }) {
     <div>
       <h1>Universes & Continuities</h1>
       <p className="subtitle">Explore every continuity independently. Click a universe to open its full catalog and tracking progress.</p>
-      <div className="universe-toolbar"><span>${UNIVERSES.length} continuities · ${PROJECTS.length} projects</span><span className="text-faint">Hidden universes remain hidden from other filtered views.</span></div>
+      <div className="universe-toolbar"><span>${UNIVERSES.length} continuities · ${expandProjectsBySeasons(PROJECTS).length} projects</span><span className="text-faint">Hidden universes remain hidden from other filtered views.</span></div>
       <div className="grid wide">
         ${UNIVERSES.map((u) => {
-          const projects = PROJECTS.filter((p) => p.universe === u.id);
+          const projects = expandProjectsBySeasons(PROJECTS).filter((p) => p.universe === u.id);
           const done = projects.filter((p) => statusOf(p.id, userData) === "completed").length;
           const watchedEpisodes = projects.reduce((sum, p) => sum + (isSeries(p) ? episodeProgress(p, userData).watched : 0), 0);
           const totalEpisodes = projects.reduce((sum, p) => sum + (isSeries(p) ? episodeProgress(p, userData).total : 0), 0);
@@ -40,7 +40,7 @@ export function Universes({ userData, onOpen, actions }) {
         })}
       </div>
       ${selectedUniverse ? (() => {
-        const projects = PROJECTS.filter((p) => p.universe === selectedUniverse.id).sort((a,b) => a.releaseOrderIndex-b.releaseOrderIndex);
+        const projects = expandProjectsBySeasons(PROJECTS).filter((p) => p.universe === selectedUniverse.id).sort((a,b) => displayReleaseOrder(a)-displayReleaseOrder(b));
         const done = projects.filter((p) => statusOf(p.id, userData) === "completed").length;
         return html`
           <section ref=${detailRef} className="universe-detail-panel">

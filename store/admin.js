@@ -3,9 +3,8 @@ import { collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc } 
 import { db } from "../firebase.js";
 import { DEFAULT_SITE_CONFIG, setRuntimeConfig } from "./siteConfig.js";
 
-// Bootstrap administrator. This is only a UI optimization; Firestore Rules
-// independently enforce the same UID server-side.
-export const BOOTSTRAP_ADMIN_UID = "025r87YHM0bE9B7onPItzwp5jct1";
+// Fixed bootstrap administrator. Firestore Rules enforce the same UID.
+export const BOOTSTRAP_ADMIN_UID = "KLAoecq9ZaZxtmTlBcsbTO1dMnD2";
 
 export function useAdminAccess(user){
  const [state,setState]=useState({loading:Boolean(user),isAdmin:false,error:""});

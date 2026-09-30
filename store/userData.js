@@ -96,10 +96,17 @@ function loadLocalData() {
 }
 
 async function loadCloudData(user) {
+  // Keep administrator accounts completely outside the normal user data
+  // collection. The own-admin read is permitted by the Firestore rules.
+  const adminSnapshot = await getDoc(doc(db, "admins", user.uid));
+  if (adminSnapshot.exists() && adminSnapshot.data()?.enabled === true) {
+    return { data: null, ref: doc(db, "users", user.uid), isAdmin: true };
+  }
+
   const ref = doc(db, "users", user.uid);
   const snapshot = await getDoc(ref);
-  if (!snapshot.exists()) return { data: null, ref };
-  return { data: normalizeData(snapshot.data()), ref };
+  if (!snapshot.exists()) return { data: null, ref, isAdmin: false };
+  return { data: normalizeData(snapshot.data()), ref, isAdmin: false };
 }
 
 async function saveCloudData(user, data) {
@@ -123,6 +130,7 @@ export function useUserData(user) {
   const [data, setData] = useState(cloneDefault);
   const [ready, setReady] = useState(false);
   const [syncError, setSyncError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,6 +139,7 @@ export function useUserData(user) {
       setData(cloneDefault());
       setReady(false);
       setSyncError("");
+      setIsAdmin(false);
       return () => { cancelled = true; };
     }
 
@@ -142,7 +151,10 @@ export function useUserData(user) {
         const cloud = await loadCloudData(user);
         if (cancelled) return;
 
-        if (cloud.data) {
+        setIsAdmin(Boolean(cloud.isAdmin));
+        if (cloud.isAdmin) {
+          setData(cloneDefault());
+        } else if (cloud.data) {
           setData(cloud.data);
         } else {
           const legacy = loadLocalData();
@@ -166,7 +178,7 @@ export function useUserData(user) {
   }, [user?.uid]);
 
   useEffect(() => {
-    if (!user || !ready || syncError) return;
+    if (!user || !ready || syncError || isAdmin) return;
     const timer = setTimeout(() => {
       saveCloudData(user, data).catch((error) => {
         console.error("Could not save Marvel cloud data:", error);
@@ -174,7 +186,7 @@ export function useUserData(user) {
       });
     }, 500);
     return () => clearTimeout(timer);
-  }, [user?.uid, ready, data]);
+  }, [user?.uid, ready, data, isAdmin]);
 
   const updateProject = useCallback((projectId, patch) => {
     setData((current) => ({
@@ -280,5 +292,6 @@ export function useUserData(user) {
     toggleUniverseHidden,
     importData,
     reset,
+    isAdmin,
   };
 }

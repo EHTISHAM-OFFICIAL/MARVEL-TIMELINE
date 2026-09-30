@@ -13,9 +13,9 @@ import {
 import { deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { auth, authPersistenceReady, db } from "./firebase.js";
 
-// This UID is only the initial/bootstrap administrator. Additional administrators
-// are controlled by the protected /admins/{uid} Firestore records.
-export const ADMIN_UID = "025r87YHM0bE9B7onPItzwp5jct1";
+// This UID is the fixed bootstrap administrator. Firestore Rules enforce the
+// same UID server-side; additional administrators use /admins/{uid} records.
+export const ADMIN_UID = "KLAoecq9ZaZxtmTlBcsbTO1dMnD2";
 
 export function useAuth() {
   const [user, setUser] = useState(null);
@@ -38,7 +38,6 @@ export function useAuth() {
 }
 
 async function signIn(email, password) {
-  // Always finish configuring persistence before starting a login.
   await authPersistenceReady;
   return signInWithEmailAndPassword(auth, email.trim(), password);
 }
@@ -46,10 +45,6 @@ async function signIn(email, password) {
 export const login = (email, password) => signIn(email, password);
 
 export async function adminLogin(email, password) {
-  // Do not hard-code the login itself to one UID. Authentication proves who
-  // the person is; useAdminAccess + Firestore Rules decide whether that account
-  // is actually an administrator. This also makes additional admin accounts
-  // work without another source-code change.
   return signIn(email, password);
 }
 

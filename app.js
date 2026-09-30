@@ -47,6 +47,20 @@ function App() {
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
+
+  // Firebase Auth and React state update independently of the login form. Once
+  // the verified administrator session reaches React, consume the one-shot
+  // authorization handoff created by adminLogin(). This is deliberately driven
+  // by the authenticated UID rather than by a click handler, so a slow/fast
+  // Firebase response cannot skip the prompt.
+  useEffect(() => {
+    if (!authState.user || !adminAccess.isAdmin || !isAdminRoute()) return;
+    try {
+      if (sessionStorage.getItem("marvel-admin-authorized-prompt") === "1") {
+        setShowAdminAuthorizedPrompt(true);
+      }
+    } catch {}
+  }, [authState.user?.uid, adminAccess.isAdmin]);
   useEffect(() => {
     if (adminAccess.loading || !authState.user) return;
     if (isAdminRoute() && !adminAccess.isAdmin && !adminAccess.error) {
@@ -145,6 +159,7 @@ function App() {
       <button className="btn" onClick=${() => { window.history.replaceState({}, "", "/admin"); location.reload(); }}>Try again</button>
     </div>
   </div></main>`;
+  if (isAdminRoute() && adminAccess.isAdmin) return html`<${Admin} user=${authState.user} onSignOut=${logout} />`;
   if (!store.ready) {
     if (store.syncError) return html`<main className="auth-loading"><div className="cloud-error-card"><div className="cloud-error-icon">!</div><h2>Cloud sync unavailable</h2><p>${store.syncError}</p><div className="cloud-error-actions"><button className="btn" onClick=${() => location.reload()}>Retry</button><button className="btn" onClick=${logout}>Sign out</button></div></div></main>`;
     return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;

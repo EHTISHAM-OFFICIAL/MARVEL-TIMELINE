@@ -65,17 +65,10 @@ export function Settings({ userData, actions, user, onSignOut }) {
         <label>Visual Theme</label>
         <p className="text-faint theme-help">Choose the atmosphere for your entire tracker. Your choice is saved to your account.</p>
         <div className="theme-grid">
-          ${[
-            ["midnight","Midnight","Cinematic black · crimson"],
-            ["stark","Stark","Clean steel · red"],
-            ["cosmic","Cosmic","Deep space · violet"],
-            ["wakanda","Wakanda","Obsidian · royal purple"],
-            ["mystic","Mystic","Arcane night · cyan"],
-            ["retro","Retro Marvel","Classic dark · golden"],
-          ].map(([id,name,desc]) => html`
-            <button type="button" className=${"theme-option " + (prefs.theme === id ? "active" : "")} onClick=${() => actions.setPreference("theme", id)}>
-              <span className=${"theme-swatch theme-" + id}></span><span><strong>${name}</strong><small>${desc}</small></span>${prefs.theme === id ? html`<b>✓</b>` : null}
-            </button>`)}
+          ${Object.values(siteConfig.themes || {}).map((theme) => html`
+            <button type="button" className=${"theme-option " + (prefs.theme === theme.id ? "active" : "")} onClick=${() => actions.setPreference("theme", theme.id)}>
+              <span className="theme-swatch" style=${{ background: theme.vars?.red || "var(--red)" }}></span><span><strong>${theme.name}</strong><small>${theme.description || "Custom visual package"}</small></span>${prefs.theme === theme.id ? html`<b>✓</b>` : null}
+            </button>`) }
         </div>
       </div>
 

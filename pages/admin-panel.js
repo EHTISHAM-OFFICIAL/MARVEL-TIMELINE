@@ -406,35 +406,40 @@ export function Admin({ user, onSignOut }) {
               </div>
               <div className="theme-studio">
                 <div className="theme-editor">
-                  <label>Package name</label
-                  ><input
-                    value=${theme.name}
-                    onInput=${(e) =>
-                      setConfig((c) => ({
-                        ...c,
-                        themes: {
-                          ...c.themes,
-                          [themeId]: {
-                            ...c.themes[themeId],
-                            name: e.target.value,
+                  <div className="theme-meta-field">
+                    <label>Package name</label>
+                    <input
+                      value=${theme.name}
+                      onInput=${(e) =>
+                        setConfig((c) => ({
+                          ...c,
+                          themes: {
+                            ...c.themes,
+                            [themeId]: {
+                              ...c.themes[themeId],
+                              name: e.target.value,
+                            },
                           },
-                        },
-                      }))}
-                  /><label>Description</label
-                  ><input
-                    value=${theme.description || ""}
-                    onInput=${(e) =>
-                      setConfig((c) => ({
-                        ...c,
-                        themes: {
-                          ...c.themes,
-                          [themeId]: {
-                            ...c.themes[themeId],
-                            description: e.target.value,
+                        }))}
+                    />
+                  </div>
+                  <div className="theme-meta-field">
+                    <label>Description</label>
+                    <input
+                      value=${theme.description || ""}
+                      onInput=${(e) =>
+                        setConfig((c) => ({
+                          ...c,
+                          themes: {
+                            ...c.themes,
+                            [themeId]: {
+                              ...c.themes[themeId],
+                              description: e.target.value,
+                            },
                           },
-                        },
-                      }))}
-                  />
+                        }))}
+                    />
+                  </div>
                   <div className="theme-fields">
                     ${fields.map(([k, n]) => {
                       const value = theme.vars?.[k] || "";

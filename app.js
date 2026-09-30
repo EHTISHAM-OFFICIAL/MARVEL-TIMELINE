@@ -34,6 +34,13 @@ function App() {
   const getRoute = () => isAdminRoute() ? "admin" : "home";
   const [page, setPage] = useState(getRoute);
   const [openProjectId, setOpenProjectId] = useState(null);
+  const [showAdminAuthorizedPrompt, setShowAdminAuthorizedPrompt] = useState(() => {
+    try {
+      return isAdminRoute() && sessionStorage.getItem("marvel-admin-authorized-prompt") === "1";
+    } catch {
+      return false;
+    }
+  });
   useEffect(() => { window.scrollTo(0, 0); }, [page]);
   useEffect(() => {
     const onPopState = () => setPage(getRoute());
@@ -50,9 +57,14 @@ function App() {
       return;
     }
     if (!isAdminRoute() && adminAccess.isAdmin) {
-      // Administrator accounts are a separate account class.
-      window.history.replaceState({}, "", "/admin");
-      setPage("admin");
+      // After successful admin sign-in, let the administrator deliberately
+      // choose whether to open the public site or the admin console.
+      let publicView = false;
+      try { publicView = sessionStorage.getItem("marvel-admin-public-view") === "1"; } catch {}
+      if (!publicView) {
+        window.history.replaceState({}, "", "/admin");
+        setPage("admin");
+      }
     }
   }, [adminAccess.loading, adminAccess.isAdmin, authState.user]);
   const navigate = useCallback((id) => {
@@ -97,6 +109,32 @@ function App() {
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
+  if (showAdminAuthorizedPrompt && authState.user && adminAccess.isAdmin) return html\`<main className="admin-authorized-overlay">
+    <section className="admin-authorized-card" role="dialog" aria-modal="true" aria-labelledby="admin-authorized-title">
+      <div className="admin-authorized-badge">✓</div>
+      <span className="admin-authorized-kicker">SECURITY CHECK PASSED</span>
+      <h1 id="admin-authorized-title">AUTHORIZED</h1>
+      <p>Administrator credentials verified. You can now choose where you want to go.</p>
+      <div className="admin-authorized-account">Signed in as <strong>${authState.user.displayName || authState.user.email || "Administrator"}</strong></div>
+      <div className="admin-authorized-actions">
+        <button className="btn admin-authorized-secondary" onClick=${() => {
+          try {
+            sessionStorage.removeItem("marvel-admin-authorized-prompt");
+            sessionStorage.setItem("marvel-admin-public-view", "1");
+          } catch {}
+          window.history.replaceState({}, "", "/");
+          setShowAdminAuthorizedPrompt(false);
+          setPage("home");
+        }}>View Public Site</button>
+        <button className="btn admin-authorized-primary" onClick=${() => {
+          try { sessionStorage.removeItem("marvel-admin-authorized-prompt"); } catch {}
+          window.history.replaceState({}, "", "/admin");
+          setShowAdminAuthorizedPrompt(false);
+          setPage("admin");
+        }}>Continue to Admin Console</button>
+      </div>
+    </section>
+  </main>`;
   if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div className="admin-access-denied">
     <div className="admin-denied-mark">!</div>
     <h2>Administrator access unavailable</h2>

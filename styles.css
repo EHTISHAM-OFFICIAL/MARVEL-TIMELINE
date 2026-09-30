@@ -2134,4 +2134,126 @@ label { color: var(--text-dim); }
     min-width: 0;
   }
 }
+/* Admin theme editor — polished controls */
+.theme-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.theme-editor > label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.theme-editor > input {
+  margin-top: -7px;
+}
+
+.theme-fields {
+  margin-top: 4px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.theme-field {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-2) 72%, var(--card));
+}
+
+.theme-field-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.theme-field-label label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.theme-color-value {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-faint);
+  font: 600 10px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.theme-field input:not(.theme-color-picker) {
+  width: 100%;
+  margin: 0;
+}
+
+.theme-color-control {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.theme-color-picker {
+  width: 48px;
+  height: 42px;
+  padding: 3px;
+  border: 1px solid var(--border-bright);
+  border-radius: 9px;
+  background: var(--bg-3);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.theme-color-picker:hover {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 10%, transparent);
+}
+
+.theme-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.theme-color-picker::-webkit-color-swatch {
+  border: 0;
+  border-radius: 6px;
+}
+
+.theme-color-text {
+  min-width: 0;
+  height: 42px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  font-size: 12px !important;
+}
+
+.theme-color-field {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--card) 90%, transparent), var(--bg-2));
+}
+
+.theme-fields .theme-field:hover {
+  border-color: var(--border-bright);
+}
+
+@media (max-width: 900px) {
+  .theme-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .theme-fields {
+    grid-template-columns: 1fr;
+  }
+}
 

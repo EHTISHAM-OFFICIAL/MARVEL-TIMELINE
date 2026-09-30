@@ -25,10 +25,30 @@ function App() {
   const store = useUserData(authState.user);
   const adminAccess = useAdminAccess(authState.user);
   const siteConfig = useSiteConfig();
-  const [page, setPage] = useState("home");
+  const getRoute = () => window.location.pathname.replace(/\/+$/, "") === "/admin" ? "admin" : "home";
+  const [page, setPage] = useState(getRoute);
   const [openProjectId, setOpenProjectId] = useState(null);
   useEffect(() => { window.scrollTo(0, 0); }, [page]);
-  const navigate = useCallback((id) => setPage(id), []);
+  useEffect(() => {
+    const onPopState = () => setPage(getRoute());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+  useEffect(() => {
+    if (!adminAccess.loading && !adminAccess.isAdmin && window.location.pathname === "/admin") {
+      window.history.replaceState({}, "", "/");
+      setPage("home");
+    }
+  }, [adminAccess.loading, adminAccess.isAdmin]);
+  const navigate = useCallback((id) => {
+    if (id === "admin") {
+      window.history.pushState({}, "", "/admin");
+      setPage("admin");
+      return;
+    }
+    if (window.location.pathname === "/admin") window.history.pushState({}, "", "/");
+    setPage(id);
+  }, []);
   const openProject = useCallback((id) => setOpenProjectId(id), []);
   const closeProject = useCallback(() => setOpenProjectId(null), []);
   const actions = {

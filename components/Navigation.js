@@ -45,17 +45,17 @@ export function Sidebar({ page, onNavigate, user, onSignOut, onDeleteAccount, is
         <button key=${item.id} className=${"nav-item " + (page === item.id ? "active" : "")} onClick=${() => onNavigate(item.id)}>
           <span className="ico">${item.icon}</span> ${item.label}
         </button>` )}</nav>
-      <div className="sidebar-account-wrap">
+      <div className="sidebar-account-wrap" style=${{ position: "relative" }}>
         ${profileOpen ? html`
-          <div className="profile-menu">
-            <div className="profile-menu-head">
-              <strong>Account</strong>
-              <span>${user?.email || ""}</span>
+          <div className="profile-menu" style=${{ position: "absolute", bottom: "62px", left: "0", right: "0", padding: "8px", background: "var(--bg-2)", border: "1px solid var(--border-bright)", borderRadius: "12px", boxShadow: "0 18px 45px rgba(0,0,0,.5)", zIndex: 20 }}>
+            <div className="profile-menu-head" style=${{ padding: "7px 9px 10px", borderBottom: "1px solid var(--border)", marginBottom: "6px" }}>
+              <strong style=${{ display: "block", fontSize: "12px" }}>Account</strong>
+              <span style=${{ display: "block", fontSize: "10px", color: "var(--text-faint)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis" }}>${user?.email || ""}</span>
             </div>
-            <button className="profile-menu-item" onClick=${() => { setProfileOpen(false); onNavigate("settings"); }}>
+            <button className="profile-menu-item" style=${{ display: "flex", alignItems: "center", gap: "9px", width: "100%", padding: "9px", border: "0", borderRadius: "8px", background: "transparent", color: "var(--text)", textAlign: "left", cursor: "pointer", font: "inherit", fontSize: "12px" }} onClick=${() => { setProfileOpen(false); onNavigate("settings"); }}>
               <span>⚙</span> Account Settings
             </button>
-            <button className="profile-menu-item danger" onClick=${handleDelete}>
+            <button className="profile-menu-item danger" style=${{ display: "flex", alignItems: "center", gap: "9px", width: "100%", padding: "9px", marginTop: "2px", border: "0", borderRadius: "8px", background: "transparent", color: "var(--red-bright)", textAlign: "left", cursor: "pointer", font: "inherit", fontSize: "12px" }} onClick=${handleDelete}>
               <span>⌫</span> Delete Account
             </button>
           </div>
@@ -63,7 +63,7 @@ export function Sidebar({ page, onNavigate, user, onSignOut, onDeleteAccount, is
         <button className="sidebar-account" type="button" onClick=${() => setProfileOpen((value) => !value)}>
           <div className="sidebar-avatar">${(user?.displayName || user?.email || "U").charAt(0).toUpperCase()}</div>
           <div className="sidebar-account-copy"><strong>${user?.displayName || "Marvel Fan"}</strong><span>${user?.email || ""}</span></div>
-          <span className="sidebar-profile-chevron">${profileOpen ? "⌃" : "⌄"}</span>
+          <span className="sidebar-profile-chevron" style=${{ color: "var(--text-faint)", fontSize: "12px", marginLeft: "auto" }}>${profileOpen ? "⌃" : "⌄"}</span>
         </button>
         <button className="sidebar-logout" title="Sign out" onClick=${(e) => { e.stopPropagation(); onSignOut(); }}>↪</button>
       </div>

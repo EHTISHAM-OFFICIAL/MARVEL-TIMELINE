@@ -9,7 +9,7 @@ import {
   setDoc,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { db } from "../firebase.js";
-import { DEFAULT_SITE_CONFIG, setRuntimeConfig } from "./siteConfig.js";
+import { DEFAULT_SITE_CONFIG, setRuntimeConfig } from "../store/siteConfig.js";
 
 // Fixed bootstrap administrator. Firestore Rules enforce the same UID.
 export const BOOTSTRAP_ADMIN_UID = "KLAoecq9ZaZxtmTlBcsbTO1dMnD2";

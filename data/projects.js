@@ -1020,30 +1020,6 @@ export const PROJECTS = [
   },
 
   {
-    id: "loki-season-2-2023",
-    title: "Loki Season 2",
-    type: "tv-series",
-    releaseDate: "2023-10-05",
-    releaseYear: 2023,
-    seasons: 1,
-    episodes: 6,
-    universe: "mcu-multiverse",
-    phase: 5,
-    canonStatus: "mcu-multiverse",
-    connectionLevel: "multiverse-relevant",
-    releaseOrderIndex: 44,
-    chronologicalOrderIndex: 43,
-    shortDescription: "Loki tries to stabilize the TVA and the multiverse.",
-    whyItMatters: "Reshapes the MCU multiverse and TVA.",
-    spoilerConnections:
-      "Loki becomes the guardian of the multiverse, replacing He Who Remains' role.",
-    characters: ["Loki", "Sylvie", "Mobius", "Victor Timely"],
-    franchises: ["loki", "avengers"],
-    verified: true,
-    source: "IGN confirms 2 seasons total, 12 episodes [citation:2]",
-  },
-
-  {
     id: "the-marvels-2023",
     title: "The Marvels",
     type: "movie",

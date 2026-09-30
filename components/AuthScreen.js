@@ -9,10 +9,7 @@ export function AuthScreen({ adminMode=false }) {
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [error, setError] = useState(() => {
-    if (!adminMode) return "";
-    try { return sessionStorage.getItem("marvel-admin-login-error") || ""; } catch { return ""; }
-  });
+  const [error, setError] = useState("");
 
   const switchMode = (next) => { setMode(next); setMessage(""); setError(""); };
 
@@ -25,14 +22,10 @@ export function AuthScreen({ adminMode=false }) {
       if (password !== confirm) { setError("Passwords do not match."); return; }
     }
     setBusy(true);
-    if (adminMode) {
-      try { sessionStorage.removeItem("marvel-admin-login-error"); } catch {}
-    }
     try {
       if (mode === "login") {
         if (adminMode) {
           await adminLogin(email, password);
-          try { sessionStorage.removeItem("marvel-admin-login-error"); } catch {}
         } else {
           await login(email, password);
         }
@@ -42,9 +35,6 @@ export function AuthScreen({ adminMode=false }) {
     } catch (err) {
       const friendly = authErrorMessage(err);
       setError(friendly);
-      if (adminMode) {
-        try { sessionStorage.setItem("marvel-admin-login-error", friendly); } catch {}
-      }
     } finally { setBusy(false); }
   };
 

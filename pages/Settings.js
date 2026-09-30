@@ -111,7 +111,7 @@ export function Settings({ userData, actions, user, onSignOut }) {
 
         <div className="settings-control-grid">
           <div className="settings-control">
-            <label for="exploration-mode">Exploration Mode</label>
+            <label htmlFor="exploration-mode">Exploration Mode</label>
             <p>Controls how broadly Marvel titles are included throughout the tracker.</p>
             <select id="exploration-mode" value=${prefs.explorationMode}
               onChange=${(e) => actions.setPreference("explorationMode", e.target.value)}>
@@ -124,7 +124,7 @@ export function Settings({ userData, actions, user, onSignOut }) {
           </div>
 
           <div className="settings-control">
-            <label for="default-timeline">Default Timeline</label>
+            <label htmlFor="default-timeline">Default Timeline</label>
             <p>Choose the timeline view you want to see first.</p>
             <select id="default-timeline" value=${prefs.defaultTimeline}
               onChange=${(e) => actions.setPreference("defaultTimeline", e.target.value)}>

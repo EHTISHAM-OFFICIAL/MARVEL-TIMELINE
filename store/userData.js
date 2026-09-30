@@ -96,13 +96,8 @@ function loadLocalData() {
 }
 
 async function loadCloudData(user) {
-  // Keep administrator accounts completely outside the normal user data
-  // collection. The own-admin read is permitted by the Firestore rules.
-  const adminSnapshot = await getDoc(doc(db, "admins", user.uid));
-  if (adminSnapshot.exists() && adminSnapshot.data()?.enabled === true) {
-    return { data: null, ref: doc(db, "users", user.uid), isAdmin: true };
-  }
-
+  // Administrator status is resolved by app.js before this hook reaches the
+  // normal data path. Never query the admins collection from normal tracking.
   const ref = doc(db, "users", user.uid);
   const snapshot = await getDoc(ref);
   if (!snapshot.exists()) return { data: null, ref, isAdmin: false };
@@ -181,7 +176,7 @@ export function useUserData(user, accountIsAdmin = false) {
         console.error("Could not load Marvel cloud data:", error);
         if (!cancelled) {
           setData(loadLocalData() || cloneDefault());
-          setSyncError("Cloud sync is unavailable right now. Your current changes may not be saved.");
+          setSyncError("We couldn’t connect to your account data. Your changes are still available here, but they may not be saved online.");
         }
       } finally {
         if (!cancelled) setReady(true);
@@ -196,7 +191,7 @@ export function useUserData(user, accountIsAdmin = false) {
     const timer = setTimeout(() => {
       saveCloudData(user, data).catch((error) => {
         console.error("Could not save Marvel cloud data:", error);
-        setSyncError("Cloud sync failed. Please check your connection.");
+        setSyncError("We couldn’t save your latest changes online. Please check your connection and try again.");
       });
     }, 500);
     return () => clearTimeout(timer);

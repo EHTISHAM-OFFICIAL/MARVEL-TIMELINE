@@ -1,0 +1,30 @@
+import { useEffect, useState } from "htm/react";
+import { doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { db } from "../firebase.js";
+
+const DEFAULT_VARS = {
+  bg:"#0a0a0f", bg2:"#12121a", bg3:"#1a1a26", card:"#16161f", cardHover:"#1e1e2c",
+  border:"#2a2a3a", borderBright:"#3a3a52", text:"#e8e8f0", textDim:"#9a9ab0",
+  textFaint:"#6d6d84", red:"#e62429", redBright:"#ff3b40", gold:"#f5b800",
+  green:"#2ecc71", blue:"#3498db", purple:"#9b59b6", radius:"12px", radiusSm:"8px",
+  shadow:"0 8px 32px rgba(0,0,0,.5)", glow1:"rgba(230,36,41,.12)", glow2:"rgba(155,89,182,.06)"
+};
+
+export const DEFAULT_THEMES = {
+  midnight:{id:"midnight",name:"Midnight",description:"Cinematic black and crimson",vars:{...DEFAULT_VARS}},
+  stark:{id:"stark",name:"Stark",description:"Steel, white and reactor red",vars:{...DEFAULT_VARS,bg:"#090c10",bg2:"#11161c",bg3:"#192129",card:"#151c23",cardHover:"#1e2933",border:"#29343d",borderBright:"#41515d",text:"#edf3f7",textDim:"#aebbc4",textFaint:"#71818d",red:"#e24a3b",redBright:"#ff695a",gold:"#f2bd42",glow1:"rgba(226,74,59,.11)",glow2:"rgba(80,160,190,.07)"}},
+  cosmic:{id:"cosmic",name:"Cosmic",description:"Deep space and violet energy",vars:{...DEFAULT_VARS,bg:"#070710",bg2:"#0f1020",bg3:"#18172b",card:"#15152a",cardHover:"#201e38",border:"#2c2b4b",borderBright:"#48456d",text:"#eeeefe",textDim:"#aaa9ca",textFaint:"#77769d",red:"#a855f7",redBright:"#c084fc",gold:"#f5c542",purple:"#a855f7",glow1:"rgba(168,85,247,.14)",glow2:"rgba(56,189,248,.08)"}},
+  wakanda:{id:"wakanda",name:"Wakanda",description:"Obsidian, violet and royal energy",vars:{...DEFAULT_VARS,bg:"#08080d",bg2:"#11101a",bg3:"#1b1827",card:"#171421",cardHover:"#211c30",border:"#30283f",borderBright:"#514261",text:"#f0edf7",textDim:"#b4abc4",textFaint:"#7e728f",red:"#8b5cf6",redBright:"#a78bfa",gold:"#e7b94b",purple:"#8b5cf6",glow1:"rgba(139,92,246,.14)",glow2:"rgba(245,184,0,.05)"}},
+  mystic:{id:"mystic",name:"Mystic",description:"Arcane night and cyan",vars:{...DEFAULT_VARS,bg:"#061013",bg2:"#0b181c",bg3:"#102329",card:"#0d1d22",cardHover:"#142b31",border:"#1d3a41",borderBright:"#2d5962",text:"#e6f7f8",textDim:"#9fc4c8",textFaint:"#679398",red:"#22d3ee",redBright:"#67e8f9",gold:"#f4c95d",green:"#34d399",blue:"#38bdf8",purple:"#22d3ee",glow1:"rgba(34,211,238,.12)",glow2:"rgba(52,211,153,.06)"}},
+  retro:{id:"retro",name:"Retro Marvel",description:"Classic dark with golden highlights",vars:{...DEFAULT_VARS,bg:"#0d0b08",bg2:"#17130d",bg3:"#221c12",card:"#1b160f",cardHover:"#282015",border:"#3a2d1a",borderBright:"#5a4526",text:"#f5ead2",textDim:"#c6b99d",textFaint:"#8d8068",red:"#c83b32",redBright:"#e45a4e",gold:"#d8a93e",glow1:"rgba(200,59,50,.11)",glow2:"rgba(216,169,62,.07)"}}
+};
+
+export const DEFAULT_SITE_CONFIG = { version:1,site:{brand:"marvel timeline",tagline:"MCU & Marvel Connections Tracker",welcomeTitle:"Welcome back",welcomeText:"Your Marvel archive is ready.",maintenance:false},activeTheme:"midnight",themes:DEFAUL_THEMES,posters:{}};
+let runtimeConfig=DEFAULT_SITE_CONFIG;
+export function getRuntimeConfig(){ return runtimeConfig; }
+export function setRuntimeConfig(config){ runtimeConfig={...DEFAUL_SITE_CONFIG,...config,themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:config?.posters||{}}; return runtimeConfig; }
+export function applyThemePackage(themeId){const theme=runtimeConfig.themes?.[themeId]||runtimeConfig.themes?.[runtimeConfig||returnimg,default:""};
+  const vars=theme.vars||{};const root=document.documentElement;
+  Object.entries(DEFAULT_VARS).forEach(([key,value])=>root.style.setProperty("--"+key, vars[key] ?? value));root.dataset.themePackage=theme.id||themeId||"midnight";}
+export function useSiteConfig(){const [config,setConfig]=useState(runtimeConfig);useEffect(()=>{let alive=true;(async()=>{try{const snap=await getDoc(doc(db,"siteConfig","public"));if(alive&&snap.exists()){const next=setRuntimeConfig(snap.data());setConfig(next);}}catch(e){console.warn("Site configuration unavailable:",e)}})();return ()=>{alive=false;};},[]);return config;}
+export async function savePublicConfig(patch){const next={...runtimeConfig,...patch;await setDoc(doc(db,"siteConfig","public"),{...next,updatedAt:serverTimestamp()},{merge:true});setRuntimeConfig(next);return next;}

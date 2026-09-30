@@ -36,9 +36,16 @@ function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
   useEffect(() => {
-    if (!adminAccess.loading && !adminAccess.isAdmin && isAdminRoute() && authState.user) {
-      // Never leave a normal user session inside the administrator route.
+    if (adminAccess.loading || !authState.user) return;
+    if (isAdminRoute() && !adminAccess.isAdmin) {
+      // Never leave a normal account inside the administrator route.
       logout();
+      return;
+    }
+    if (!isAdminRoute() && adminAccess.isAdmin) {
+      // Administrator accounts are a separate account class.
+      window.history.replaceState({}, "", "/admin");
+      setPage("admin");
     }
   }, [adminAccess.loading, adminAccess.isAdmin, authState.user]);
   const navigate = useCallback((id) => {
@@ -83,7 +90,7 @@ function App() {
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
-  if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Administrator access required.</p></div></main>`;
+  if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>${adminAccess.error || "Administrator access required."}</p><button className="btn" onClick=${logout}>Return to sign in</button></div></main>`;
   if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;
   if (siteConfig.site?.maintenance && !adminAccess.loading && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner">✦</div><h2>We are tuning the archive</h2><p>${siteConfig.site?.welcomeText || "The site is temporarily unavailable."}</p></div></main>`;
   const userData = store.data;

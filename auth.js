@@ -11,42 +11,54 @@ import {
   updateProfile,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import { deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { auth, db } from "./firebase.js";
+import { auth, authPersistenceReady, db } from "./firebase.js";
 
+// This UID is only the initial/bootstrap administrator. Additional administrators
+// are controlled by the protected /admins/{uid} Firestore records.
 export const ADMIN_UID = "025r87YHM0bE9B7onPItzwp5jct1";
 
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  useEffect(() => onAuthStateChanged(auth, (nextUser) => {
-    setUser(nextUser);
-    setLoading(false);
-  }), []);
+
+  useEffect(() => {
+    let alive = true;
+    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+      if (!alive) return;
+      setUser(nextUser);
+      setLoading(false);
+    });
+    return () => {
+      alive = false;
+      unsubscribe();
+    };
+  }, []);
+
   return { user, loading };
 }
 
-export const login = (email, password) =>
-  signInWithEmailAndPassword(auth, email.trim(), password);
+async function signIn(email, password) {
+  // Always finish configuring persistence before starting a login.
+  await authPersistenceReady;
+  return signInWithEmailAndPassword(auth, email.trim(), password);
+}
+
+export const login = (email, password) => signIn(email, password);
 
 export async function adminLogin(email, password) {
-  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
-  if (credential.user.uid !== ADMIN_UID) {
-    await signOut(auth);
-    const error = new Error("This account is not the dedicated administrator account.");
-    error.code = "auth/not-admin";
-    throw error;
-  }
-
-  // The administrator login page is already mounted at /admin. Do not reload
-  // the document here: Firebase Auth state is asynchronous, and a hard
-  // navigation can race the initial auth restoration. Let App react to the
-  // authenticated user and render the admin console in the existing SPA.
-  return credential.user;
+  // Do not hard-code the login itself to one UID. Authentication proves who
+  // the person is; useAdminAccess + Firestore Rules decide whether that account
+  // is actually an administrator. This also makes additional admin accounts
+  // work without another source-code change.
+  return signIn(email, password);
 }
 
 export async function signup(email, password, displayName) {
+  await authPersistenceReady;
   const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-  if (displayName.trim()) await updateProfile(credential.user, { displayName: displayName.trim() });
+  if (displayName.trim()) {
+    await updateProfile(credential.user, { displayName: displayName.trim() });
+  }
   return credential.user;
 }
 
@@ -58,14 +70,10 @@ export async function deleteAccount(password) {
   if (!user) throw new Error("No signed-in account was found.");
   if (!user.email) throw new Error("This account cannot be deleted from this screen.");
 
-  // Re-authenticate immediately before the destructive operation.
   const credential = EmailAuthProvider.credential(user.email, password || "");
   await reauthenticateWithCredential(user, credential);
-
-  // Delete private tracker data while the account is still authenticated.
   await deleteDoc(doc(db, "users", user.uid));
 
-  // Remove admin membership too, if this account is an administrator.
   try {
     await deleteDoc(doc(db, "admins", user.uid));
   } catch {}

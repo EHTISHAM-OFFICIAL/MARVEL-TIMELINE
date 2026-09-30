@@ -16,7 +16,7 @@ import { Search } from "./pages/Search.js";
 import { Progress } from "./pages/Progress.js";
 import { Favorites } from "./pages/Favorites.js";
 import { Settings } from "./pages/Settings.js";
-import { Admin } from "./pages/Admin.js";
+import { Admin } from "./pages/admin-panel.js?v=20260930-admin-module1";
 import { useAdminAccess } from "./store/admin.js";
 import { useSiteConfig, applyThemePackage } from "./store/siteConfig.js";
 

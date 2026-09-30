@@ -13,14 +13,18 @@ service cloud.firestore {
     }
 
     match /admins/{adminId} {
-      // A signed-in user may read only their own admin record so the app can
-      // determine whether /admin is available. Admins can manage all records.
-      allow read: if signedIn() && (request.auth.uid == adminId || isAdmin());
+      // A signed-in user can verify only their own admin record.
+      // An enabled administrator can read/manage administrator records.
+      allow get: if signedIn() && (request.auth.uid == adminId || isAdmin());
+      allow list: if isAdmin();
       allow create, update, delete: if isAdmin();
     }
 
     match /users/{userId} {
-      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      // Normal users can access only their own tracker data.
+      // Administrators can read the user collection for the admin console.
+      allow get: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
       allow create, update, delete: if signedIn() && request.auth.uid == userId;
     }
 

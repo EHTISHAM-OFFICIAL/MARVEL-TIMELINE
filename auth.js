@@ -13,6 +13,8 @@ import {
 import { deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { auth, db } from "./firebase.js";
 
+export const ADMIN_UID = "025r87YHM0bE9B7onPItzwp5jct1";
+
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,11 +28,21 @@ export function useAuth() {
 export const login = (email, password) =>
   signInWithEmailAndPassword(auth, email.trim(), password);
 
-export const adminLogin = (email, password) =>
-  // Authentication and authorization are intentionally separate.
-  // Firebase Auth proves the credentials; useAdminAccess() is the single
-  // authorization gate for /admin after the Auth state is established.
-  signInWithEmailAndPassword(auth, email.trim(), password);
+export async function adminLogin(email, password) {
+  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+  if (credential.user.uid !== ADMIN_UID) {
+    await signOut(auth);
+    const error = new Error("This account is not the dedicated administrator account.");
+    error.code = "auth/not-admin";
+    throw error;
+  }
+
+  // The admin sign-in has its own entry point. Explicitly move to /admin
+  // so the administrator flow can never accidentally fall through to the
+  // normal tracker route.
+  window.location.replace("/admin");
+  return credential.user;
+}
 
 export async function signup(email, password, displayName) {
   const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);

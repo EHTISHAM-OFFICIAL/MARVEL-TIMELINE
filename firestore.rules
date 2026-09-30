@@ -6,7 +6,7 @@ service cloud.firestore {
     // so changing browser JavaScript cannot grant database access.
     function isBootstrapAdmin() {
       return request.auth != null
-        && request.auth.uid == "025r87YHM0bE9B7onPItzwp5jct1";
+        && request.auth.uid == "KLAoecq9ZaZxtmTlBcsbTO1dMnD2";
     }
 
     function signedIn() {

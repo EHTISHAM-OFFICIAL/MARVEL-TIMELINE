@@ -23,19 +23,8 @@ export function useAuth() {
   return { user, loading };
 }
 
-export async function login(email, password) {
-  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
-  const adminSnap = await getDoc(doc(db, "admins", credential.user.uid));
-
-  if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
-    await signOut(auth);
-    const error = new Error("This administrator account must use the administrator sign-in at /admin.");
-    error.code = "auth/admin-account";
-    throw error;
-  }
-
-  return credential.user;
-}
+export const login = (email, password) =>
+  signInWithEmailAndPassword(auth, email.trim(), password);
 
 export async function adminLogin(email, password) {
   // Firebase proves the password. The Firestore admin record proves authorization.

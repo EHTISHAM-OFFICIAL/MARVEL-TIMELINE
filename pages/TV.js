@@ -25,8 +25,8 @@ export function TV({ userData, onOpen }) {
         <div>
           <h1>TV & Streaming</h1>
           <p className="subtitle">
-            ${shows.length} television projects tracked. TV is treated as
-            first-class content.
+            ${shows.length} seasons tracked. Multi-season shows are separated into
+            individual season entries with their own episode counts.
           </p>
         </div>
         <div className="view-toggle" aria-label="TV layout">

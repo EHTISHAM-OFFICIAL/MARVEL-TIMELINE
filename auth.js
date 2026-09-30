@@ -1,13 +1,15 @@
 import { useEffect, useState } from "htm/react";
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { auth } from "./firebase.js";
+import { deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { auth, db } from "./firebase.js";
 
 export function useAuth() {
   const [user, setUser] = useState(null);
@@ -31,6 +33,21 @@ export async function signup(email, password, displayName) {
 export const resetPassword = (email) => sendPasswordResetEmail(auth, email.trim());
 export const logout = () => signOut(auth);
 
+export async function deleteAccount() {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No signed-in account was found.");
+
+  // Remove the user's private tracker data before removing the Firebase Auth account.
+  await deleteDoc(doc(db, "users", user.uid));
+
+  // Admin membership, if present, is also removed when that account is deleted.
+  try {
+    await deleteDoc(doc(db, "admins", user.uid));
+  } catch {}
+
+  await deleteUser(user);
+}
+
 export function authErrorMessage(error) {
   const messages = {
     "auth/invalid-email": "Please enter a valid email address.",
@@ -43,6 +60,7 @@ export function authErrorMessage(error) {
     "auth/too-many-requests": "Too many attempts. Please wait a little and try again.",
     "auth/network-request-failed": "Network error. Check your connection and try again.",
     "auth/operation-not-allowed": "Email/password sign-in is not enabled in Firebase yet.",
+    "auth/requires-recent-login": "For security, please sign in again before deleting your account.",
   };
   return messages[error?.code] || error?.message || "Authentication failed. Please try again.";
 }

@@ -97,7 +97,16 @@ function App() {
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
-  if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><h2>Administrator access unavailable</h2><p>${adminAccess.error || "This account is not authorized to access the administrator panel."}</p><button className="btn" onClick=${logout}>Return to sign in</button></div></main>`;
+  if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div className="admin-access-denied">
+    <div className="admin-denied-mark">!</div>
+    <h2>Administrator access unavailable</h2>
+    <p>${adminAccess.error || "This signed-in account is not authorized to access the administrator panel."}</p>
+    <p className="admin-denied-account">Signed in as <strong>${authState.user?.displayName || authState.user?.email || "current account"}</strong></p>
+    <div className="admin-denied-actions">
+      <button className="btn" onClick=${logout}>Sign out</button>
+      <button className="btn" onClick=${() => { window.history.replaceState({}, "", "/admin"); location.reload(); }}>Try again</button>
+    </div>
+  </div></main>`;
   if (!store.ready) {
     if (store.syncError) return html`<main className="auth-loading"><div className="cloud-error-card"><div className="cloud-error-icon">!</div><h2>Cloud sync unavailable</h2><p>${store.syncError}</p><div className="cloud-error-actions"><button className="btn" onClick=${() => location.reload()}>Retry</button><button className="btn" onClick=${logout}>Sign out</button></div></div></main>`;
     return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;

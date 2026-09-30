@@ -17,9 +17,9 @@ export function Timeline({ userData, onOpen }) {
   const sorted = useMemo(() => {
     const list = visible.slice();
     if (view === "chronological") return list.sort((a,b) => (a.chronologicalOrderIndex ?? Number.MAX_SAFE_INTEGER) - (b.chronologicalOrderIndex ?? Number.MAX_SAFE_INTEGER) || displayReleaseOrder(a) - displayReleaseOrder(b));
-    if (view === "phase") return list.sort((a,b) => (a.phase ?? Number.MAX_SAFE_INTEGER) - (b.phase ?? Number.MAX_SAFE_INTEGER) || a.releaseOrderIndex - b.releaseOrderIndex);
-    if (view === "universe") return list.sort((a,b) => getUniverse(a.universe).name.localeCompare(getUniverse(b.universe).name) || a.releaseOrderIndex - b.releaseOrderIndex);
-    return list.sort((a,b) => a.releaseOrderIndex - b.releaseOrderIndex);
+    if (view === "phase") return list.sort((a,b) => (a.phase ?? Number.MAX_SAFE_INTEGER) - (b.phase ?? Number.MAX_SAFE_INTEGER) || displayReleaseOrder(a) - displayReleaseOrder(b));
+    if (view === "universe") return list.sort((a,b) => getUniverse(a.universe).name.localeCompare(getUniverse(b.universe).name) || displayReleaseOrder(a) - displayReleaseOrder(b));
+    return list.sort((a,b) => displayReleaseOrder(a) - displayReleaseOrder(b));
   }, [visible, view]);
 
   const grouped = useMemo(() => {

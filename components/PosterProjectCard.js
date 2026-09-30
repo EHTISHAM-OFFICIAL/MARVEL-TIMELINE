@@ -31,7 +31,7 @@ function PosterImage({ project }) {
 export function PosterProjectCard({ project, userData, onOpen }) {
   const u = getUniverse(project.universe);
   const status = statusOf(project.id, userData);
-  const userP = userData.projects[project.id] || {};
+  const userP = userData.projects[project.baseProjectId || project.id] || {};
   const ep = episodeProgress(project, userData);
 
   return html`

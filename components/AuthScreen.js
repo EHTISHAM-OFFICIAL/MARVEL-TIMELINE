@@ -1,7 +1,7 @@
 import { html, useState } from "htm/react";
 import { authErrorMessage, login, resetPassword, signup } from "../auth.js";
 
-export function AuthScreen() {
+export function AuthScreen({ adminMode=false }) {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -16,7 +16,7 @@ export function AuthScreen() {
   const submit = async (event) => {
     event.preventDefault(); setMessage(""); setError("");
     if (!email.trim() || !password) { setError("Email and password are required."); return; }
-    if (mode === "signup") {
+    if (!adminMode && mode === "signup") {
       if (displayName.trim().length < 2) { setError("Please enter your name."); return; }
       if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
       if (password !== confirm) { setError("Passwords do not match."); return; }
@@ -39,21 +39,21 @@ export function AuthScreen() {
   };
 
   return html`
-    <main className="auth-page">
+    <main className=${adminMode ? "auth-page admin-auth-page" : "auth-page"}>
       <div className="auth-atmosphere"></div>
       <section className="auth-shell">
         <div className="auth-brand">
-          <div className="auth-logo">MARVEL<span>Timeline Tracker</span></div>
-          <p>YOUR MARVEL JOURNEY. SAVED TO YOUR ACCOUNT.</p>
+          <div className="auth-logo">${adminMode ? "MARVEL ADMIN" : "MARVEL"}<span>${adminMode ? "Control Center" : "Timeline Tracker"}</span></div>
+          <p>${adminMode ? "AUTHORIZED ADMINISTRATOR ACCESS ONLY." : "YOUR MARVEL JOURNEY. SAVED TO YOUR ACCOUNT."}</p>
         </div>
         <div className="auth-card">
           <div className="auth-heading">
-            <span className="auth-kicker">${mode === "login" ? "WELCOME BACK" : "CREATE YOUR ARCHIVE"}</span>
-            <h1>${mode === "login" ? "Sign in" : "Create account"}</h1>
-            <p>${mode === "login" ? "Continue your personal Marvel timeline from any device." : "Create your own account and keep your progress synced."}</p>
+            <span className="auth-kicker">${adminMode ? "ADMIN PANEL ACCESS" : (mode === "login" ? "WELCOME BACK" : "CREATE YOUR ARCHIVE")}</span>
+            <h1>${adminMode ? "Administrator Sign In" : (mode === "login" ? "Sign in" : "Create account")}</h1>
+            <p>${adminMode ? "Sign in with an authorized administrator account to access the MARVEL Timeline control panel." : (mode === "login" ? "Continue your personal Marvel timeline from any device." : "Create your own account and keep your progress synced.")}</p>
           </div>
           <form onSubmit=${submit}>
-            ${mode === "signup" ? html`
+            ${!adminMode && mode === "signup" ? html`
               <label className="auth-label">Name</label>
               <input className="auth-input" type="text" value=${displayName} autocomplete="name" placeholder="Your name" onInput=${(e) => setDisplayName(e.target.value)} />
             ` : null}
@@ -64,7 +64,7 @@ export function AuthScreen() {
               ${mode === "login" ? html`<button type="button" className="auth-link auth-forgot" onClick=${forgot}>Forgot password?</button>` : null}
             </div>
             <input className="auth-input" type="password" value=${password} autocomplete=${mode === "login" ? "current-password" : "new-password"} placeholder="••••••••" onInput=${(e) => setPassword(e.target.value)} />
-            ${mode === "signup" ? html`
+            ${!adminMode && mode === "signup" ? html`
               <label className="auth-label">Confirm password</label>
               <input className="auth-input" type="password" value=${confirm} autocomplete="new-password" placeholder="••••••••" onInput=${(e) => setConfirm(e.target.value)} />
             ` : null}
@@ -72,11 +72,11 @@ export function AuthScreen() {
             ${message ? html`<div className="auth-message success">${message}</div>` : null}
             <button className="auth-submit" type="submit" disabled=${busy}>${busy ? "Please wait…" : mode === "login" ? "Sign In" : "Create Account"}</button>
           </form>
-          <div className="auth-switch">
+          ${adminMode ? html`<div className="auth-admin-note"><span>⌁</span><p>This area is restricted to authorized administrators. Unauthorized accounts will not receive access to the admin console.</p></div>` : html`<div className="auth-switch">
             <span>${mode === "login" ? "New to the archive?" : "Already have an account?"}</span>
             <button type="button" className="auth-link" onClick=${() => switchMode(mode === "login" ? "signup" : "login")}>${mode === "login" ? "Create account" : "Sign in"}</button>
           </div>
-          <div className="auth-note"><span>☁</span><p>Your tracking data is tied to your Firebase account, so different users get separate progress.</p></div>
+          <div className="auth-note"><span>☁</span><p>Your tracking data is tied to your Firebase account, so different users get separate progress.</p></div>`}
         </div>
       </section>
     </main>

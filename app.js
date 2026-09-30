@@ -40,7 +40,8 @@ function App() {
   useEffect(() => { applyThemePackage(store.data?.preferences?.theme || siteConfig.activeTheme); document.title = (siteConfig.site?.brand || "MARVEL TIMELINE") + " — " + (siteConfig.site?.tagline || "Marvel Tracker"); }, [store.data?.preferences?.theme, siteConfig.activeTheme, siteConfig.themes, siteConfig.site]);
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} />`;
-  if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;\n  if (siteConfig.site?.maintenance && !adminAccess.loading && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner">✦</div><h2>We are tuning the archive</h2><p>${siteConfig.site?.welcomeText || "The site is temporarily unavailable."}</p></div></main>`;
+  if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;
+  if (siteConfig.site?.maintenance && !adminAccess.loading && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner">✦</div><h2>We are tuning the archive</h2><p>${siteConfig.site?.welcomeText || "The site is temporarily unavailable."}</p></div></main>`;
   const userData = store.data;
   let pageEl;
   switch (page) {

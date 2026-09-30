@@ -109,7 +109,7 @@ function App() {
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
-  if (showAdminAuthorizedPrompt && authState.user && adminAccess.isAdmin) return html\`<main className="admin-authorized-overlay">
+  if (showAdminAuthorizedPrompt && authState.user && adminAccess.isAdmin) return html`<main className="admin-authorized-overlay">
     <section className="admin-authorized-card" role="dialog" aria-modal="true" aria-labelledby="admin-authorized-title">
       <div className="admin-authorized-badge">✓</div>
       <span className="admin-authorized-kicker">SECURITY CHECK PASSED</span>

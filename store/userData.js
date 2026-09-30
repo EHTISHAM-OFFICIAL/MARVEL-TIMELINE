@@ -229,11 +229,16 @@ export function useUserData(user, accountIsAdmin = false) {
     });
   }, []);
 
-  const markAllEpisodes = useCallback((projectId, total, watched) => {
+  const markAllEpisodes = useCallback((projectId, total, watched, startAt = 0) => {
     setData((current) => {
       const project = normalizeProject(current.projects[projectId]);
-      const episodes = {};
-      if (watched) for (let i = 1; i <= total; i++) episodes[String(i)] = true;
+      const episodes = { ...(project.episodes || {}) };
+      const first = Math.max(1, Number(startAt) + 1);
+      const last = Math.max(first - 1, Number(startAt) + Number(total));
+      for (let i = first; i <= last; i++) {
+        if (watched) episodes[String(i)] = true;
+        else delete episodes[String(i)];
+      }
       return { ...current, projects: { ...current.projects, [projectId]: { ...project, episodes } } };
     });
   }, []);

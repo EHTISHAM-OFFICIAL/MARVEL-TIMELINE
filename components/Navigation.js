@@ -15,7 +15,8 @@ export const MOBILE_NAV = [
   { id: "progress", label: "Progress", icon: "▲" },
 ];
 
-export function Sidebar({ page, onNavigate, user, onSignOut, isAdmin=false }) {\n  const items = isAdmin ? [...NAV_ITEMS, { id: "admin", label: "Admin Console", icon: "⌘" }] : NAV_ITEMS;
+export function Sidebar({ page, onNavigate, user, onSignOut, isAdmin=false }) {
+  const items = isAdmin ? [...NAV_ITEMS, { id: "admin", label: "Admin Console", icon: "⌘" }] : NAV_ITEMS;
   return html`
     <aside className="sidebar">
       <div className="logo">MARVEL<span>Timeline Tracker</span></div>

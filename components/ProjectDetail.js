@@ -96,8 +96,8 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
                 <div className="progress"><div style=${{ width: ep.percent + "%" }}></div></div>
                 <span>${ep.percent}% complete</span>
                 <div className="episode-actions">
-                  <button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(baseProjectId, project.seasonNumber ? seasonOffset + ep.total : ep.total, true)}>Mark all watched</button>
-                  ${ep.watched ? html`<button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(baseProjectId, project.seasonNumber ? seasonOffset + ep.total : ep.total, false)}>Clear episodes</button>` : null}
+                  <button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(baseProjectId, ep.total, true, seasonOffset)}>Mark all watched</button>
+                  ${ep.watched ? html`<button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(baseProjectId, ep.total, false, seasonOffset)}>Clear episodes</button>` : null}
                 </div>
               </div>
               <div className="episode-grid">

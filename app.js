@@ -80,12 +80,12 @@ function App() {
     default: pageEl = html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`;
   }
   return html`<div className="app">
-    <${Sidebar} page=${page} onNavigate=${setPage} user=${authState.user} onSignOut=${logout} isAdmin=${adminAccess.isAdmin} siteConfig=${siteConfig} />
+    <${Sidebar} page=${page} onNavigate=${navigate} user=${authState.user} onSignOut=${logout} isAdmin=${adminAccess.isAdmin} siteConfig=${siteConfig} />
     <main className="main">
       ${store.syncError ? html`<div className="sync-warning">⚠ ${store.syncError} <button onClick=${() => location.reload()}>Retry</button></div>` : null}
       ${pageEl}
     </main>
-    <${MobileNav} page=${page} onNavigate=${setPage} />
+    <${MobileNav} page=${page} onNavigate=${navigate} isAdmin=${adminAccess.isAdmin} />
     ${openProjectId ? html`<${ProjectDetail} projectId=${openProjectId} userData=${userData} actions=${actions} onClose=${closeProject} />` : null}
   </div>`;
 }

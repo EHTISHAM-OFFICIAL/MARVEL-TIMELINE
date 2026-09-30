@@ -66,7 +66,7 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
           ${project.spoilerConnections ? html`
             <div className="detail-section">
               <h3>Connections</h3>
-              <${SpoilerSection} text=${project.spoilerConnections} revealed=${spoilersShown} onReveal=${() => actions.revealSpoilers(project.id)} />
+              <${SpoilerSection} text=${project.spoilerConnections} revealed=${spoilersShown} onReveal=${() => actions.revealSpoilers(baseProjectId)} />
             </div>
           ` : null}
           ${project.characters?.length ? html`
@@ -122,20 +122,20 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
           <div className="detail-section tracking-section">
             <div className="flex-between mb-16">
               <div><h3 style=${{ margin: 0 }}>My Tracking</h3><span className="text-faint">Saved locally in this browser.</span></div>
-              <button className=${"favorite-btn " + (userP.favorite ? "on" : "")} onClick=${() => actions.toggleFavorite(project.id)} aria-label="Toggle favorite">${userP.favorite ? "★" : "☆"}</button>
+              <button className=${"favorite-btn " + (userP.favorite ? "on" : "")} onClick=${() => actions.toggleFavorite(baseProjectId)} aria-label="Toggle favorite">${userP.favorite ? "★" : "☆"}</button>
             </div>
             <div style=${{ marginBottom: "16px" }}><label>Status</label><div className="status-selector">
               ${Object.entries(STATUS_META).map(([key, meta]) => html`
-                <button key=${key} className=${"status-btn " + (status === key ? "active" : "")} onClick=${() => actions.setStatus(project.id, key)}>
+                <button key=${key} className=${"status-btn " + (status === key ? "active" : "")} onClick=${() => actions.setStatus(baseProjectId, key)}>
                   <span>${meta.dot}</span> ${meta.label}
                 </button>`)}
             </div></div>
             <div style=${{ marginBottom: "16px" }}><label>My Rating ${userP.rating ? "— " + userP.rating + "/10" : ""}</label><div className="rating">
               ${[1,2,3,4,5,6,7,8,9,10].map((n) => html`
-                <button key=${n} className=${"rating-star " + (userP.rating >= n ? "on" : "")} onClick=${() => actions.setRating(project.id, userP.rating === n ? 0 : n)} aria-label=${"Rate " + n + "/10"}>★</button>`)}
+                <button key=${n} className=${"rating-star " + (userP.rating >= n ? "on" : "")} onClick=${() => actions.setRating(baseProjectId, userP.rating === n ? 0 : n)} aria-label=${"Rate " + n + "/10"}>★</button>`)}
             </div></div>
-            <div style=${{ marginBottom: "16px" }}><label>Watched Date</label><input type="date" value=${userP.watchedDate || ""} onChange=${(e) => actions.setWatchedDate(project.id, e.target.value)} /></div>
-            <div><label>My Notes</label><textarea value=${userP.notes || ""} onChange=${(e) => actions.setNotes(project.id, e.target.value)} placeholder="Personal thoughts, context, where it fits..."></textarea></div>
+            <div style=${{ marginBottom: "16px" }}><label>Watched Date</label><input type="date" value=${userP.watchedDate || ""} onChange=${(e) => actions.setWatchedDate(baseProjectId, e.target.value)} /></div>
+            <div><label>My Notes</label><textarea value=${userP.notes || ""} onChange=${(e) => actions.setNotes(baseProjectId, e.target.value)} placeholder="Personal thoughts, context, where it fits..."></textarea></div>
           </div>
         </div>
       </div>

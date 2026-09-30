@@ -26,33 +26,11 @@ export function useAuth() {
 export const login = (email, password) =>
   signInWithEmailAndPassword(auth, email.trim(), password);
 
-export async function adminLogin(email, password) {
-  // Firebase proves the password. The Firestore admin record proves authorization.
-  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
-
-  try {
-    const adminSnap = await getDoc(doc(db, "admins", credential.user.uid));
-
-    if (!adminSnap.exists() || adminSnap.data()?.enabled !== true) {
-      await signOut(auth);
-      const error = new Error("This account is not authorized to access the administrator panel.");
-      error.code = "auth/not-admin";
-      throw error;
-    }
-
-    return credential.user;
-  } catch (error) {
-    // Never leave a partially authenticated admin session behind when the
-    // authorization check cannot be completed.
-    try { await signOut(auth); } catch {}
-    if (error?.code === "permission-denied") {
-      const friendly = new Error("We couldn’t verify administrator access. Please check that this account has an enabled administrator record.");
-      friendly.code = "auth/admin-verification-failed";
-      throw friendly;
-    }
-    throw error;
-  }
-}
+export const adminLogin = (email, password) =>
+  // Authentication and authorization are intentionally separate.
+  // Firebase Auth proves the credentials; useAdminAccess() is the single
+  // authorization gate for /admin after the Auth state is established.
+  signInWithEmailAndPassword(auth, email.trim(), password);
 
 export async function signup(email, password, displayName) {
   const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);

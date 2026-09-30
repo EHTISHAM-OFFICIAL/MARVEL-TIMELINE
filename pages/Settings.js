@@ -1,8 +1,10 @@
 import { html } from "htm/react";
 import { useRef } from "htm/react";
 import { UNIVERSES } from "../data/universes.js";
+import { useSiteConfig } from "../store/siteConfig.js";
 
 export function Settings({ userData, actions, user, onSignOut }) {
+  const siteConfig = useSiteConfig();
   const prefs = userData.preferences;
   const fileRef = useRef(null);
 

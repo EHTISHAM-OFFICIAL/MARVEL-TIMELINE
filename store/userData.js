@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "htm/react";
 import { doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { UNIVERSES } from "../data/universes.js";
 import { db } from "../firebase.js";
+import { ADMIN_UID } from "../auth.js";
 
 const STORAGE_KEY = "marvel-timeline-user-data-v1";
 
@@ -144,7 +145,10 @@ export function useUserData(user, accountIsAdmin = false) {
       return () => { cancelled = true; };
     }
 
-    if (accountIsAdmin) {
+    // The dedicated administrator never loads a /users/{uid} tracker document.
+    // Keep this guard here as a second application-level barrier even if the
+    // admin authorization hook is still resolving.
+    if (accountIsAdmin || user.uid === ADMIN_UID) {
       setData(cloneDefault());
       setReady(true);
       setSyncError("");

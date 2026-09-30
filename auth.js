@@ -56,9 +56,10 @@ export async function adminLogin(email, password) {
     throw error;
   }
 
-  // Force a clean application bootstrap on /admin. This avoids relying on a
-  // React state transition or browser history event after authentication.
-  window.location.replace("/admin");
+  // Stay inside the current React session. The app is already on /admin,
+  // and useAuth() will receive this authenticated user immediately. A hard
+  // navigation here can race Firebase Auth persistence restoration and send
+  // the browser back through the login screen.
   return credential.user;
 }
 

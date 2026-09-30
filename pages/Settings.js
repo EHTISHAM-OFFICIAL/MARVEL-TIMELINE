@@ -54,14 +54,14 @@ export function Settings({ userData, actions, user, onSignOut }) {
             <strong>${user?.displayName || "Marvel Fan"}</strong>
             <span>${user?.email || ""}</span>
           </div>
-          <button className="btn" onClick=onSignOut>Sign Out</button>
+          <button className="btn" onClick=${onSignOut}>Sign Out</button>
         </div>
         <p className="text-faint account-settings-help">Your progress, favorites, ratings, notes, episode tracking, hidden universes, and preferences are synced to your Firebase account.</p>
       </div>
 
       <div className="detail-section theme-section">
         <label>Visual Theme</label>
-        <p className="text-faint theme-help">Choose the atmosphere for your entire tracker. Your choice is saved locally.</p>
+        <p className="text-faint theme-help">Choose the atmosphere for your entire tracker. Your choice is saved to your account.</p>
         <div className="theme-grid">
           ${[
             ["midnight","Midnight","Cinematic black · crimson"],

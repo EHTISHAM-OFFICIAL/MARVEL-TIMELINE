@@ -135,6 +135,12 @@ export function useUserData(user, accountIsAdmin = false) {
   useEffect(() => {
     let cancelled = false;
 
+    if (accountIsAdmin === null) {
+      setReady(false);
+      setSyncError("");
+      return () => { cancelled = true; };
+    }
+
     if (!user) {
       setData(cloneDefault());
       setReady(false);

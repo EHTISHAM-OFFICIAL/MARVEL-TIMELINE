@@ -126,7 +126,7 @@ async function saveCloudData(user, data) {
   );
 }
 
-export function useUserData(user) {
+export function useUserData(user, accountIsAdmin = false) {
   const [data, setData] = useState(cloneDefault);
   const [ready, setReady] = useState(false);
   const [syncError, setSyncError] = useState("");
@@ -140,6 +140,14 @@ export function useUserData(user) {
       setReady(false);
       setSyncError("");
       setIsAdmin(false);
+      return () => { cancelled = true; };
+    }
+
+    if (accountIsAdmin) {
+      setData(cloneDefault());
+      setReady(true);
+      setSyncError("");
+      setIsAdmin(true);
       return () => { cancelled = true; };
     }
 
@@ -175,7 +183,7 @@ export function useUserData(user) {
     })();
 
     return () => { cancelled = true; };
-  }, [user?.uid]);
+  }, [user?.uid, accountIsAdmin]);
 
   useEffect(() => {
     if (!user || !ready || syncError || isAdmin) return;

@@ -4,9 +4,9 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from "https://esm.unpkg.com/react@18.3.1";
-import { createRoot } from "https://esm.unpkg.com/react-dom@18.3.1/client";
-import htm from "https://esm.unpkg.com/htm@3.1.1";
+} from "https://esm.sh/react@18.3.1?target=es2020";
+import { createRoot } from "https://esm.sh/react-dom@18.3.1/client?target=es2020";
+import htm from "https://esm.sh/htm@3.1.1?target=es2020";
 
 const html = htm.bind(React.createElement);
 

@@ -20,7 +20,13 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
   }, [onClose]);
   if (!project) return null;
 
-  const userP = userData.projects[project.id] || {};
+  const baseProjectId = project.baseProjectId || project.id;
+  const userP = userData.projects[baseProjectId] || {};
+  const seasonOffset = project.seasonNumber && Array.isArray(getProject(baseProjectId)?.episodesBySeason)
+    ? getProject(baseProjectId).episodesBySeason
+        .slice(0, project.seasonNumber - 1)
+        .reduce((a, b) => a + b, 0)
+    : 0;
   const status = userP.status || "not-started";
   const u = getUniverse(project.universe);
   const spoilersShown = userData.preferences.showAllSpoilers || userP.spoilersRevealed;
@@ -90,24 +96,25 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
                 <div className="progress"><div style=${{ width: ep.percent + "%" }}></div></div>
                 <span>${ep.percent}% complete</span>
                 <div className="episode-actions">
-                  <button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(project.id, ep.total, true)}>Mark all watched</button>
-                  ${ep.watched ? html`<button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(project.id, ep.total, false)}>Clear episodes</button>` : null}
+                  <button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(baseProjectId, project.seasonNumber ? seasonOffset + ep.total : ep.total, true)}>Mark all watched</button>
+                  ${ep.watched ? html`<button className="btn ghost sm" onClick=${() => actions.markAllEpisodes(baseProjectId, project.seasonNumber ? seasonOffset + ep.total : ep.total, false)}>Clear episodes</button>` : null}
                 </div>
               </div>
               <div className="episode-grid">
-                ${(project.episodesBySeason || [ep.total]).flatMap((count, seasonIndex) =>
-                  Array.from({ length: count }, (_, episodeIndex) => {
-                    const globalNumber = (project.episodesBySeason || [ep.total]).slice(0, seasonIndex).reduce((a, b) => a + b, 0) + episodeIndex + 1;
-                    const watched = Boolean(watchedEpisodes[String(globalNumber)]);
-                    return html`
-                      <button key=${"s" + (seasonIndex + 1) + "e" + (episodeIndex + 1)} className=${"episode-row " + (watched ? "watched" : "")} onClick=${() => actions.toggleEpisode(project.id, globalNumber)}>
-                        <span className="episode-check">${watched ? "✓" : "○"}</span>
-                        <span>S${seasonIndex + 1} · E${episodeIndex + 1}</span>
-                        <span className="episode-state">${watched ? "Watched" : "Not watched"}</span>
-                      </button>
-                    `;
-                  })
-                )}
+                ${Array.from({ length: ep.total }, (_, episodeIndex) => {
+                  const globalNumber = seasonOffset + episodeIndex + 1;
+                  const watched = Boolean(watchedEpisodes[String(globalNumber)]);
+                  const seasonLabel = project.seasonNumber
+                    ? "S" + project.seasonNumber + " · E" + (episodeIndex + 1)
+                    : "E" + (episodeIndex + 1);
+                  return html`
+                    <button key=${"s" + (project.seasonNumber || 1) + "e" + (episodeIndex + 1)} className=${"episode-row " + (watched ? "watched" : "")} onClick=${() => actions.toggleEpisode(baseProjectId, globalNumber)}>
+                      <span className="episode-check">${watched ? "✓" : "○"}</span>
+                      <span>${seasonLabel}</span>
+                      <span className="episode-state">${watched ? "Watched" : "Not watched"}</span>
+                    </button>
+                  `;
+                })}
               </div>
             </div>
           ` : null}

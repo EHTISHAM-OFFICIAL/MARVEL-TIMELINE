@@ -16,10 +16,15 @@ import { Search } from "./pages/Search.js";
 import { Progress } from "./pages/Progress.js";
 import { Favorites } from "./pages/Favorites.js";
 import { Settings } from "./pages/Settings.js";
+import { Admin } from "./pages/Admin.js";
+import { useAdminAccess } from "./store/admin.js";
+import { useSiteConfig, applyThemePackage } from "./store/siteConfig.js";
 
 function App() {
   const authState = useAuth();
   const store = useUserData(authState.user);
+  const adminAccess = useAdminAccess(authState.user);
+  const siteConfig = useSiteConfig();
   const [page, setPage] = useState("home");
   const [openProjectId, setOpenProjectId] = useState(null);
   useEffect(() => { window.scrollTo(0, 0); }, [page]);
@@ -41,7 +46,7 @@ function App() {
   const userData = store.data;
   let pageEl;
   switch (page) {
-    case "home": pageEl = html`<${Home} userData=${userData} onOpen=${openProject} onNavigate=${navigate} />`; break;
+    case "home": pageEl = html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`; break;
     case "timeline": pageEl = html`<${Timeline} userData=${userData} onOpen=${openProject} />`; break;
     case "universes": pageEl = html`<${Universes} userData=${userData} onOpen=${openProject} onNavigate=${navigate} actions=${actions} />`; break;
     case "franchises": pageEl = html`<${Franchises} userData=${userData} onOpen=${openProject} />`; break;
@@ -51,11 +56,11 @@ function App() {
     case "search": pageEl = html`<${Search} userData=${userData} onOpen=${openProject} />`; break;
     case "progress": pageEl = html`<${Progress} userData=${userData} onOpen=${openProject} />`; break;
     case "favorites": pageEl = html`<${Favorites} userData=${userData} onOpen=${openProject} />`; break;
-    case "settings": pageEl = html`<${Settings} userData=${userData} actions=${actions} user=${authState.user} onSignOut=${logout} />`; break;
+    case "settings": pageEl = html`<${Settings} userData=${userData} actions=${actions} user=${authState.user} onSignOut=${logout} />`; break;\n    case "admin": pageEl = adminAccess.isAdmin ? html`<${Admin} user=${authState.user} onSignOut=${logout} />` : html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`; break;
     default: pageEl = html`<${Home} userData=${userData} onOpen=${openProject} onNavigate=${navigate} />`;
   }
   return html`<div className="app">
-    <${Sidebar} page=${page} onNavigate=${setPage} user=${authState.user} onSignOut=${logout} />
+    <${Sidebar} page=${page} onNavigate=${setPage} user=${authState.user} onSignOut=${logout} isAdmin=${adminAccess.isAdmin} />
     <main className="main">
       ${store.syncError ? html`<div className="sync-warning">⚠ ${store.syncError} <button onClick=${() => location.reload()}>Retry</button></div>` : null}
       ${pageEl}

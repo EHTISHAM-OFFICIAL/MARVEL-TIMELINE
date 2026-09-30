@@ -2,7 +2,9 @@ import { useEffect, useState } from "htm/react";
 import {
   createUserWithEmailAndPassword,
   deleteUser,
+  EmailAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
@@ -33,14 +35,19 @@ export async function signup(email, password, displayName) {
 export const resetPassword = (email) => sendPasswordResetEmail(auth, email.trim());
 export const logout = () => signOut(auth);
 
-export async function deleteAccount() {
+export async function deleteAccount(password) {
   const user = auth.currentUser;
   if (!user) throw new Error("No signed-in account was found.");
+  if (!user.email) throw new Error("This account cannot be deleted from this screen.");
 
-  // Remove the user's private tracker data before removing the Firebase Auth account.
+  // Re-authenticate immediately before the destructive operation.
+  const credential = EmailAuthProvider.credential(user.email, password || "");
+  await reauthenticateWithCredential(user, credential);
+
+  // Delete private tracker data while the account is still authenticated.
   await deleteDoc(doc(db, "users", user.uid));
 
-  // Admin membership, if present, is also removed when that account is deleted.
+  // Remove admin membership too, if this account is an administrator.
   try {
     await deleteDoc(doc(db, "admins", user.uid));
   } catch {}

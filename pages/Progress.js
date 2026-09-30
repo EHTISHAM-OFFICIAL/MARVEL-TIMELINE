@@ -2,7 +2,7 @@ import { html, useMemo, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { StatusDot } from "../components/StatusBadge.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { statusOf, passesMode, isSeries, episodeProgress } from "../utils/helpers.js";
+import { statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 
 export function Progress({ userData, onOpen }) {
   const prefs = userData.preferences;
@@ -10,7 +10,7 @@ export function Progress({ userData, onOpen }) {
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const visible = useMemo(
     () =>
-      PROJECTS.filter(
+      expandProjectsBySeasons(PROJECTS).filter(
         (p) =>
           passesMode(p, prefs.explorationMode) &&
           !prefs.hiddenUniverses.includes(p.universe),
@@ -20,7 +20,7 @@ export function Progress({ userData, onOpen }) {
 
   const order = useMemo(
     () =>
-      visible.slice().sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex),
+      visible.slice().sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b)),
     [visible],
   );
 

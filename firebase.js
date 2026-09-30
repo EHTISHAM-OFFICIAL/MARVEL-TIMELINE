@@ -20,6 +20,6 @@ export const auth = getAuth(firebaseApp);
 
 // Make browser authentication persistence explicit. This removes ambiguity
 // around the admin session surviving Firebase's initial auth restoration.
-export const authPersistenceReady = setPersistence(auth, browserLocalPersistence);
+export const authPersistenceReady = setPersistence(auth, browserLocalPersistence).catch((error) => {\n  console.warn("Firebase browser persistence is unavailable; continuing with session authentication.", error);\n});
 
 export const db = getFirestore(firebaseApp);

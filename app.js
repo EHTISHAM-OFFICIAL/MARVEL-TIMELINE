@@ -37,8 +37,10 @@ function App() {
   }, []);
   useEffect(() => {
     if (adminAccess.loading || !authState.user) return;
-    if (isAdminRoute() && !adminAccess.isAdmin) {
-      // Never leave a normal account inside the administrator route.
+    if (isAdminRoute() && !adminAccess.isAdmin && !adminAccess.error) {
+      // Only redirect a verified non-admin account. If authorization failed
+      // because Firestore could not be read, keep the page visible so the user
+      // receives the actual plain-English error instead of being silently logged out.
       logout();
       return;
     }
@@ -90,7 +92,7 @@ function App() {
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
-  if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>${adminAccess.error || "Administrator access required."}</p><button className="btn" onClick=${logout}>Return to sign in</button></div></main>`;
+  if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><h2>Administrator access unavailable</h2><p>${adminAccess.error || "This account is not authorized to access the administrator panel."}</p><button className="btn" onClick=${logout}>Return to sign in</button></div></main>`;
   if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;
   if (siteConfig.site?.maintenance && !adminAccess.loading && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner">✦</div><h2>We are tuning the archive</h2><p>${siteConfig.site?.welcomeText || "The site is temporarily unavailable."}</p></div></main>`;
   const userData = store.data;

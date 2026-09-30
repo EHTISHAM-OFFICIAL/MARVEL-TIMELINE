@@ -45,7 +45,21 @@ async function signIn(email, password) {
 export const login = (email, password) => signIn(email, password);
 
 export async function adminLogin(email, password) {
-  return signIn(email, password);
+  const credential = await signIn(email, password);
+
+  // Admin login is a dedicated entry point. Verify the authenticated Firebase
+  // UID before allowing the browser to enter the admin console.
+  if (credential?.user?.uid !== ADMIN_UID) {
+    await signOut(auth);
+    const error = new Error("This Firebase account is not the configured administrator account.");
+    error.code = "auth/not-admin";
+    throw error;
+  }
+
+  // Force a clean application bootstrap on /admin. This avoids relying on a
+  // React state transition or browser history event after authentication.
+  window.location.replace("/admin");
+  return credential.user;
 }
 
 export async function signup(email, password, displayName) {

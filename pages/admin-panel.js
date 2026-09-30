@@ -437,38 +437,26 @@ export function Admin({ user, onSignOut }) {
                   />
                   <div className="theme-fields">
                     ${fields.map(([k, n]) => {
-  const value = theme.vars?.[k] || "";
-  const isColor = !["radius", "radiusSm"].includes(k);
-  return html`<div className=${isColor ? "theme-field theme-color-field" : "theme-field"}>
-    <div className="theme-field-label">
-      <label>${n}</label>
-      ${isColor ? html`<span className="theme-color-value">${value}</span>` : null}
-    </div>
-    ${isColor
-      ? html`<div className="theme-color-control">
-          <input
-            className="theme-color-picker"
-            type="color"
-            value=${/^#[0-9a-fA-F]{6}$/.test(value) ? value : "#000000"}
-            aria-label=${"Choose " + n + " color"}
-            onInput=${(e) => editTheme(k, e.target.value)}
-          />
-          <input
-            className="theme-color-text"
-            value=${value}
-            onInput=${(e) => editTheme(k, e.target.value)}
-            aria-label=${n + " hex value"}
-          />
-        </div>`
-      : html`<input
-          value=${value}
-          onInput=${(e) => editTheme(k, e.target.value)}
-        />`}
-  </div>`;
-})}
-                          />
-                        </div>`,
-                    )}
+                      const value = theme.vars?.[k] || "";
+                      const isColor = !["radius", "radiusSm"].includes(k);
+                      return html`<div className=${isColor ? "theme-field theme-color-field" : "theme-field"}>
+                        <div className="theme-field-label">
+                          <label>${n}</label>
+                          ${isColor ? html`<span className="theme-color-value">${value}</span>` : null}
+                        </div>
+                        ${isColor
+                          ? html`<div className="theme-color-control">
+                              <input className="theme-color-picker" type="color"
+                                value=${/^#[0-9a-fA-F]{6}$/.test(value) ? value : "#000000"}
+                                aria-label=${"Choose " + n + " color"}
+                                onInput=${(e) => editTheme(k, e.target.value)} />
+                              <input className="theme-color-text" value=${value}
+                                onInput=${(e) => editTheme(k, e.target.value)}
+                                aria-label=${n + " hex value"} />
+                            </div>`
+                          : html`<input value=${value} onInput=${(e) => editTheme(k, e.target.value)} />`}
+                      </div>`;
+                    })}
                   </div>
                 </div>
                 <div

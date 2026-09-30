@@ -1,4 +1,5 @@
 import { html } from "htm/react";
+import { useState } from "htm/react";
 
 export const NAV_ITEMS = [
   { id: "home", label: "Home", icon: "◉" }, { id: "timeline", label: "Timeline", icon: "▤" },
@@ -25,8 +26,15 @@ const ADMIN_MOBILE_NAV = [
   { id: "home", label: "Public Site", icon: "↗" },
 ];
 
-export function Sidebar({ page, onNavigate, user, onSignOut, isAdmin=false, siteConfig }) {
+export function Sidebar({ page, onNavigate, user, onSignOut, onDeleteAccount, isAdmin=false, siteConfig }) {
+  const [profileOpen, setProfileOpen] = useState(false);
   const items = isAdmin && page === "admin" ? ADMIN_NAV : NAV_ITEMS;
+
+  const handleDelete = async () => {
+    setProfileOpen(false);
+    await onDeleteAccount?.();
+  };
+
   return html`
     <aside className=${"sidebar " + (isAdmin && page === "admin" ? "admin-sidebar" : "")}>
       <div className="logo">
@@ -37,10 +45,27 @@ export function Sidebar({ page, onNavigate, user, onSignOut, isAdmin=false, site
         <button key=${item.id} className=${"nav-item " + (page === item.id ? "active" : "")} onClick=${() => onNavigate(item.id)}>
           <span className="ico">${item.icon}</span> ${item.label}
         </button>` )}</nav>
-      <div className="sidebar-account">
-        <div className="sidebar-avatar">${(user?.displayName || user?.email || "U").charAt(0).toUpperCase()}</div>
-        <div className="sidebar-account-copy"><strong>${user?.displayName || "Marvel Fan"}</strong><span>${user?.email || ""}</span></div>
-        <button className="sidebar-logout" title="Sign out" onClick=${onSignOut}>↪</button>
+      <div className="sidebar-account-wrap">
+        ${profileOpen ? html`
+          <div className="profile-menu">
+            <div className="profile-menu-head">
+              <strong>Account</strong>
+              <span>${user?.email || ""}</span>
+            </div>
+            <button className="profile-menu-item" onClick=${() => { setProfileOpen(false); onNavigate("settings"); }}>
+              <span>⚙</span> Account Settings
+            </button>
+            <button className="profile-menu-item danger" onClick=${handleDelete}>
+              <span>⌫</span> Delete Account
+            </button>
+          </div>
+        ` : null}
+        <button className="sidebar-account" type="button" onClick=${() => setProfileOpen((value) => !value)}>
+          <div className="sidebar-avatar">${(user?.displayName || user?.email || "U").charAt(0).toUpperCase()}</div>
+          <div className="sidebar-account-copy"><strong>${user?.displayName || "Marvel Fan"}</strong><span>${user?.email || ""}</span></div>
+          <span className="sidebar-profile-chevron">${profileOpen ? "⌃" : "⌄"}</span>
+        </button>
+        <button className="sidebar-logout" title="Sign out" onClick=${(e) => { e.stopPropagation(); onSignOut(); }}>↪</button>
       </div>
     </aside>
   `;

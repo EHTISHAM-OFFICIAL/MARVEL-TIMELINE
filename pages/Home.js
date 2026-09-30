@@ -5,7 +5,7 @@ import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
 import { getUniverse, statusOf, passesMode, isSeries, episodeProgress } from "../utils/helpers.js";
 
-export function Home({ userData, onOpen, onNavigate }) {
+export function Home({ userData, user, siteConfig, onOpen, onNavigate }) {
   const prefs=userData.preferences;
   const visible=useMemo(()=>PROJECTS.filter(p=>passesMode(p,prefs.explorationMode)&&!prefs.hiddenUniverses.includes(p.universe)),[prefs.explorationMode,prefs.hiddenUniverses]);
   const done=visible.filter(p=>statusOf(p.id,userData)==="completed").length;

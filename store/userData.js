@@ -111,6 +111,7 @@ async function saveCloudData(user, data) {
       version: data.version,
       projects: data.projects,
       preferences: data.preferences,
+      profile: { uid: user.uid, displayName: user.displayName || "", email: user.email || "", emailVerified: Boolean(user.emailVerified) },
       updatedAt: serverTimestamp(),
     },
     { merge: true },

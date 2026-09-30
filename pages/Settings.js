@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useRef } from "htm/react";
 import { UNIVERSES } from "../data/universes.js";
 
-export function Settings({ userData, actions }) {
+export function Settings({ userData, actions, user, onSignOut }) {
   const prefs = userData.preferences;
   const fileRef = useRef(null);
 
@@ -45,6 +45,19 @@ export function Settings({ userData, actions }) {
     <div style=${{ maxWidth: "640px" }}>
       <h1>Settings</h1>
       <p className="subtitle">Customize how you explore the Marvel catalog</p>
+
+      <div className="detail-section account-settings">
+        <label>Account</label>
+        <div className="account-settings-row">
+          <div className="account-settings-avatar">${(user?.displayName || user?.email || "U").charAt(0).toUpperCase()}</div>
+          <div className="account-settings-copy">
+            <strong>${user?.displayName || "Marvel Fan"}</strong>
+            <span>${user?.email || ""}</span>
+          </div>
+          <button className="btn" onClick=onSignOut>Sign Out</button>
+        </div>
+        <p className="text-faint account-settings-help">Your progress, favorites, ratings, notes, episode tracking, hidden universes, and preferences are synced to your Firebase account.</p>
+      </div>
 
       <div className="detail-section theme-section">
         <label>Visual Theme</label>

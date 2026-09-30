@@ -2,10 +2,11 @@ import { html, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
+import { expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 
 export function Favorites({ userData, onOpen }) {
   const [layout, setLayout] = useState("grid");
-  const favs = PROJECTS.filter((p) => (userData.projects[p.id] || {}).favorite);
+  const favs = expandProjectsBySeasons(PROJECTS).filter((p) => (userData.projects[p.baseProjectId || p.id] || {}).favorite).sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b));
   return html`
     <div>
       <div className="page-heading-row">

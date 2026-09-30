@@ -25,7 +25,8 @@ function App() {
   const store = useUserData(authState.user);
   const adminAccess = useAdminAccess(authState.user);
   const siteConfig = useSiteConfig();
-  const getRoute = () => window.location.pathname.replace(/\/+$/, "") === "/admin" ? "admin" : "home";
+  const isAdminRoute = () => window.location.pathname.replace(/\/+$/, "") === "/admin";
+  const getRoute = () => isAdminRoute() ? "admin" : "home";
   const [page, setPage] = useState(getRoute);
   const [openProjectId, setOpenProjectId] = useState(null);
   useEffect(() => { window.scrollTo(0, 0); }, [page]);
@@ -35,11 +36,11 @@ function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
   useEffect(() => {
-    if (!adminAccess.loading && !adminAccess.isAdmin && window.location.pathname === "/admin") {
-      window.history.replaceState({}, "", "/");
-      setPage("home");
+    if (!adminAccess.loading && !adminAccess.isAdmin && isAdminRoute() && authState.user) {
+      // Never leave a normal user session inside the administrator route.
+      logout();
     }
-  }, [adminAccess.loading, adminAccess.isAdmin]);
+  }, [adminAccess.loading, adminAccess.isAdmin, authState.user]);
   const navigate = useCallback((id) => {
     if (id === "admin") {
       window.history.pushState({}, "", "/admin");
@@ -80,7 +81,9 @@ function App() {
   };
   useEffect(() => { applyThemePackage(store.data?.preferences?.theme || siteConfig.activeTheme); document.title = (siteConfig.site?.brand || "MARVEL TIMELINE") + " — " + (siteConfig.site?.tagline || "Marvel Tracker"); }, [store.data?.preferences?.theme, siteConfig.activeTheme, siteConfig.themes, siteConfig.site]);
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
-  if (!authState.user) return html`<${AuthScreen} adminMode=${window.location.pathname.replace(/\/+$/, "") === "/admin"} />`;
+  if (!authState.user) return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
+  if (isAdminRoute() && adminAccess.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Verifying administrator access…</p></div></main>`;
+  if (isAdminRoute() && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Administrator access required.</p></div></main>`;
   if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;
   if (siteConfig.site?.maintenance && !adminAccess.loading && !adminAccess.isAdmin) return html`<main className="auth-loading"><div><div className="auth-spinner">✦</div><h2>We are tuning the archive</h2><p>${siteConfig.site?.welcomeText || "The site is temporarily unavailable."}</p></div></main>`;
   const userData = store.data;

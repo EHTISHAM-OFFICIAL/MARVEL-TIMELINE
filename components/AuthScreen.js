@@ -1,5 +1,5 @@
 import { html, useState } from "htm/react";
-import { authErrorMessage, login, resetPassword, signup } from "../auth.js";
+import { adminLogin, authErrorMessage, login, resetPassword, signup } from "../auth.js";
 
 export function AuthScreen({ adminMode=false }) {
   const [mode, setMode] = useState("login");
@@ -23,7 +23,7 @@ export function AuthScreen({ adminMode=false }) {
     }
     setBusy(true);
     try {
-      if (mode === "login") await login(email, password);
+      if (mode === "login") await (adminMode ? adminLogin(email, password) : login(email, password));
       else await signup(email, password, displayName);
     } catch (err) { setError(authErrorMessage(err)); }
     finally { setBusy(false); }

@@ -1,34 +1,116 @@
-import { html, useEffect, useState } from "htm/react";
-import { PROJECTS } from "../data/projects.js";
-import { DEFAULT_SITE_CONFIG, applyThemePackage } from "../store/siteConfig.js";
-import { loadAdminConfig, loadAdminUsers, removeAdminUser, saveAdminThemeConfig, savePrivateConfig, setAdminUser } from "../store/admin.js";
+import { useEffect, useState } from "htm/react";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  serverTimestamp,
+  setDoc,
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { db } from "../firebase.js";
+import { DEFAULT_SITE_CONFIG, setRuntimeConfig } from "./siteConfig.js";
 
-const fields=[["bg","Background"],["bg2","Surface 2"],["bg3","Surface 3"],["card","Card"],["cardHover","Card hover"],["border","Border"],["borderBright","Bright border"],["text","Text"],["textDim","Secondary text"],["textFaint","Muted text"],["red","Accent"],["redBright","Accent bright"],["gold","Gold"],["green","Success"],["blue","Info"],["purple","Purple"],["radius","Radius"],["radiusSm","Small radius"],["glow1","Top glow"],["glow2","Bottom glow"]];
-const metrics=d=>{const p=Object.values(d.projects||{});return {completed:p.filter(x=>x.status==="completed").length,active:p.filter(x=>x.status==="watching"||x.status==="rewatching").length,favorites:p.filter(x=>x.favorite).length,episodes:p.reduce((n,x)=>n+Object.keys(x.episodes||{}).length,0)}};
+// Fixed bootstrap administrator. Firestore Rules enforce the same UID.
+export const BOOTSTRAP_ADMIN_UID = "KLAoecq9ZaZxtmTlBcsbTO1dMnD2";
 
-export function Admin({user,onSignOut}){
- const [tab,setTab]=useState("overview"),[users,setUsers]=useState([]),[config,setConfig]=useState(DEFAULT_SITE_CONFIG),[privateConfig,setPrivateConfig]=useState({}),[selected,setSelected]=useState(null),[themeId,setThemeId]=useState("midnight"),[uid,setUid]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false);
- const refresh=async()=>{setBusy(true);try{const [u,c]=await Promise.all([loadAdminUsers(),loadAdminConfig()]);setUsers(u);setConfig({...DEFAULT_SITE_CONFIG,...c.public});setPrivateConfig(c.private||{});setThemeId(c.public?.activeTheme||"midnight")}catch(e){setNotice(e.message||"Could not load admin data.")}finally{setBusy(false)}};
- useEffect(()=>{refresh()},[]);
- const totals=users.reduce((a,u)=>{const m=metrics(u);a.completed+=m.completed;a.episodes+=m.episodes;return a},{completed:0,episodes:0});
- const theme=config.themes?.[themeId]||DEFAULT_SITE_CONFIG.themes.midnight;
- const editTheme=(k,v)=>setConfig(c=>({...c,themes:{...c.themes,[themeId]:{...c.themes[themeId],vars:{...c.themes[themeId].vars,[k]:v}}}}));
- const newTheme=()=>{const id="custom-"+Date.now();setConfig(c=>({...c,themes:{...c.themes,[id]:{...theme,id,name:"New Theme",description:"Custom theme",vars:{...theme.vars}}}}));setThemeId(id)};
- const publish=async()=>{setBusy(true);try{await saveAdminThemeConfig(config);applyThemePackage(themeId);setNotice("Changes published.")}catch(e){setNotice(e.message||"Publish failed.")}finally{setBusy(false)}};
- const saveTMDB=async()=>{setBusy(true);try{await savePrivateConfig({tmdb:{readAccessToken:privateConfig.tmdb?.readAccessToken||""}});setNotice("TMDB credential saved in protected admin configuration.")}catch(e){setNotice(e.message||"TMDB save failed.")}finally{setBusy(false)}};
- const syncPosters=async()=>{const token=privateConfig.tmdb?.readAccessToken||"";if(!token){setNotice("Save a TMDB token first.");return}setBusy(true);setNotice("Syncing poster URLs from TMDB…");try{const posters={...(config.posters||{})};for(const p of PROJECTS){const q=p.title.replace(/\s+Season\s+\d+$/i,"").trim();const params=new URLSearchParams({query:q,include_adult:"false",language:"en-US",page:"1"});const res=await fetch("https://api.themoviedb.org/3/search/multi?"+params,{headers:{Authorization:"Bearer "+token,accept:"application/json"}});if(!res.ok)continue;const data=await res.json();const wanted=p.type==="movie"||p.type==="animated-movie"||p.type==="special"?"movie":"tv";const matches=(data.results||[]).filter(x=>x.media_type===wanted&&x.poster_path);const best=matches.sort((a,b)=>{const ay=Number(String(a.release_date||a.first_air_date||"").slice(0,4)),by=Number(String(b.release_date||b.first_air_date||"").slice(0,4));return (by===p.releaseYear?1:0)-(ay===p.releaseYear?1:0)})[0];if(best?.poster_path)posters[p.id]="https://image.tmdb.org/t/p/w500"+best.poster_path}const next={...config,posters};await saveAdminThemeConfig(next);setConfig(next);setNotice("Poster catalog synced and published.");}catch(e){setNotice(e.message||"Poster sync failed.")}finally{setBusy(false)}};
- const nav=[["overview","Overview","▦"],["users","Users","♙"],["themes","Theme Studio","◈"],["site","Site Control","◆"],["tmdb","TMDB & Media","▣"],["security","Security","⌁"]];
- return html`
- <div className="admin-page">
-  <header className="admin-topbar"><div><div className="admin-kicker">CONTROL CENTER</div><h1>Admin Console</h1><p>Manage the archive, members, appearance and protected integrations.</p></div><div className="admin-user"><div className="admin-avatar">${(user?.displayName||user?.email||"A").charAt(0).toUpperCase()}</div><div><strong>${user?.displayName||"Administrator"}</strong><span>${user?.email||""}</span></div><button className="btn" onClick=${onSignOut}>Sign out</button></div></header>
-  ${notice?html`<div className="admin-notice">${notice}</div>`:null}
-  <div className="admin-layout"><aside className="admin-nav">${nav.map(([id,name,icon])=>html`<button className=${tab===id?"active":""} onClick=${()=>setTab(id)}><span>${icon}</span>${name}</button>`)}</aside><main className="admin-content">
-  ${tab==="overview"?html`<div className="admin-heading"><span>Overview</span><h2>The archive at a glance</h2><p>Live information from your Firebase data.</p></div><div className="admin-stat-grid"><div className="admin-stat"><span>Registered users</span><b>${users.length}</b></div><div className="admin-stat"><span>Projects completed</span><b>${totals.completed}</b></div><div className="admin-stat"><span>Episodes tracked</span><b>${totals.episodes}</b></div><div className="admin-stat"><span>Catalog entries</span><b>${PROJECTS.length}</b></div></div><div className="admin-panel"><div className="admin-panel-head"><div><h3>Quick actions</h3><p>Jump directly to the controls you use most.</p></div><button className="btn" onClick=${refresh}>↻ Refresh</button></div><div className="admin-quick"><button onClick=${()=>setTab("users")}>View users <span>→</span></button><button onClick=${()=>setTab("themes")}>Theme Studio <span>→</span></button><button onClick=${()=>setTab("tmdb")}>Manage TMDB <span>→</span></button><button onClick=${()=>setTab("security")}>Security <span>→</span></button></div></div>`:null}
-  ${tab==="users"?html`<div className="admin-heading"><span>Members</span><h2>User management</h2><p>View every account and its personal tracking progress.</p></div><div className="admin-table"><div className="admin-row admin-row-head"><span>User</span><span>Progress</span><span>Episodes</span><span>Last sync</span><span></span></div>${users.map(u=>{const m=metrics(u),pct=PROJECTS.length?Math.round(m.completed/PROJECTS.length*100):0;return html`<button className="admin-row" onClick=${()=>setSelected(u)}><span className="user-cell"><i>${(u.displayName||u.email||"U").charAt(0).toUpperCase()}</i><span><strong>${u.displayName||"Unnamed user"}</strong><small>${u.email||"No email saved"}</small></span></span><span><strong>${m.completed}</strong><small>${pct}% complete · ${m.active} active</small></span><span><strong>${m.episodes}</strong><small>episodes watched</small></span><span><small>${u.updatedAt?.toDate?u.updatedAt.toDate().toLocaleString():"—"}</small></span><b>›</b></button>`})}</div>${selected?html`<div className="admin-drawer"><div className="admin-drawer-card"><button className="admin-close" onClick=${()=>setSelected(null)}>×</button><div className="admin-profile"><div className="admin-avatar large">${(selected.displayName||selected.email||"U").charAt(0).toUpperCase()}</div><div><div className="admin-kicker">MEMBER</div><h3>${selected.displayName||"Unnamed user"}</h3><p>${selected.email||""}</p><small>UID: ${selected.uid}</small></div></div><div className="admin-stat-grid compact">${Object.entries(metrics(selected)).map(([k,v])=>html`<div className="admin-stat"><span>${k}</span><b>${v}</b></div>`)}</div><h4>Recently completed</h4>${PROJECTS.filter(p=>selected.projects?.[p.id]?.status==="completed").slice(-10).reverse().map(p=>html`<div className="admin-list-row"><span>${p.title}</span><small>${selected.projects[p.id]?.watchedDate||"Completed"}</small></div>`)}</div></div>`:null}`:null}
-  ${tab==="themes"?html`<div className="admin-heading"><span>Appearance</span><h2>Theme Studio</h2><p>Create and publish complete theme packages without changing source code.</p></div><div className="theme-admin-toolbar"><select value=${themeId} onChange=${e=>setThemeId(e.target.value)}>${Object.values(config.themes||{}).map(t=>html`<option value=${t.id}>${t.name}</option>`)}</select><button className="btn" onClick=${newTheme}>＋ New package</button><button className="btn primary" disabled=${busy} onClick=${publish}>Publish package</button></div><div className="theme-studio"><div className="theme-editor"><label>Package name</label><input value=${theme.name} onInput=${e=>setConfig(c=>({...c,themes:{...c.themes,[themeId]:{...c.themes[themeId],name:e.target.value}}}))}/><label>Description</label><input value=${theme.description||""} onInput=${e=>setConfig(c=>({...c,themes:{...c.themes,[themeId]:{...c.themes[themeId],description:e.target.value}}}))}/><div className="theme-fields">${fields.map(([k,n])=>html`<div><label>${n}</label><input value=${theme.vars?.[k]||""} onInput=${e=>editTheme(k,e.target.value)}/></div>`)}</div></div><div className="theme-preview" style=${Object.fromEntries(Object.entries(theme.vars||{}).map(([k,v])=>["--"+k,v]))}><div className="preview-window"><span>LIVE PREVIEW</span><h3>${theme.name}</h3><p>${theme.description}</p><div className="preview-card"><b>Marvel Timeline</b><small>Your complete visual system.</small><button>Primary action</button></div></div></div></div>`:null}
-  ${tab==="site"?html`<div className="admin-heading"><span>Global settings</span><h2>Site Control</h2><p>Change public identity and messaging without editing code.</p></div><div className="admin-panel form-panel"><label>Brand name</label><input value=${config.site?.brand||""} onInput=${e=>setConfig(c=>({...c,site:{...c.site,brand:e.target.value}}))}/><label>Tagline</label><input value=${config.site?.tagline||""} onInput=${e=>setConfig(c=>({...c,site:{...c.site,tagline:e.target.value}}))}/><label>Welcome heading</label><input value=${config.site?.welcomeTitle||""} onInput=${e=>setConfig(c=>({...c,site:{...c.site,welcomeTitle:e.target.value}}))}/><label>Welcome message</label><textarea value=${config.site?.welcomeText||""} onInput=${e=>setConfig(c=>({...c,site:{...c.site,welcomeText:e.target.value}}))}/><label className="switch-row"><input type="checkbox" checked=${Boolean(config.site?.maintenance)} onChange=${e=>setConfig(c=>({...c,site:{...c.site,maintenance:e.target.checked}}))}/><span>Maintenance mode</span></label><button className="btn primary" disabled=${busy} onClick=${publish}>Publish site settings</button></div>`:null}
-  ${tab==="tmdb"?html`<div className="admin-heading"><span>Media</span><h2>TMDB & poster configuration</h2><p>TMDB credentials are removed from normal user settings.</p></div><div className="admin-panel form-panel"><div className="security-callout"><b>Admin-only configuration</b><span>Normal users are denied access by Firestore rules.</span></div><label>TMDB API Read Access Token</label><input type="password" value=${privateConfig.tmdb?.readAccessToken||""} onInput=${e=>setPrivateConfig(c=>({...c,tmdb:{...(c.tmdb||{}),readAccessToken:e.target.value}}))} autocomplete="off"/><p className="admin-help">Keep this credential private. Use it for admin-side poster syncing and publish only image URLs to members.</p><div className="flex gap-8" style=${{flexWrap:"wrap"}}><button className="btn primary" disabled=${busy} onClick=${saveTMDB}>Save TMDB credential</button><button className="btn" disabled=${busy} onClick=${syncPosters}>Sync poster catalog</button></div></div>`:null}
-  ${tab==="security"?html`<div className="admin-heading"><span>Access control</span><h2>Security & administrators</h2><p>Admin access is checked against Firestore and enforced by rules.</p></div><div className="admin-panel form-panel"><h3>Add administrator</h3><p>Copy a Firebase UID from Users, then grant admin access.</p><label>User UID</label><input value=${uid} onInput=${e=>setUid(e.target.value.trim())} placeholder="Firebase user UID"/><button className="btn primary" onClick=${async()=>{try{await setAdminUser(uid,true,"Administrator");setNotice("Administrator access granted.");setUid("")}catch(e){setNotice(e.message||"Could not grant admin access.")}}}>Grant admin access</button></div><div className="admin-panel"><h3>Current administrator</h3><p><b>${user?.displayName||"Administrator"}</b> · ${user?.email||""}</p><p className="admin-help">Enable Firebase MFA for stronger administrator protection.</p><button className="btn danger" onClick=${async()=>{if(confirm("Remove administrator access from your own account?")){await removeAdminUser(user.uid);location.reload()}}}>Remove my admin access</button></div>`:null}
-  </main></div>
- </div>`;
+export function useAdminAccess(user) {
+  const uid = user?.uid || null;
+  const isBootstrap = uid === BOOTSTRAP_ADMIN_UID;
+  // `uid` records which account this result belongs to. Without it the hook
+  // briefly reports the PREVIOUS account's result (not-admin, not-loading) on
+  // the very render where a login completes, and app.js signs the user out.
+  const [state, setState] = useState({ uid: null, isAdmin: false, error: "" });
+  useEffect(() => {
+    if (!uid || isBootstrap) return;
+    let alive = true;
+    getDoc(doc(db, "admins", uid))
+      .then((s) => {
+        if (!alive) return;
+        if (s.exists() && s.data()?.enabled === true) {
+          setState({ uid, isAdmin: true, error: "" });
+        } else {
+          setState({
+            uid,
+            isAdmin: false,
+            error:
+              "This account is not authorized to open the administrator panel.",
+          });
+        }
+      })
+      .catch((error) => {
+        if (!alive) return;
+        setState({
+          uid,
+          isAdmin: false,
+          error:
+            error?.code === "permission-denied"
+              ? "We couldn’t verify administrator access. Please make sure the administrator record exists and the latest Firestore rules are deployed."
+              : "We couldn’t verify administrator access right now. Please try again.",
+        });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [uid]);
+  // Derived synchronously during render, so there is never a stale frame.
+  if (!uid) return { loading: false, isAdmin: false, error: "" };
+  if (isBootstrap) return { loading: false, isAdmin: true, error: "" };
+  if (state.uid !== uid) return { loading: true, isAdmin: false, error: "" };
+  return { loading: false, isAdmin: state.isAdmin, error: state.error };
+}
+export async function loadAdminUsers() {
+  const [usersSnap, adminsSnap] = await Promise.all([
+    getDocs(collection(db, "users")),
+    getDocs(collection(db, "admins")),
+  ]);
+  const adminIds = new Set(adminsSnap.docs.map((d) => d.id));
+  return usersSnap.docs
+    .filter((d) => !adminIds.has(d.id))
+    .map((d) => ({ uid: d.id, ...d.data() }));
+}
+export async function loadAdminConfig() {
+  const pub = await getDoc(doc(db, "siteConfig", "public"));
+  const priv = await getDoc(doc(db, "siteConfig", "private"));
+  const publicConfig = pub.exists() ? pub.data() : DEFAULT_SITE_CONFIG;
+  return {
+    public: {
+      ...DEFAULT_SITE_CONFIG,
+      ...publicConfig,
+      site: { ...DEFAULT_SITE_CONFIG.site, ...(publicConfig.site || {}) },
+      themes: { ...DEFAULT_SITE_CONFIG.themes, ...(publicConfig.themes || {}) },
+    },
+    private: priv.exists() ? priv.data() : {},
+  };
+}
+export async function savePrivateConfig(patch) {
+  await setDoc(
+    doc(db, "siteConfig", "private"),
+    { ...patch, updatedAt: serverTimestamp() },
+    { merge: true },
+  );
+}
+export async function saveAdminThemeConfig(config) {
+  await setDoc(
+    doc(db, "siteConfig", "public"),
+    { ...config, updatedAt: serverTimestamp() },
+    { merge: true },
+  );
+  setRuntimeConfig(config);
+}
+export async function setAdminUser(
+  uid,
+  enabled = true,
+  label = "Administrator",
+) {
+  if (!uid) throw new Error("A user UID is required.");
+  await setDoc(
+    doc(db, "admins", uid),
+    { enabled, role: "admin", label, updatedAt: serverTimestamp() },
+    { merge: true },
+  );
+  if (enabled) await deleteDoc(doc(db, "users", uid));
+}
+export async function removeAdminUser(uid) {
+  await deleteDoc(doc(db, "admins", uid));
 }

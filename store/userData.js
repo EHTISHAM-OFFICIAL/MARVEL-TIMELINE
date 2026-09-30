@@ -65,7 +65,6 @@ export function normalizeData(value) {
     ? preferences.hiddenUniverses.filter((id) => UNIVERSES.some((u) => u.id === id))
     : [];
 
-  const allowedThemes = ["midnight", "stark", "cosmic", "wakanda", "mystic", "retro"];
 
   return {
     version: 1,
@@ -81,7 +80,7 @@ export function normalizeData(value) {
           : base.preferences.defaultTimeline,
       showAllSpoilers: Boolean(preferences.showAllSpoilers),
       hiddenUniverses: hidden,
-      theme: allowedThemes.includes(preferences.theme) ? preferences.theme : base.preferences.theme,
+      theme: typeof preferences.theme === "string" && preferences.theme.trim() ? preferences.theme : base.preferences.theme,
     },
   };
 }

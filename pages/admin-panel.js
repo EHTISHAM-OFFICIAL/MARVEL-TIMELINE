@@ -48,9 +48,48 @@ const metrics = (d) => {
       (x) => x.status === "watching" || x.status === "rewatching",
     ).length,
     favorites: p.filter((x) => x.favorite).length,
-    episodes: p.reduce((n, x) => n + Object.keys(x.episodes || {}).length, 0),
+    episodes: p.reduce(
+      (n, x) =>
+        n +
+        Object.values(x.episodes || {}).filter((value) => Boolean(value)).length,
+      0,
+    ),
   };
 };
+
+const watchCategory = (project) => {
+  if (project.type === "movie" || project.type === "animated-movie") return "Movie";
+  if (
+    project.type === "limited-series" ||
+    project.type === "tv-series" ||
+    project.type === "animated-series"
+  )
+    return "Series / TV";
+  return "Other";
+};
+
+const formatEpisodeKey = (key) => {
+  const raw = String(key || "");
+  const match = raw.match(/^(?:s)?(\d+)[\s._-]*(?:e)?(\d+)$/i);
+  return match ? "S" + match[1] + " · E" + match[2] : raw;
+};
+
+const getWatchHistory = (d) =>
+  PROJECTS.map((project) => {
+    const state = d?.projects?.[project.id];
+    if (!state) return null;
+    const watchedEpisodes = Object.entries(state.episodes || {}).filter(
+      ([, value]) => Boolean(value),
+    );
+    const watched =
+      state.status === "completed" ||
+      state.status === "watching" ||
+      state.status === "rewatching" ||
+      Boolean(state.watchedDate) ||
+      watchedEpisodes.length > 0;
+    if (!watched) return null;
+    return { project, state, watchedEpisodes, category: watchCategory(project) };
+  }).filter(Boolean);
 
 export function Admin({ user, onSignOut }) {
   const [tab, setTab] = useState("overview"),
@@ -364,23 +403,43 @@ export function Admin({ user, onSignOut }) {
                             </div>`,
                         )}
                       </div>
-                      <h4>Recently completed</h4>
-                      ${PROJECTS.filter(
-                        (p) =>
-                          selected.projects?.[p.id]?.status === "completed",
-                      )
-                        .slice(-10)
-                        .reverse()
-                        .map(
-                          (p) =>
-                            html`<div className="admin-list-row">
-                              <span>${p.title}</span
-                              ><small
-                                >${selected.projects[p.id]?.watchedDate ||
-                                "Completed"}</small
-                              >
-                            </div>`,
-                        )}
+                      <div className="admin-watch-history-head">
+                        <div>
+                          <h4>Complete watch history</h4>
+                          <p>Every movie, series and TV title this user has tracked, including watched episodes.</p>
+                        </div>
+                        <span>${getWatchHistory(selected).length} titles</span>
+                      </div>
+                      <div className="admin-watch-history">
+                        ${getWatchHistory(selected).length
+                          ? getWatchHistory(selected).map(
+                              ({ project, state, watchedEpisodes, category }) =>
+                                html`<article className="admin-watch-item">
+                                  <div className="admin-watch-item-main">
+                                    <div className="admin-watch-type">${category}</div>
+                                    <strong>${project.title}</strong>
+                                    <small>${state.status || "Tracked"}${state.watchedDate ? " · " + state.watchedDate : ""}</small>
+                                  </div>
+                                  <div className="admin-watch-item-count">
+                                    ${project.episodes
+                                      ? html`<strong>${watchedEpisodes.length} / ${project.episodes}</strong><small>episodes</small>`
+                                      : html`<strong>Watched</strong><small>${state.watchedDate || "No date"}</small>`}
+                                  </div>
+                                  ${watchedEpisodes.length
+                                    ? html`<div className="admin-watch-episodes">
+                                        ${watchedEpisodes.map(
+                                          ([key]) =>
+                                            html`<span className="admin-episode-chip">${formatEpisodeKey(key)}</span>`,
+                                        )}
+                                      </div>`
+                                    : null}
+                                </article>`,
+                            )
+                          : html`<div className="admin-history-empty">
+                              <strong>No watched titles recorded</strong>
+                              <span>This user's tracking data does not contain any watched or active titles yet.</span>
+                            </div>`}
+                      </div>
                     </div>
                   </div>`
                 : null}`

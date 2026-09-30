@@ -3,7 +3,7 @@ import { PROJECTS } from "../data/projects.js";
 import { UNIVERSES } from "../data/universes.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { getUniverse, getFranchise, statusOf, STATUS_META } from "../utils/helpers.js";
+import { getUniverse, getFranchise, statusOf, STATUS_META, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 
 export function Search({ userData, onOpen }) {
   const prefs = userData.preferences;
@@ -13,10 +13,11 @@ export function Search({ userData, onOpen }) {
   const [filterStatus, setFilterStatus] = useState("all");
   const [layout, setLayout] = useState("grid");
 
-  const types = useMemo(() => [...new Set(PROJECTS.map((p) => p.type))], []);
+  const catalog = useMemo(() => expandProjectsBySeasons(PROJECTS), []);
+  const types = useMemo(() => [...new Set(catalog.map((p) => p.type))], [catalog]);
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return PROJECTS.filter((p) => {
+    return catalog.filter((p) => {
       if (prefs.hiddenUniverses.includes(p.universe)) return false;
       if (filterUniverse !== "all" && p.universe !== filterUniverse) return false;
       if (filterType !== "all" && p.type !== filterType) return false;
@@ -25,8 +26,8 @@ export function Search({ userData, onOpen }) {
       if (!q) return true;
       const haystack = [p.title, p.shortDescription, p.whyItMatters, ...(p.characters || []), ...(p.franchises || []).map(getFranchise).filter(Boolean).map((f) => f.name), getUniverse(p.universe).name, p.phase ? "phase " + p.phase : "", String(p.releaseYear), p.type.replace(/-/g, " ")].join(" ").toLowerCase();
       return haystack.includes(q);
-    }).sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex);
-  }, [query, filterUniverse, filterType, filterStatus, userData, prefs.hiddenUniverses]);
+    }).sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b));
+  }, [query, filterUniverse, filterType, filterStatus, userData, prefs.hiddenUniverses, catalog]);
 
   return html`
     <div>

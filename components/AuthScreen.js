@@ -26,6 +26,7 @@ export function AuthScreen({ adminMode=false }) {
       if (mode === "login") {
         if (adminMode) {
           await adminLogin(email, password);
+          return;
         } else {
           await login(email, password);
         }

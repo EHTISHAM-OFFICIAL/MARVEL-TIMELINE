@@ -22,8 +22,8 @@ import { useSiteConfig, applyThemePackage } from "./store/siteConfig.js";
 
 function App() {
   const authState = useAuth();
-  const store = useUserData(authState.user);
   const adminAccess = useAdminAccess(authState.user);
+  const store = useUserData(authState.user, adminAccess.isAdmin);
   const siteConfig = useSiteConfig();
   const isAdminRoute = () => window.location.pathname.replace(/\/+$/, "") === "/admin";
   const getRoute = () => isAdminRoute() ? "admin" : "home";

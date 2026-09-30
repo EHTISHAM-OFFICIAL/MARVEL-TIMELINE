@@ -6,7 +6,23 @@ import { DEFAULT_SITE_CONFIG, setRuntimeConfig } from "./siteConfig.js";
 export function useAdminAccess(user){
  const [state,setState]=useState({loading:Boolean(user),isAdmin:false,error:""});
  useEffect(()=>{let alive=true;if(!user){setState({loading:false,isAdmin:false,error:""});return()=>{alive=false;};}setState({loading:true,isAdmin:false,error:""});
- getDoc(doc(db,"admins",user.uid)).then(s=>{if(alive)setState({loading:false,isAdmin:s.exists()&&s.data()?.enabled===true,error:""});}).catch(()=>{if(alive)setState({loading:false,isAdmin:false,error:"Admin access could not be verified."});});
+ getDoc(doc(db,"admins",user.uid)).then(s=>{
+  if(!alive)return;
+  if(s.exists()&&s.data()?.enabled===true){
+    setState({loading:false,isAdmin:true,error:""});
+  }else{
+    setState({loading:false,isAdmin:false,error:"This account is not authorized to open the administrator panel."});
+  }
+}).catch(error=>{
+  if(!alive)return;
+  setState({
+    loading:false,
+    isAdmin:false,
+    error:error?.code==="permission-denied"
+      ? "We couldn’t verify administrator access. Please make sure the administrator record exists and the latest Firestore rules are deployed."
+      : "We couldn’t verify administrator access right now. Please try again."
+  });
+});
  return()=>{alive=false;};
  },[user?.uid]);
  return state;

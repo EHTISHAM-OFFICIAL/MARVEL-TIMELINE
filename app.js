@@ -37,9 +37,7 @@ function App() {
     setWatchedDate: store.setWatchedDate, revealSpoilers: store.revealSpoilers, setPreference: store.setPreference,
     toggleUniverseHidden: store.toggleUniverseHidden, importData: store.importData, reset: store.reset,
   };
-  useEffect(() => {
-    if (store.data?.preferences?.theme) document.documentElement.dataset.theme = store.data.preferences.theme;
-  }, [store.data?.preferences?.theme]);
+  useEffect(() => { applyThemePackage(store.data?.preferences?.theme || siteConfig.activeTheme); }, [store.data?.preferences?.theme, siteConfig.activeTheme, siteConfig.themes]);
   if (authState.loading) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Loading your Marvel archive…</p></div></main>`;
   if (!authState.user) return html`<${AuthScreen} />`;
   if (!store.ready) return html`<main className="auth-loading"><div><div className="auth-spinner"></div><p>Syncing your Marvel archive…</p></div></main>`;

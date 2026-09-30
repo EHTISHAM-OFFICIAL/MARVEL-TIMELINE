@@ -38,10 +38,8 @@ export async function adminLogin(email, password) {
     throw error;
   }
 
-  // Administrators are a separate account class. Remove any legacy tracker
-  // document so an administrator can never appear in the normal user list.
-  await deleteDoc(doc(db, "users", credential.user.uid));
-
+  // Sign-in only authenticates and authorizes. Do not perform account cleanup
+  // during the login transaction; that made admin sign-in unnecessarily fragile.
   return credential.user;
 }
 
@@ -89,6 +87,8 @@ export function authErrorMessage(error) {
     "auth/requires-recent-login": "For security, please sign in again before deleting your account.",
     "auth/not-admin": "This account is not authorized to access the administrator panel.",
     "auth/admin-account": "This administrator account must use the administrator sign-in at /admin.",
+    "permission-denied": "Administrator authorization could not be verified. Check the administrator record and Firestore rules.",
+    "unauthenticated": "Your Firebase session expired. Please sign in again.",
   };
   return messages[error?.code] || error?.message || "Authentication failed. Please try again.";
 }

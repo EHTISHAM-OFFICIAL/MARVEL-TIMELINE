@@ -100,7 +100,7 @@ export function Franchises({ userData, onOpen }) {
       </p>
       <div className="grid wide">
         ${FRANCHISES.map((f) => {
-          const projects = PROJECTS.filter(
+          const projects = expandProjectsBySeasons(PROJECTS).filter(
             (p) =>
               (p.franchises || []).includes(f.id) &&
               passesMode(p, prefs.explorationMode),

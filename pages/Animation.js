@@ -2,19 +2,19 @@ import { html, useMemo, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { passesMode } from "../utils/helpers.js";
+import { passesMode, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 
 export function Animation({ userData, onOpen }) {
   const prefs = userData.preferences;
   const [layout, setLayout] = useState("grid");
   const animation = useMemo(
     () =>
-      PROJECTS.filter(
+      expandProjectsBySeasons(PROJECTS).filter(
         (p) =>
           (p.type === "animated-series" || p.type === "animated-movie") &&
           passesMode(p, prefs.explorationMode) &&
           !prefs.hiddenUniverses.includes(p.universe),
-      ).sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex),
+      ).sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b)),
     [prefs],
   );
 

@@ -58,7 +58,7 @@ function App() {
     case "favorites": pageEl = html`<${Favorites} userData=${userData} onOpen=${openProject} />`; break;
     case "settings": pageEl = html`<${Settings} userData=${userData} actions=${actions} user=${authState.user} onSignOut=${logout} />`; break;
     case "admin": pageEl = adminAccess.isAdmin ? html`<${Admin} user=${authState.user} onSignOut=${logout} />` : html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`; break;
-    default: pageEl = html`<${Home} userData=${userData} onOpen=${openProject} onNavigate=${navigate} />`;
+    default: pageEl = html`<${Home} userData=${userData} user=${authState.user} siteConfig=${siteConfig} onOpen=${openProject} onNavigate=${navigate} />`;
   }
   return html`<div className="app">
     <${Sidebar} page=${page} onNavigate=${setPage} user=${authState.user} onSignOut=${logout} isAdmin=${adminAccess.isAdmin} />

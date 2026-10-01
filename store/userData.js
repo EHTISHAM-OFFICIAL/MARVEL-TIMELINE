@@ -30,7 +30,7 @@ function cloneDefault() {
   };
 }
 
-function normalizeProject(value) {
+function normalizeTrackingState(value) {
   if (!value || typeof value !== "object") return {};
   const allowedStatuses = ["not-started", "watching", "completed", "skipped", "rewatching"];
   return {
@@ -43,9 +43,23 @@ function normalizeProject(value) {
     notes: typeof value.notes === "string" ? value.notes : "",
     watchedDate: typeof value.watchedDate === "string" ? value.watchedDate : "",
     spoilersRevealed: Boolean(value.spoilersRevealed),
+  };
+}
+
+function normalizeProject(value) {
+  if (!value || typeof value !== "object") return {};
+  const base = normalizeTrackingState(value);
+  return {
+    ...base,
     episodes:
       value.episodes && typeof value.episodes === "object"
         ? Object.fromEntries(Object.entries(value.episodes).filter(([, v]) => v === true))
+        : {},
+    seasonStates:
+      value.seasonStates && typeof value.seasonStates === "object"
+        ? Object.fromEntries(
+            Object.entries(value.seasonStates).map(([season, state]) => [season, normalizeTrackingState(state)]),
+          )
         : {},
   };
 }
@@ -245,6 +259,27 @@ export function useUserData(user, accountIsAdmin = false) {
 
   const setStatus = useCallback((projectId, status) => updateProject(projectId, { status }), [updateProject]);
 
+  const setSeasonState = useCallback((projectId, seasonNumber, patch) => {
+    setData((current) => {
+      const project = normalizeProject(current.projects[projectId]);
+      const key = String(seasonNumber);
+      const currentSeason = normalizeTrackingState(project.seasonStates?.[key]);
+      return {
+        ...current,
+        projects: {
+          ...current.projects,
+          [projectId]: {
+            ...project,
+            seasonStates: {
+              ...(project.seasonStates || {}),
+              [key]: { ...currentSeason, ...patch },
+            },
+          },
+        },
+      };
+    });
+  }, []);
+
   const setRating = useCallback(
     (projectId, rating) => updateProject(projectId, { rating: Number(rating) || 0 }),
     [updateProject],
@@ -303,6 +338,7 @@ export function useUserData(user, accountIsAdmin = false) {
     ready,
     syncError,
     setStatus,
+    setSeasonState,
     setRating,
     setNotes,
     toggleFavorite,

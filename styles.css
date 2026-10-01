@@ -398,9 +398,24 @@ label {
   position: absolute;
   left: 14px;
   top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-faint);
-  font-size: 15px;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-55%);
+  border: 2px solid var(--text-faint);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.search-wrap .ico::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 2px;
+  right: -5px;
+  bottom: -2px;
+  background: var(--text-faint);
+  border-radius: 2px;
+  transform: rotate(45deg);
+  transform-origin: left center;
 }
 
 .filters {

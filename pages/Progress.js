@@ -2,11 +2,7 @@ import { html, useMemo, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { StatusDot } from "../components/StatusBadge.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-<<<<<<< HEAD
-import { statusOf, passesMode, isSeries, episodeProgress } from "../utils/helpers.js";
-=======
 import { statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder, getProjectState } from "../utils/helpers.js";
->>>>>>> 5d94b20c104a801b1e245624438b2ae77dd4668e
 
 export function Progress({ userData, onOpen }) {
   const prefs = userData.preferences;
@@ -14,7 +10,7 @@ export function Progress({ userData, onOpen }) {
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const visible = useMemo(
     () =>
-      PROJECTS.filter(
+      expandProjectsBySeasons(PROJECTS).filter(
         (p) =>
           passesMode(p, prefs.explorationMode) &&
           !prefs.hiddenUniverses.includes(p.universe),
@@ -24,7 +20,7 @@ export function Progress({ userData, onOpen }) {
 
   const order = useMemo(
     () =>
-      visible.slice().sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex),
+      visible.slice().sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b)),
     [visible],
   );
 
@@ -58,13 +54,8 @@ export function Progress({ userData, onOpen }) {
   };
 
   const totalCompleted = completed.length;
-<<<<<<< HEAD
-  const totalFavorites = order.filter((p) => (userData.projects[p.id] || {}).favorite).length;
-  const rated = order.filter((p) => Number((userData.projects[p.id] || {}).rating) > 0).length;
-=======
-  const totalFavorites = order.filter((p) => getProjectState(p,userData).favorite).length;
-  const rated = order.filter((p) => Number(getProjectState(p,userData).rating) > 0).length;
->>>>>>> 5d94b20c104a801b1e245624438b2ae77dd4668e
+  const totalFavorites = order.filter((p) => getProjectState(p, userData).favorite).length;
+  const rated = order.filter((p) => Number(getProjectState(p, userData).rating) > 0).length;
   const fullyTracked = order.filter((p) => { if (!isSeries(p)) return statusOf(p.id,userData) === "completed"; const e=episodeProgress(p,userData); return e.total > 0 && e.watched === e.total; }).length;
   const completionPercent = order.length ? Math.round((totalCompleted / order.length) * 100) : 0;
   const spiderList = order.filter((p) => (p.franchises || []).includes("spider-man"));

@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useEffect } from "htm/react";
 import {
   getProject, getUniverse, formatRuntime, STATUS_META, CONNECTION_LABELS,
-  isSeries, episodeProgress,
+  isSeries, episodeProgress, getProjectState,
 } from "../utils/helpers.js";
 import { SpoilerSection } from "./SpoilerSection.js";
 
@@ -21,7 +21,8 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
   if (!project) return null;
 
   const baseProjectId = project.baseProjectId || project.id;
-  const userP = userData.projects[baseProjectId] || {};
+  const userP = getProjectState(project, userData);
+  const trackingId = project.seasonNumber ? project.id : baseProjectId;
   const seasonOffset = project.seasonNumber && Array.isArray(getProject(baseProjectId)?.episodesBySeason)
     ? getProject(baseProjectId).episodesBySeason
         .slice(0, project.seasonNumber - 1)
@@ -66,7 +67,7 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
           ${project.spoilerConnections ? html`
             <div className="detail-section">
               <h3>Connections</h3>
-              <${SpoilerSection} text=${project.spoilerConnections} revealed=${spoilersShown} onReveal=${() => actions.revealSpoilers(baseProjectId)} />
+              <${SpoilerSection} text=${project.spoilerConnections} revealed=${spoilersShown} onReveal=${() => actions.setSeasonState ? actions.setSeasonState(baseProjectId, project.seasonNumber, { spoilersRevealed: true }) : actions.revealSpoilers(trackingId)} />
             </div>
           ` : null}
           ${project.characters?.length ? html`
@@ -122,20 +123,20 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
           <div className="detail-section tracking-section">
             <div className="flex-between mb-16">
               <div><h3 style=${{ margin: 0 }}>My Tracking</h3><span className="text-faint">Saved locally in this browser.</span></div>
-              <button className=${"favorite-btn " + (userP.favorite ? "on" : "")} onClick=${() => actions.toggleFavorite(baseProjectId)} aria-label="Toggle favorite">${userP.favorite ? "★" : "☆"}</button>
+              <button className=${"favorite-btn " + (userP.favorite ? "on" : "")} onClick=${() => actions.setSeasonState ? actions.setSeasonState(baseProjectId, project.seasonNumber, { favorite: !Boolean(userP.favorite) }) : actions.toggleFavorite(trackingId)} aria-label="Toggle favorite">${userP.favorite ? "★" : "☆"}</button>
             </div>
             <div style=${{ marginBottom: "16px" }}><label>Status</label><div className="status-selector">
               ${Object.entries(STATUS_META).map(([key, meta]) => html`
-                <button key=${key} className=${"status-btn " + (status === key ? "active" : "")} onClick=${() => actions.setStatus(baseProjectId, key)}>
+                <button key=${key} className=${"status-btn " + (status === key ? "active" : "")} onClick=${() => actions.setSeasonState ? actions.setSeasonState(baseProjectId, project.seasonNumber, { status: key }) : actions.setStatus(trackingId, key)}>
                   <span>${meta.dot}</span> ${meta.label}
                 </button>`)}
             </div></div>
             <div style=${{ marginBottom: "16px" }}><label>My Rating ${userP.rating ? "— " + userP.rating + "/10" : ""}</label><div className="rating">
               ${[1,2,3,4,5,6,7,8,9,10].map((n) => html`
-                <button key=${n} className=${"rating-star " + (userP.rating >= n ? "on" : "")} onClick=${() => actions.setRating(baseProjectId, userP.rating === n ? 0 : n)} aria-label=${"Rate " + n + "/10"}>★</button>`)}
+                <button key=${n} className=${"rating-star " + (userP.rating >= n ? "on" : "")} onClick=${() => actions.setSeasonState ? actions.setSeasonState(baseProjectId, project.seasonNumber, { rating: userP.rating === n ? 0 : n }) : actions.setRating(trackingId, userP.rating === n ? 0 : n)} aria-label=${"Rate " + n + "/10"}>★</button>`)}
             </div></div>
-            <div style=${{ marginBottom: "16px" }}><label>Watched Date</label><input type="date" value=${userP.watchedDate || ""} onChange=${(e) => actions.setWatchedDate(baseProjectId, e.target.value)} /></div>
-            <div><label>My Notes</label><textarea value=${userP.notes || ""} onChange=${(e) => actions.setNotes(baseProjectId, e.target.value)} placeholder="Personal thoughts, context, where it fits..."></textarea></div>
+            <div style=${{ marginBottom: "16px" }}><label>Watched Date</label><input type="date" value=${userP.watchedDate || ""} onChange=${(e) => actions.setSeasonState ? actions.setSeasonState(baseProjectId, project.seasonNumber, { watchedDate: e.target.value }) : actions.setWatchedDate(trackingId, e.target.value)} /></div>
+            <div><label>My Notes</label><textarea value=${userP.notes || ""} onChange=${(e) => actions.setSeasonState ? actions.setSeasonState(baseProjectId, project.seasonNumber, { notes: e.target.value }) : actions.setNotes(trackingId, e.target.value)} placeholder="Personal thoughts, context, where it fits..."></textarea></div>
           </div>
         </div>
       </div>

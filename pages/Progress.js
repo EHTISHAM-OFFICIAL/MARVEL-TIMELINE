@@ -2,7 +2,7 @@ import { html, useMemo, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { StatusDot } from "../components/StatusBadge.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
+import { statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder, getProjectState } from "../utils/helpers.js";
 
 export function Progress({ userData, onOpen }) {
   const prefs = userData.preferences;
@@ -54,8 +54,8 @@ export function Progress({ userData, onOpen }) {
   };
 
   const totalCompleted = completed.length;
-  const totalFavorites = order.filter((p) => (userData.projects[p.baseProjectId || p.id] || {}).favorite).length;
-  const rated = order.filter((p) => Number((userData.projects[p.baseProjectId || p.id] || {}).rating) > 0).length;
+  const totalFavorites = order.filter((p) => getProjectState(p,userData).favorite).length;
+  const rated = order.filter((p) => Number(getProjectState(p,userData).rating) > 0).length;
   const fullyTracked = order.filter((p) => { if (!isSeries(p)) return statusOf(p.id,userData) === "completed"; const e=episodeProgress(p,userData); return e.total > 0 && e.watched === e.total; }).length;
   const completionPercent = order.length ? Math.round((totalCompleted / order.length) * 100) : 0;
   const spiderList = order.filter((p) => (p.franchises || []).includes("spider-man"));

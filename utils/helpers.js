@@ -85,10 +85,18 @@ export const getProject = (id) => {
 export const getUniverse = (id) =>
   UNIVERSES.find((u) => u.id === id) || { id, name: "Unknown", color: "#666" };
 export const getFranchise = (id) => FRANCHISES.find((f) => f.id === id);
+export const getProjectState = (project, data) => {
+  const baseId = project?.baseProjectId || project?.id;
+  const baseState = data?.projects?.[baseId] || {};
+  if (project?.seasonNumber) {
+    return baseState.seasonStates?.[String(project.seasonNumber)] || {};
+  }
+  return baseState;
+};
+
 export const statusOf = (id, data) => {
   const project = getProject(id);
-  const baseId = project?.baseProjectId || id;
-  return data.projects[baseId]?.status || "not-started";
+  return getProjectState(project || { id }, data).status || "not-started";
 };
 
 export function formatRuntime(min) {

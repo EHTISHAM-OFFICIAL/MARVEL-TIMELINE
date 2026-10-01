@@ -384,29 +384,36 @@ label {
   letter-spacing: 0;
 }
 
+/* Search field
+   The icon box and the input's text column are derived from the SAME three numbers, so they
+   cannot drift apart:    | left | icon box | gap | text (and placeholder) start here ...
+   The icon sits in a fixed-size box (glyph centred and clipped), so even an unusually wide emoji
+   font can never spill into the text area. The input reads --input-pad-start from the universal
+   form rule, which applies to the typed text and the placeholder alike. */
 .search-wrap {
+  --search-icon-left: 14px;
+  --search-icon-box: 24px;
+  --search-icon-gap: 12px;
+  --input-pad-start: calc(var(--search-icon-left) + var(--search-icon-box) + var(--search-icon-gap));
   position: relative;
   margin-bottom: 20px;
 }
-.search-wrap input {
-  padding-left: 38px;
-  font-size: 15px;
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
 .search-wrap .ico {
   position: absolute;
-  left: 14px;
   top: 50%;
+  left: var(--search-icon-left);
+  width: var(--search-icon-box);
+  height: var(--search-icon-box);
   transform: translateY(-50%);
-  width: auto;
-  height: auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  box-sizing: border-box;
   border: 0;
   border-radius: 0;
-  pointer-events: none;
-  box-sizing: border-box;
   font-size: 16px;
   line-height: 1;
+  pointer-events: none;
   z-index: 1;
 }
 
@@ -2298,7 +2305,9 @@ select {
   width: 100%;
   min-height: 46px;
   margin: 0;
-  padding: 11px 13px;
+  /* Wrappers that overlay an icon/button on the field set these (see .search-wrap, .auth-input-wrap).
+     Padding is decided here, in ONE place, so no specificity contest is ever needed. */
+  padding: 11px var(--input-pad-end, 13px) 11px var(--input-pad-start, 13px);
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--bg-3);

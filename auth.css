@@ -461,10 +461,9 @@
 
 /* Show / hide password toggle */
 .auth-input-wrap {
+  /* room for the 38px eye button + its 6px inset + a 4px gap (read by the universal form rule) */
+  --input-pad-end: 48px;
   position: relative;
-}
-.auth-input-has-toggle {
-  padding-right: 48px;
 }
 .auth-eye {
   position: absolute;

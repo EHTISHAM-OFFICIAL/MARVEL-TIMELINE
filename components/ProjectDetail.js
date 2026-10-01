@@ -30,7 +30,6 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
 
   const baseProjectId = project.baseProjectId || project.id;
   const userP = getProjectState(project, userData);
-  const trackingId = project.seasonNumber ? project.id : baseProjectId;
   const seasonOffset =
     project.seasonNumber &&
     Array.isArray(getProject(baseProjectId)?.episodesBySeason)
@@ -126,7 +125,7 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
                   <${SpoilerSection}
                     text=${project.spoilerConnections}
                     revealed=${spoilersShown}
-                    onReveal=${() => actions.revealSpoilers(project.id)}
+                    onReveal=${() => actions.setTracking(baseProjectId, project.seasonNumber, { spoilersRevealed: true })}
                   />
                 </div>
               `
@@ -274,7 +273,7 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
               </div>
               <button
                 className=${"favorite-btn " + (userP.favorite ? "on" : "")}
-                onClick=${() => actions.toggleFavorite(project.id)}
+                onClick=${() => actions.setTracking(baseProjectId, project.seasonNumber, { favorite: !Boolean(userP.favorite) })}
                 aria-label="Toggle favorite"
               >
                 ${userP.favorite ? "★" : "☆"}
@@ -289,7 +288,7 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
                       key=${key}
                       className=${"status-btn " +
                       (status === key ? "active" : "")}
-                      onClick=${() => actions.setStatus(project.id, key)}
+                      onClick=${() => actions.setTracking(baseProjectId, project.seasonNumber, { status: key })}
                     >
                       <span>${meta.dot}</span> ${meta.label}
                     </button>`,
@@ -309,10 +308,7 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
                       className=${"rating-star " +
                       (userP.rating >= n ? "on" : "")}
                       onClick=${() =>
-                        actions.setRating(
-                          project.id,
-                          userP.rating === n ? 0 : n,
-                        )}
+                        actions.setTracking(baseProjectId, project.seasonNumber, { rating: userP.rating === n ? 0 : n })}
                       aria-label=${"Rate " + n + "/10"}
                     >
                       ★
@@ -326,14 +322,14 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
                 type="date"
                 value=${userP.watchedDate || ""}
                 onChange=${(e) =>
-                  actions.setWatchedDate(project.id, e.target.value)}
+                  actions.setTracking(baseProjectId, project.seasonNumber, { watchedDate: e.target.value })}
               />
             </div>
             <div>
               <label>My Notes</label
               ><textarea
                 value=${userP.notes || ""}
-                onChange=${(e) => actions.setNotes(project.id, e.target.value)}
+                onChange=${(e) => actions.setTracking(baseProjectId, project.seasonNumber, { notes: e.target.value })}
                 placeholder="Personal thoughts, context, where it fits..."
               ></textarea>
             </div>

@@ -3,7 +3,7 @@ import { PROJECTS } from "../data/projects.js";
 import { UNIVERSES } from "../data/universes.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { getUniverse, getFranchise, statusOf, STATUS_META, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
+import { statusOf, STATUS_META, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 
 export function Search({ userData, onOpen }) {
   const prefs = userData.preferences;

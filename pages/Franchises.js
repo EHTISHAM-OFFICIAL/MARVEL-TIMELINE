@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useState } from "htm/react";
 import { FRANCHISES } from "../data/franchises.js";
 import { PROJECTS } from "../data/projects.js";
-import { getUniverse, getFranchise, passesMode } from "../utils/helpers.js";
+import { getUniverse, getFranchise, passesMode, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
 
@@ -13,7 +13,7 @@ export function Franchises({ userData, onOpen }) {
   const franchise = activeFranchise ? getFranchise(activeFranchise) : null;
 
   if (franchise) {
-    const projects = PROJECTS.filter(
+    const projects = expandProjectsBySeasons(PROJECTS).filter(
       (p) =>
         (p.franchises || []).includes(franchise.id) &&
         passesMode(p, prefs.explorationMode) &&
@@ -44,7 +44,7 @@ export function Franchises({ userData, onOpen }) {
 
         ${Object.entries(byUniverse).map(([uid, list]) => {
           const u = getUniverse(uid);
-          const sorted = list.slice().sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex);
+          const sorted = list.slice().sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b));
           return html`
             <div key=${uid} style=${{ marginBottom: "32px" }}>
               <div className="section-header">

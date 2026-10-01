@@ -1,6 +1,6 @@
 import { html, useEffect, useState } from "htm/react";
 import { StatusDot } from "./StatusBadge.js";
-import { getUniverse, statusOf, episodeProgress, isSeries } from "../utils/helpers.js";
+import { getUniverse, statusOf, episodeProgress, isSeries, getProjectState } from "../utils/helpers.js";
 import { getTMDBPoster, hasTMDBToken } from "../utils/tmdb.js";
 
 const posterCache = new Map();
@@ -31,7 +31,7 @@ function PosterImage({ project }) {
 export function PosterProjectCard({ project, userData, onOpen }) {
   const u = getUniverse(project.universe);
   const status = statusOf(project.id, userData);
-  const userP = userData.projects[project.baseProjectId || project.id] || {};
+  const userP = getProjectState(project, userData);
   const ep = episodeProgress(project, userData);
 
   return html`

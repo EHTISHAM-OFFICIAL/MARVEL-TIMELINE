@@ -2,7 +2,7 @@ import { html, useMemo, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { StatusDot } from "../components/StatusBadge.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
+import { statusOf, passesMode, isSeries, episodeProgress } from "../utils/helpers.js";
 
 export function Progress({ userData, onOpen }) {
   const prefs = userData.preferences;
@@ -10,7 +10,7 @@ export function Progress({ userData, onOpen }) {
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const visible = useMemo(
     () =>
-      expandProjectsBySeasons(PROJECTS).filter(
+      PROJECTS.filter(
         (p) =>
           passesMode(p, prefs.explorationMode) &&
           !prefs.hiddenUniverses.includes(p.universe),
@@ -20,7 +20,7 @@ export function Progress({ userData, onOpen }) {
 
   const order = useMemo(
     () =>
-      visible.slice().sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b)),
+      visible.slice().sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex),
     [visible],
   );
 
@@ -54,8 +54,8 @@ export function Progress({ userData, onOpen }) {
   };
 
   const totalCompleted = completed.length;
-  const totalFavorites = order.filter((p) => (userData.projects[p.baseProjectId || p.id] || {}).favorite).length;
-  const rated = order.filter((p) => Number((userData.projects[p.baseProjectId || p.id] || {}).rating) > 0).length;
+  const totalFavorites = order.filter((p) => (userData.projects[p.id] || {}).favorite).length;
+  const rated = order.filter((p) => Number((userData.projects[p.id] || {}).rating) > 0).length;
   const fullyTracked = order.filter((p) => { if (!isSeries(p)) return statusOf(p.id,userData) === "completed"; const e=episodeProgress(p,userData); return e.total > 0 && e.watched === e.total; }).length;
   const completionPercent = order.length ? Math.round((totalCompleted / order.length) * 100) : 0;
   const spiderList = order.filter((p) => (p.franchises || []).includes("spider-man"));
@@ -167,7 +167,7 @@ export function Progress({ userData, onOpen }) {
         : html`<div className="row-list">${order.map((p) => {
             const status = statusOf(p.id, userData);
             const isNext = next && next.id === p.id;
-            return html`<div key=${p.id} className="row" onClick=${() => onOpen(p.id)} style=${isNext ? { borderColor: "var(--red)", background: "rgba(230,36,41,0.06)" } : {}}>
+            return html`<div key=${p.id} className="row" onClick=${() => onOpen(p.id)} style=${isNext ? { borderColor: "var(--red)", background: "color-mix(in srgb, var(--red) 7%, transparent)" } : {}}>
               <${StatusDot} status=${status} />
               <div className="r-title">${p.title}</div>
               <div className="r-meta">${p.releaseYear}</div>

@@ -13,7 +13,7 @@ export const NAV_ITEMS = [
 export const MOBILE_NAV = [
   { id: "home", label: "Home", icon: "◉" }, { id: "timeline", label: "Timeline", icon: "▤" },
   { id: "universes", label: "Universes", icon: "◈" }, { id: "search", label: "Search", icon: "🔍" },
-  { id: "progress", label: "Progress", icon: "▲" },
+  { id: "progress", label: "Progress", icon: "▲" }, { id: "settings", label: "Settings", icon: "⚙" },
 ];
 
 const ADMIN_NAV = [
@@ -47,7 +47,7 @@ export function Sidebar({ page, onNavigate, user, onSignOut, onDeleteAccount, is
         </button>` )}</nav>
       <div className="sidebar-account-wrap" style=${{ position: "relative" }}>
         ${profileOpen ? html`
-          <div className="profile-menu" style=${{ position: "absolute", bottom: "62px", left: "0", right: "0", padding: "8px", background: "var(--bg-2)", border: "1px solid var(--border-bright)", borderRadius: "12px", boxShadow: "0 18px 45px rgba(0,0,0,.5)", zIndex: 20 }}>
+          <div className="profile-menu" style=${{ position: "absolute", bottom: "62px", left: "0", right: "0", padding: "8px", background: "var(--bg-2)", border: "1px solid var(--border-bright)", borderRadius: "12px", boxShadow: "0 18px 45px color-mix(in srgb, var(--shadow-ink) 45%, transparent)", zIndex: 20 }}>
             <div className="profile-menu-head" style=${{ padding: "7px 9px 10px", borderBottom: "1px solid var(--border)", marginBottom: "6px" }}>
               <strong style=${{ display: "block", fontSize: "12px" }}>Account</strong>
               <span style=${{ display: "block", fontSize: "10px", color: "var(--text-faint)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis" }}>${user?.email || ""}</span>

@@ -49,7 +49,7 @@ export function PosterProjectCard({ project, userData, onOpen }) {
           ${userP.favorite ? html`<span className="poster-fav">★</span>` : null}
         </div>
         <h3>${project.title}</h3>
-        <div className="poster-meta"><span>${project.releaseYear}</span><span className="poster-universe" style=${{ color: u.color }}>${u.name}</span></div>
+        <div className="poster-meta"><span>${project.releaseYear}</span><span className="poster-universe" style=${{ color: "color-mix(in srgb, " + u.color + " 62%, var(--text))" }}>${u.name}</span></div>
         ${project.phase ? html`<span className="badge phase">PHASE ${project.phase}</span>` : null}
         ${isSeries(project) && ep.total ? html`
           <div className="poster-episodes">

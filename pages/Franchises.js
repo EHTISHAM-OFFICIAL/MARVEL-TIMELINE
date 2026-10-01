@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useState } from "htm/react";
 import { FRANCHISES } from "../data/franchises.js";
 import { PROJECTS } from "../data/projects.js";
-import { getUniverse, getFranchise, passesMode, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
+import { getUniverse, getFranchise, passesMode } from "../utils/helpers.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
 
@@ -13,7 +13,7 @@ export function Franchises({ userData, onOpen }) {
   const franchise = activeFranchise ? getFranchise(activeFranchise) : null;
 
   if (franchise) {
-    const projects = expandProjectsBySeasons(PROJECTS).filter(
+    const projects = PROJECTS.filter(
       (p) =>
         (p.franchises || []).includes(franchise.id) &&
         passesMode(p, prefs.explorationMode) &&
@@ -44,11 +44,11 @@ export function Franchises({ userData, onOpen }) {
 
         ${Object.entries(byUniverse).map(([uid, list]) => {
           const u = getUniverse(uid);
-          const sorted = list.slice().sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b));
+          const sorted = list.slice().sort((a, b) => a.releaseOrderIndex - b.releaseOrderIndex);
           return html`
             <div key=${uid} style=${{ marginBottom: "32px" }}>
               <div className="section-header">
-                <h2 style=${{ color: u.color }}>${u.name}</h2>
+                <h2 style=${{ color: "color-mix(in srgb, " + u.color + " 62%, var(--text))" }}>${u.name}</h2>
                 <span className="text-faint" style=${{ fontSize: "12px" }}>
                   ${u.earth !== "—" ? u.earth : ""}
                 </span>
@@ -100,7 +100,7 @@ export function Franchises({ userData, onOpen }) {
       </p>
       <div className="grid wide">
         ${FRANCHISES.map((f) => {
-          const projects = expandProjectsBySeasons(PROJECTS).filter(
+          const projects = PROJECTS.filter(
             (p) =>
               (p.franchises || []).includes(f.id) &&
               passesMode(p, prefs.explorationMode),

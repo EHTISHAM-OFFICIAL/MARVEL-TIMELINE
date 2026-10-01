@@ -21,6 +21,7 @@ import { useAdminAccess } from "./store/admin.js";
 import {
   useSiteConfig,
   applyThemePackage,
+  hasAppliedTheme,
   isMaintenanceActive,
 } from "./store/siteConfig.js";
 
@@ -154,13 +155,18 @@ function App() {
     reset: store.reset,
   };
   useEffect(() => {
-    applyThemePackage(store.data?.preferences?.theme || siteConfig.activeTheme);
+    const preferred =
+      authState.user && store.ready ? store.data?.preferences?.theme : null;
+    if (preferred || !hasAppliedTheme())
+      applyThemePackage(preferred || siteConfig.activeTheme);
     document.title =
       (siteConfig.site?.brand || "MARVEL TIMELINE") +
       " — " +
       (siteConfig.site?.tagline || "Marvel Tracker");
   }, [
     store.data?.preferences?.theme,
+    store.ready,
+    authState.user,
     siteConfig.activeTheme,
     siteConfig.themes,
     siteConfig.site,
@@ -188,7 +194,7 @@ function App() {
         </p>
         ${siteConfig.site?.maintenanceReopenAt
           ? html`<div className="maintenance-reopen">
-              Expected to reopen automatically at:
+              Expected to reopen automatically at
               <strong
                 >${new Date(
                   siteConfig.site.maintenanceReopenAt,

@@ -1,301 +1,35 @@
-/* Universal light-theme surface normalization.
-   Components should consume the active theme variables instead of retaining
-   dark-only surfaces, overlays, and shadows. */
-:root[data-theme="daylight"],
-:root[data-theme="starkLight"],
-:root[data-theme="dailyBugle"],
-:root[data-theme="wakandaLight"] {
-  color-scheme: light;
+/* Mode-based theme rules.
+   applyThemePackage() classifies every theme (built-in or created in the admin
+   panel) as data-mode="light" or "dark" from its background colour, so these
+   rules apply universally, with no list of theme names to maintain.
+
+   Colours themselves come from the theme variables (--bg, --card, --text ...),
+   which are published under both their camelCase and hyphenated names. */
+
+:root[data-mode="light"] { color-scheme: light; }
+:root[data-mode="dark"]  { color-scheme: dark; }
+
+::selection { background: color-mix(in srgb, var(--red) 30%, transparent); color: var(--text); }
+html { scrollbar-color: var(--border-bright) transparent; }
+
+/* ---- Light mode refinements ---------------------------------------- */
+/* Softer atmospheric glow so the page stays clean and bright. */
+:root[data-mode="light"] body::before {
+  background:
+    radial-gradient(ellipse 75% 45% at 50% -10%, color-mix(in srgb, var(--red) 8%, transparent), transparent 62%),
+    radial-gradient(ellipse 55% 40% at 100% 100%, color-mix(in srgb, var(--purple) 6%, transparent), transparent 65%);
 }
 
-:root[data-theme="daylight"] body,
-:root[data-theme="starkLight"] body,
-:root[data-theme="dailyBugle"] body,
-:root[data-theme="wakandaLight"] body {
-  background: var(--bg);
-  color: var(--text);
+/* Surfaces separate by border + a hairline shadow rather than heavy drop shadows. */
+:root[data-mode="light"] .card,
+:root[data-mode="light"] .stat,
+:root[data-mode="light"] .universe-card,
+:root[data-mode="light"] .poster-card,
+:root[data-mode="light"] .settings-card {
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--shadow-ink) 8%, transparent);
 }
-
-:root[data-theme="daylight"] .sidebar,
-:root[data-theme="starkLight"] .sidebar,
-:root[data-theme="dailyBugle"] .sidebar,
-:root[data-theme="wakandaLight"] .sidebar,
-:root[data-theme="daylight"] .mobile-nav,
-:root[data-theme="starkLight"] .mobile-nav,
-:root[data-theme="dailyBugle"] .mobile-nav,
-:root[data-theme="wakandaLight"] .mobile-nav,
-:root[data-theme="daylight"] .main,
-:root[data-theme="starkLight"] .main,
-:root[data-theme="dailyBugle"] .main,
-:root[data-theme="wakandaLight"] .main {
-  color: var(--text);
+:root[data-mode="light"] .sidebar,
+:root[data-mode="light"] .mobile-nav {
+  background: color-mix(in srgb, var(--bg-2) 94%, transparent);
 }
-
-:root[data-theme="daylight"] .sidebar-account,
-:root[data-theme="starkLight"] .sidebar-account,
-:root[data-theme="dailyBugle"] .sidebar-account,
-:root[data-theme="wakandaLight"] .sidebar-account,
-:root[data-theme="daylight"] .profile-menu,
-:root[data-theme="starkLight"] .profile-menu,
-:root[data-theme="dailyBugle"] .profile-menu,
-:root[data-theme="wakandaLight"] .profile-menu,
-:root[data-theme="daylight"] .account-settings,
-:root[data-theme="starkLight"] .account-settings,
-:root[data-theme="dailyBugle"] .account-settings,
-:root[data-theme="wakandaLight"] .account-settings {
-  background: var(--bg-2);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-:root[data-theme="daylight"] .modal,
-:root[data-theme="starkLight"] .modal,
-:root[data-theme="dailyBugle"] .modal,
-:root[data-theme="wakandaLight"] .modal,
-:root[data-theme="daylight"] .graph-wrap,
-:root[data-theme="starkLight"] .graph-wrap,
-:root[data-theme="dailyBugle"] .graph-wrap,
-:root[data-theme="wakandaLight"] .graph-wrap,
-:root[data-theme="daylight"] .graph-legend,
-:root[data-theme="starkLight"] .graph-legend,
-:root[data-theme="dailyBugle"] .graph-legend,
-:root[data-theme="wakandaLight"] .graph-legend {
-  background: var(--bg-2);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-:root[data-theme="daylight"] .modal-backdrop,
-:root[data-theme="starkLight"] .modal-backdrop,
-:root[data-theme="dailyBugle"] .modal-backdrop,
-:root[data-theme="wakandaLight"] .modal-backdrop,
-:root[data-theme="daylight"] .admin-drawer,
-:root[data-theme="starkLight"] .admin-drawer,
-:root[data-theme="dailyBugle"] .admin-drawer,
-:root[data-theme="wakandaLight"] .admin-drawer {
-  background: color-mix(in srgb, var(--text) 22%, transparent);
-}
-
-:root[data-theme="daylight"] .ach::after,
-:root[data-theme="starkLight"] .ach::after,
-:root[data-theme="dailyBugle"] .ach::after,
-:root[data-theme="wakandaLight"] .ach::after {
-  background: var(--bg-2);
-  color: var(--text-dim);
-  border-color: var(--border-bright);
-  box-shadow: var(--shadow);
-}
-
-:root[data-theme="daylight"] .achievement-detail,
-:root[data-theme="starkLight"] .achievement-detail,
-:root[data-theme="dailyBugle"] .achievement-detail,
-:root[data-theme="wakandaLight"] .achievement-detail,
-:root[data-theme="daylight"] .admin-topbar,
-:root[data-theme="starkLight"] .admin-topbar,
-:root[data-theme="dailyBugle"] .admin-topbar,
-:root[data-theme="wakandaLight"] .admin-topbar,
-:root[data-theme="daylight"] .welcome-banner,
-:root[data-theme="starkLight"] .welcome-banner,
-:root[data-theme="dailyBugle"] .welcome-banner,
-:root[data-theme="wakandaLight"] .welcome-banner {
-  background: var(--card);
-  color: var(--text);
-  border-color: var(--border);
-  box-shadow: var(--shadow);
-}
-
-:root[data-theme="daylight"] .admin-drawer-card,
-:root[data-theme="starkLight"] .admin-drawer-card,
-:root[data-theme="dailyBugle"] .admin-drawer-card,
-:root[data-theme="wakandaLight"] .admin-drawer-card,
-:root[data-theme="daylight"] .theme-editor,
-:root[data-theme="starkLight"] .theme-editor,
-:root[data-theme="dailyBugle"] .theme-editor,
-:root[data-theme="wakandaLight"] .theme-editor,
-:root[data-theme="daylight"] .theme-preview,
-:root[data-theme="starkLight"] .theme-preview,
-:root[data-theme="dailyBugle"] .theme-preview,
-:root[data-theme="wakandaLight"] .theme-preview {
-  background: var(--card);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-:root[data-theme="daylight"] .admin-panel,
-:root[data-theme="starkLight"] .admin-panel,
-:root[data-theme="dailyBugle"] .admin-panel,
-:root[data-theme="wakandaLight"] .admin-panel,
-:root[data-theme="daylight"] .admin-table,
-:root[data-theme="starkLight"] .admin-table,
-:root[data-theme="dailyBugle"] .admin-table,
-:root[data-theme="wakandaLight"] .admin-table {
-  background: var(--card);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-:root[data-theme="daylight"] .admin-quick button,
-:root[data-theme="starkLight"] .admin-quick button,
-:root[data-theme="dailyBugle"] .admin-quick button,
-:root[data-theme="wakandaLight"] .admin-quick button,
-:root[data-theme="daylight"] .theme-option,
-:root[data-theme="starkLight"] .theme-option,
-:root[data-theme="dailyBugle"] .theme-option,
-:root[data-theme="wakandaLight"] .theme-option,
-:root[data-theme="daylight"] .explore-actions button,
-:root[data-theme="starkLight"] .explore-actions button,
-:root[data-theme="dailyBugle"] .explore-actions button,
-:root[data-theme="wakandaLight"] .explore-actions button {
-  background: var(--bg-2);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-:root[data-theme="daylight"] .admin-row:hover,
-:root[data-theme="starkLight"] .admin-row:hover,
-:root[data-theme="dailyBugle"] .admin-row:hover,
-:root[data-theme="wakandaLight"] .admin-row:hover,
-:root[data-theme="daylight"] .theme-option:hover,
-:root[data-theme="starkLight"] .theme-option:hover,
-:root[data-theme="dailyBugle"] .theme-option:hover,
-:root[data-theme="wakandaLight"] .theme-option:hover,
-:root[data-theme="daylight"] .theme-option.active,
-:root[data-theme="starkLight"] .theme-option.active,
-:root[data-theme="dailyBugle"] .theme-option.active,
-:root[data-theme="wakandaLight"] .theme-option.active {
-  background: var(--card-hover);
-}
-
-:root[data-theme="daylight"] .security-callout,
-:root[data-theme="starkLight"] .security-callout,
-:root[data-theme="dailyBugle"] .security-callout,
-:root[data-theme="wakandaLight"] .security-callout {
-  background: color-mix(in srgb, var(--blue) 8%, var(--bg-2));
-}
-
-:root[data-theme="daylight"] .admin-notice,
-:root[data-theme="starkLight"] .admin-notice,
-:root[data-theme="dailyBugle"] .admin-notice,
-:root[data-theme="wakandaLight"] .admin-notice {
-  background: color-mix(in srgb, var(--green) 8%, var(--card));
-  border-color: color-mix(in srgb, var(--green) 35%, var(--border));
-}
-
-:root[data-theme="daylight"] .preview-window,
-:root[data-theme="starkLight"] .preview-window,
-:root[data-theme="dailyBugle"] .preview-window,
-:root[data-theme="wakandaLight"] .preview-window {
-  background: var(--bg-2);
-  color: var(--text);
-  border-color: var(--border);
-  box-shadow: var(--shadow);
-}
-
-:root[data-theme="daylight"] input,
-:root[data-theme="starkLight"] input,
-:root[data-theme="dailyBugle"] input,
-:root[data-theme="wakandaLight"] input,
-:root[data-theme="daylight"] textarea,
-:root[data-theme="starkLight"] textarea,
-:root[data-theme="dailyBugle"] textarea,
-:root[data-theme="wakandaLight"] textarea,
-:root[data-theme="daylight"] select,
-:root[data-theme="starkLight"] select,
-:root[data-theme="dailyBugle"] select,
-:root[data-theme="wakandaLight"] select {
-  background: var(--bg-2);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-:root[data-theme="daylight"] .auth-page,
-:root[data-theme="starkLight"] .auth-page,
-:root[data-theme="dailyBugle"] .auth-page,
-:root[data-theme="wakandaLight"] .auth-page,
-:root[data-theme="daylight"] .auth-loading,
-:root[data-theme="starkLight"] .auth-loading,
-:root[data-theme="dailyBugle"] .auth-loading,
-:root[data-theme="wakandaLight"] .auth-loading {
-  background: var(--bg);
-  color: var(--text);
-}
-
-:root[data-theme="daylight"] .auth-card,
-:root[data-theme="starkLight"] .auth-card,
-:root[data-theme="dailyBugle"] .auth-card,
-:root[data-theme="wakandaLight"] .auth-card,
-:root[data-theme="daylight"] .auth-admin-note,
-:root[data-theme="starkLight"] .auth-admin-note,
-:root[data-theme="dailyBugle"] .auth-admin-note,
-:root[data-theme="wakandaLight"] .auth-admin-note {
-  background: var(--card);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-:root[data-theme="daylight"] .admin-auth-page,
-:root[data-theme="starkLight"] .admin-auth-page,
-:root[data-theme="dailyBugle"] .admin-auth-page,
-:root[data-theme="wakandaLight"] .admin-auth-page {
-  background: var(--bg);
-}
-
-:root[data-theme="daylight"] .auth-message.error,
-:root[data-theme="starkLight"] .auth-message.error,
-:root[data-theme="dailyBugle"] .auth-message.error,
-:root[data-theme="wakandaLight"] .auth-message.error {
-  color: var(--red);
-}
-
-:root[data-theme="daylight"] .auth-message.success,
-:root[data-theme="starkLight"] .auth-message.success,
-:root[data-theme="dailyBugle"] .auth-message.success,
-:root[data-theme="wakandaLight"] .auth-message.success {
-  color: var(--green);
-}
-
-/* Replace the remaining common hard-coded dark shadows/overlays with theme-aware values. */
-:root[data-theme="daylight"] .card,
-:root[data-theme="starkLight"] .card,
-:root[data-theme="dailyBugle"] .card,
-:root[data-theme="wakandaLight"] .card,
-:root[data-theme="daylight"] .stat,
-:root[data-theme="starkLight"] .stat,
-:root[data-theme="dailyBugle"] .stat,
-:root[data-theme="wakandaLight"] .stat,
-:root[data-theme="daylight"] .universe-card,
-:root[data-theme="starkLight"] .universe-card,
-:root[data-theme="dailyBugle"] .universe-card,
-:root[data-theme="wakandaLight"] .universe-card,
-:root[data-theme="daylight"] .poster-card,
-:root[data-theme="starkLight"] .poster-card,
-:root[data-theme="dailyBugle"] .poster-card,
-:root[data-theme="wakandaLight"] .poster-card {
-  box-shadow: none;
-}
-
-:root[data-theme="daylight"] .btn,
-:root[data-theme="starkLight"] .btn,
-:root[data-theme="dailyBugle"] .btn,
-:root[data-theme="wakandaLight"] .btn,
-:root[data-theme="daylight"] .chip,
-:root[data-theme="starkLight"] .chip,
-:root[data-theme="dailyBugle"] .chip,
-:root[data-theme="wakandaLight"] .chip,
-:root[data-theme="daylight"] .badge,
-:root[data-theme="starkLight"] .badge,
-:root[data-theme="dailyBugle"] .badge,
-:root[data-theme="wakandaLight"] .badge,
-:root[data-theme="daylight"] .status-btn,
-:root[data-theme="starkLight"] .status-btn,
-:root[data-theme="dailyBugle"] .status-btn,
-:root[data-theme="wakandaLight"] .status-btn {
-  color: var(--text);
-}
-
-:root[data-theme="daylight"] .admin-auth-page .auth-card,
-:root[data-theme="starkLight"] .admin-auth-page .auth-card,
-:root[data-theme="dailyBugle"] .admin-auth-page .auth-card,
-:root[data-theme="wakandaLight"] .admin-auth-page .auth-card {
-  box-shadow: var(--shadow);
-}
+:root[data-mode="light"] .ach.locked { opacity: .62; }

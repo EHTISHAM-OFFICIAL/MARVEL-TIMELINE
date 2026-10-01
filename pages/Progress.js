@@ -53,7 +53,9 @@ export function Progress({ userData, onOpen }) {
     );
   };
 
-  const totalCompleted = completed.length;
+  const completedMovies = completed.filter((p) => !isSeries(p)).length;
+  const completedShows = completed.filter((p) => isSeries(p)).length;
+  const totalCompleted = completedMovies + completedShows;
   const totalFavorites = order.filter((p) => getProjectState(p, userData).favorite).length;
   const rated = order.filter((p) => Number(getProjectState(p, userData).rating) > 0).length;
   const fullyTracked = order.filter((p) => { if (!isSeries(p)) return statusOf(p.id,userData) === "completed"; const e=episodeProgress(p,userData); return e.total > 0 && e.watched === e.total; }).length;
@@ -67,13 +69,13 @@ export function Progress({ userData, onOpen }) {
   const multiverseTracked = order.filter((p) => (p.connectionLevel === "multiverse-relevant" || p.universe === "mcu-multiverse") && statusOf(p.id, userData) === "completed").length;
 
   const achievements = [
-    { id:"first-step", icon:"🎬", name:"First Scene", detail:"Complete your first project. Every Marvel archive starts somewhere.", unlocked:totalCompleted>=1, progress:totalCompleted+" / 1" },
-    { id:"origin-story", icon:"🛡️", name:"Origin Story", detail:"Complete 3 projects and establish the beginning of your personal Marvel journey.", unlocked:totalCompleted>=3, progress:Math.min(totalCompleted,3)+" / 3" },
-    { id:"five", icon:"🥉", name:"Getting Started", detail:"Complete 5 projects. You are officially building a catalog.", unlocked:totalCompleted>=5, progress:Math.min(totalCompleted,5)+" / 5" },
-    { id:"ten", icon:"⭐", name:"Ten Down", detail:"Complete 10 projects and reach your first double-digit milestone.", unlocked:totalCompleted>=10, progress:Math.min(totalCompleted,10)+" / 10" },
-    { id:"twenty-five", icon:"🏅", name:"Quarter Century", detail:"Complete 25 projects. A quarter of the way to the 100-project milestone.", unlocked:totalCompleted>=25, progress:Math.min(totalCompleted,25)+" / 25" },
-    { id:"fifty", icon:"🏆", name:"Half-Century", detail:"Complete 50 projects. A major archive milestone.", unlocked:totalCompleted>=50, progress:Math.min(totalCompleted,50)+" / 50" },
-    { id:"hundred", icon:"👑", name:"Century Club", detail:"Complete 100 projects and reach the tracker's 100-project milestone.", unlocked:totalCompleted>=100, progress:Math.min(totalCompleted,100)+" / 100" },
+    { id:"first-step", icon:"🎬", name:"First Scene", detail:"Complete your first movie or series / TV show. Every Marvel archive starts somewhere.", unlocked:totalCompleted>=1, progress:totalCompleted+" / 1" },
+    { id:"origin-story", icon:"🛡️", name:"Origin Story", detail:"Complete 3 movies or series / TV shows and establish the beginning of your personal Marvel journey.", unlocked:totalCompleted>=3, progress:Math.min(totalCompleted,3)+" / 3" },
+    { id:"five", icon:"🥉", name:"Getting Started", detail:"Complete 5 movies or series / TV shows. You are officially building a Marvel archive.", unlocked:totalCompleted>=5, progress:Math.min(totalCompleted,5)+" / 5" },
+    { id:"ten", icon:"⭐", name:"Ten Down", detail:"Complete 10 movies or series / TV shows and reach your first double-digit milestone.", unlocked:totalCompleted>=10, progress:Math.min(totalCompleted,10)+" / 10" },
+    { id:"twenty-five", icon:"🏅", name:"Quarter Century", detail:"Complete 25 movies or series / TV shows. A quarter of the way to the 100-title milestone.", unlocked:totalCompleted>=25, progress:Math.min(totalCompleted,25)+" / 25" },
+    { id:"fifty", icon:"🏆", name:"Half-Century", detail:"Complete 50 movies or series / TV shows. A major archive milestone.", unlocked:totalCompleted>=50, progress:Math.min(totalCompleted,50)+" / 50" },
+    { id:"hundred", icon:"👑", name:"Century Club", detail:"Complete 100 movies or series / TV shows and reach the tracker's 100-title milestone.", unlocked:totalCompleted>=100, progress:Math.min(totalCompleted,100)+" / 100" },
     { id:"favorite-five", icon:"💎", name:"Collector", detail:"Save 5 projects as favorites. Your personal shortlist is taking shape.", unlocked:totalFavorites>=5, progress:Math.min(totalFavorites,5)+" / 5" },
     { id:"favorite-ten", icon:"🗃️", name:"Curator", detail:"Save 10 projects as favorites and build a larger personal collection.", unlocked:totalFavorites>=10, progress:Math.min(totalFavorites,10)+" / 10" },
     { id:"rated-ten", icon:"📝", name:"Critic", detail:"Rate 10 projects from their detail pages.", unlocked:rated>=10, progress:Math.min(rated,10)+" / 10" },
@@ -81,7 +83,7 @@ export function Progress({ userData, onOpen }) {
     { id:"episode-25", icon:"📺", name:"Binge Begins", detail:"Watch 25 tracked episodes across your series.", unlocked:episodeStats.watched>=25, progress:Math.min(episodeStats.watched,25)+" / 25" },
     { id:"episode-50", icon:"⚡", name:"Binge Watcher", detail:"Watch 50 tracked episodes.", unlocked:episodeStats.watched>=50, progress:Math.min(episodeStats.watched,50)+" / 50" },
     { id:"episode-100", icon:"🔥", name:"Episode Hunter", detail:"Watch 100 tracked episodes. TV is now a serious part of your archive.", unlocked:episodeStats.watched>=100, progress:Math.min(episodeStats.watched,100)+" / 100" },
-    { id:"episode-250", icon:"🌟", name:"Episode Legend", detail:"Watch 250 tracked episodes across the Marvel television catalog.", unlocked:episodeStats.watched>=250, progress:Math.min(episodeStats.watched,250)+" / 250" },
+    { id:"episode-250", icon:"🌟", name:"Episode Legend", detail:"Watch 250 tracked episodes across the Marvel television Marvel archive.", unlocked:episodeStats.watched>=250, progress:Math.min(episodeStats.watched,250)+" / 250" },
     { id:"series-master", icon:"📚", name:"Season Finale", detail:"Fully track 5 series by marking every episode watched.", unlocked:fullyTracked>=5, progress:Math.min(fullyTracked,5)+" / 5" },
     { id:"series-archivist", icon:"🗂️", name:"Series Archivist", detail:"Fully track 10 complete series, episode by episode.", unlocked:fullyTracked>=10, progress:Math.min(fullyTracked,10)+" / 10" },
     { id:"phase-1", icon:"1️⃣", name:"Phase One", detail:"Complete every currently visible project assigned to MCU Phase 1.", unlocked:Boolean(byPhase[1]&&byPhase[1].done===byPhase[1].total), progress:byPhase[1]?byPhase[1].done+" / "+byPhase[1].total:"0 / 0" },
@@ -90,7 +92,7 @@ export function Progress({ userData, onOpen }) {
     { id:"phase-4", icon:"4️⃣", name:"Phase Four", detail:"Complete every currently visible project assigned to MCU Phase 4.", unlocked:Boolean(byPhase[4]&&byPhase[4].done===byPhase[4].total), progress:byPhase[4]?byPhase[4].done+" / "+byPhase[4].total:"0 / 0" },
     { id:"spider-man", icon:"🕷️", name:"Spider-Man Complete", detail:"Complete every visible project tagged with the Spider-Man franchise.", unlocked:spiderDone===spiderTotal, progress:spiderDone+" / "+spiderTotal },
     { id:"x-men", icon:"⚡", name:"X-Men Complete", detail:"Complete every visible project tagged with the X-Men franchise.", unlocked:xmenDone===xmenTotal&&xmenTotal>0, progress:xmenDone+" / "+xmenTotal },
-    { id:"multiverse-five", icon:"🌌", name:"Multiverse Explorer", detail:"Complete 5 projects marked as multiverse-relevant or part of the MCU multiverse continuity.", unlocked:multiverseTracked>=5, progress:Math.min(multiverseTracked,5)+" / 5" },
+    { id:"multiverse-five", icon:"🌌", name:"Multiverse Explorer", detail:"Complete 5 movies or series / TV shows marked as multiverse-relevant or part of the MCU multiverse continuity.", unlocked:multiverseTracked>=5, progress:Math.min(multiverseTracked,5)+" / 5" },
     { id:"three-quarters", icon:"🚀", name:"Archive Vanguard", detail:"Reach 75% overall completion in your current exploration mode.", unlocked:completionPercent>=75, progress:Math.min(completionPercent,75)+"% / 75%" },
   ];
   const selected = selectedAchievement ? achievements.find((a) => a.id === selectedAchievement) : null;
@@ -104,12 +106,16 @@ export function Progress({ userData, onOpen }) {
 
       <div className="stat-grid" style=${{ marginBottom: "24px" }}>
         <div className="stat">
-          <div className="num">${completed.length}</div>
-          <div className="label">Completed</div>
+          <div className="num">${completedMovies}</div>
+          <div className="label">Movies completed</div>
+        </div>
+        <div className="stat">
+          <div className="num">${completedShows}</div>
+          <div className="label">Series / TV shows completed</div>
         </div>
         <div className="stat">
           <div className="num">${watching.length}</div>
-          <div className="label">Watching</div>
+          <div className="label">Currently watching</div>
         </div>
         <div className="stat">
           <div className="num">

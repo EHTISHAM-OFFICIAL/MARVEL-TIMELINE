@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useState, useMemo, useRef, useEffect } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { UNIVERSES } from "../data/universes.js";
-import { getUniverse, statusOf } from "../utils/helpers.js";
+import { getUniverse, statusOf, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 
 export function ConnectionMap({ userData, onOpen }) {
   const prefs = userData.preferences;
@@ -11,7 +11,7 @@ export function ConnectionMap({ userData, onOpen }) {
   const [transform, setTransform] = useState({ x: 20, y: 20, scale: 0.5 });
   const [filter, setFilter] = useState("all");
 
-  const visible = useMemo(() => PROJECTS.filter((p) =>
+  const visible = useMemo(() => expandProjectsBySeasons(PROJECTS).filter((p) =>
     (filter === "all" || p.universe === filter) &&
     !prefs.hiddenUniverses.includes(p.universe)
   ), [filter, prefs.hiddenUniverses]);
@@ -19,7 +19,7 @@ export function ConnectionMap({ userData, onOpen }) {
   const nodes = useMemo(() => {
     const universeIds = filter === "all" ? UNIVERSES.map((u) => u.id) : [filter];
     return universeIds.flatMap((uid, ui) => {
-      const list = visible.filter((p) => p.universe === uid).sort((a,b) => a.releaseOrderIndex-b.releaseOrderIndex);
+      const list = visible.filter((p) => p.universe === uid).sort((a,b) => displayReleaseOrder(a)-displayReleaseOrder(b));
       return list.map((p, i) => ({
         id: p.id, project: p, x: 50 + ui * 230, y: 70 + i * 58, color: getUniverse(uid).color
       }));

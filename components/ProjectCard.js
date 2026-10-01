@@ -1,11 +1,11 @@
 import { html } from "htm/react";
 import { StatusDot } from "./StatusBadge.js";
-import { getUniverse, formatRuntime, statusOf, isSeries, episodeProgress } from "../utils/helpers.js";
+import { getUniverse, formatRuntime, statusOf, isSeries, episodeProgress, getProjectState } from "../utils/helpers.js";
 
 export function ProjectCard({ project, userData, onOpen }) {
   const u = getUniverse(project.universe);
   const status = statusOf(project.id, userData);
-  const userP = userData.projects[project.baseProjectId || project.id] || {};
+  const userP = getProjectState(project, userData);
   const runtime = formatRuntime(project.runtimeMinutes);
   const ep = episodeProgress(project, userData);
   const length = ["movie", "special", "animated-movie"].includes(project.type)

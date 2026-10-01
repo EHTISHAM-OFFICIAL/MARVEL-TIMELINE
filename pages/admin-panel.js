@@ -43,8 +43,19 @@ const localDateTimeValue = (iso) => {
 
 const metrics = (d) => {
   const p = Object.values(d.projects || {});
+  const completed = p.filter((x) => x.status === "completed");
+  const completedMovies = completed.filter((x) => {
+    const project = PROJECTS.find((item) => item.id === x.id);
+    return project?.type === "movie" || project?.type === "animated-movie";
+  }).length;
+  const completedShows = completed.filter((x) => {
+    const project = PROJECTS.find((item) => item.id === x.id);
+    return ["limited-series", "tv-series", "animated-series"].includes(project?.type);
+  }).length;
   return {
-    completed: p.filter((x) => x.status === "completed").length,
+    completed: completed.length,
+    completedMovies,
+    completedShows,
     active: p.filter(
       (x) => x.status === "watching" || x.status === "rewatching",
     ).length,
@@ -144,10 +155,12 @@ export function Admin({ user, onSignOut }) {
     (a, u) => {
       const m = metrics(u);
       a.completed += m.completed;
+      a.completedMovies += m.completedMovies;
+      a.completedShows += m.completedShows;
       a.episodes += m.episodes;
       return a;
     },
-    { completed: 0, episodes: 0 },
+    { completed: 0, completedMovies: 0, completedShows: 0, episodes: 0 },
   );
   const theme = config.themes?.[themeId] || DEFAULT_SITE_CONFIG.themes.midnight;
   const editTheme = (k, v) =>
@@ -318,8 +331,10 @@ export function Admin({ user, onSignOut }) {
                   <span>Registered users</span><b>${users.length}</b>
                 </div>
                 <div className="admin-stat">
-                  <span>Projects completed</span><b>${totals.completed}</b>
+                  <span>Movies completed</span><b>${totals.completedMovies}</b>
                 </div>
+                <div className="admin-stat">
+                  <span>Series / TV shows completed</span><b>${totals.completedShows}</b></div>
                 <div className="admin-stat">
                   <span>Episodes tracked</span><b>${totals.episodes}</b>
                 </div>
@@ -378,7 +393,7 @@ export function Admin({ user, onSignOut }) {
                         ><small>${u.email || "No email saved"}</small></span
                       ></span
                     ><span
-                      ><strong>${m.completed}</strong
+                      ><strong>${m.completedMovies} movies · ${m.completedShows} shows</strong
                       ><small
                         >${pct}% complete · ${m.active} active</small
                       ></span

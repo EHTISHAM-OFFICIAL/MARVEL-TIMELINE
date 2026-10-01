@@ -1,6 +1,6 @@
 import { html, useEffect, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
-import { expandProjectsBySeasons } from "../utils/helpers.js";
+import { expandProjectsBySeasons, getProjectState } from "../utils/helpers.js";
 import { DEFAULT_SITE_CONFIG, applyThemePackage } from "../store/siteConfig.js";
 import {
   loadAdminConfig,
@@ -78,9 +78,10 @@ const formatEpisodeKey = (key) => {
 const getWatchHistory = (d) =>
   expandProjectsBySeasons(PROJECTS).map((project) => {
     const baseId = project.baseProjectId || project.id;
-    const state = d?.projects?.[baseId];
-    if (!state) return null;
-    const allWatchedEpisodes = Object.entries(state.episodes || {}).filter(
+    const baseState = d?.projects?.[baseId];
+    const state = getProjectState(project, d || { projects: {} });
+    if (!baseState || (!state && !baseState)) return null;
+    const allWatchedEpisodes = Object.entries(baseState.episodes || {}).filter(
       ([, value]) => Boolean(value),
     );
     const base = PROJECTS.find((p) => p.id === baseId);
@@ -102,7 +103,11 @@ const getWatchHistory = (d) =>
       state.status === "completed" ||
       state.status === "watching" ||
       state.status === "rewatching" ||
+      state.status === "skipped" ||
       Boolean(state.watchedDate) ||
+      Boolean(state.favorite) ||
+      Boolean(state.rating) ||
+      Boolean(state.notes) ||
       watchedEpisodes.length > 0;
     if (!watched) return null;
     return { project, state, watchedEpisodes, category: watchCategory(project) };

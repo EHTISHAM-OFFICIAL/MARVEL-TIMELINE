@@ -141,6 +141,7 @@ function App() {
   }, [authState.user]);
   const actions = {
     setStatus: store.setStatus,
+    setSeasonState: store.setSeasonState,
     setRating: store.setRating,
     setNotes: store.setNotes,
     toggleFavorite: store.toggleFavorite,

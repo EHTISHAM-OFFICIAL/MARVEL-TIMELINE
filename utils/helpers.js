@@ -90,7 +90,8 @@ export const getProjectState = (project, data) => {
   const baseState = data?.projects?.[baseId] || {};
   if (project?.seasonNumber) {
     return {
-      ...(baseState.seasonStates?.[String(project.seasonNumber)] || {}),
+      ...(baseState.seasonStates?.[String(project.seasonNumber)] ||
+        (project.seasonNumber === 1 ? baseState : {})),
       episodes: baseState.episodes || {},
     };
   }

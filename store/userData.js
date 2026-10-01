@@ -280,6 +280,11 @@ export function useUserData(user, accountIsAdmin = false) {
     });
   }, []);
 
+  const setTracking = useCallback((projectId, seasonNumber, patch) => {
+    if (seasonNumber) setSeasonState(projectId, seasonNumber, patch);
+    else updateProject(projectId, patch);
+  }, [setSeasonState, updateProject]);
+
   const setRating = useCallback(
     (projectId, rating) => updateProject(projectId, { rating: Number(rating) || 0 }),
     [updateProject],
@@ -339,6 +344,7 @@ export function useUserData(user, accountIsAdmin = false) {
     syncError,
     setStatus,
     setSeasonState,
+    setTracking,
     setRating,
     setNotes,
     toggleFavorite,

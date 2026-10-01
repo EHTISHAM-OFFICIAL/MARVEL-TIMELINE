@@ -24,15 +24,14 @@ export function Search({ userData, onOpen }) {
       const s = statusOf(p.id, userData);
       if (filterStatus !== "all" && s !== filterStatus) return false;
       if (!q) return true;
-      const haystack = [p.title, p.shortDescription, p.whyItMatters, ...(p.characters || []), ...(p.franchises || []).map(getFranchise).filter(Boolean).map((f) => f.name), getUniverse(p.universe).name, p.phase ? "phase " + p.phase : "", String(p.releaseYear), p.type.replace(/-/g, " ")].join(" ").toLowerCase();
-      return haystack.includes(q);
+      return p.title.toLowerCase().includes(q);
     }).sort((a, b) => displayReleaseOrder(a) - displayReleaseOrder(b));
   }, [query, filterUniverse, filterType, filterStatus, userData, prefs.hiddenUniverses, catalog]);
 
   return html`
     <div>
-      <div className="page-heading-row"><div><h1>Search</h1><p className="subtitle">Search by title, character, universe, franchise, phase, year, or type.</p></div></div>
-      <div className="search-wrap"><span className="ico">🔍</span><input type="search" value=${query} onInput=${(e) => setQuery(e.target.value)} placeholder="Spider-Man, Wolverine, Phase 3, X-Men..." autofocus /></div>
+      <div className="page-heading-row"><div><h1>Search</h1><p className="subtitle">Search the catalog by title name. Use the filters below to narrow the results.</p></div></div>
+      <div className="search-wrap"><span className="ico">🔍</span><input type="search" value=${query} onInput=${(e) => setQuery(e.target.value)} placeholder="Search a title… " autofocus /></div>
       <div style=${{ marginBottom: "20px" }}><label>Filters</label><div className="filters">
         <select value=${filterUniverse} onChange=${(e) => setFilterUniverse(e.target.value)} style=${{ width: "auto" }}><option value="all">All Universes</option>${UNIVERSES.map((u) => html`<option key=${u.id} value=${u.id}>${u.name}</option>`)}</select>
         <select value=${filterType} onChange=${(e) => setFilterType(e.target.value)} style=${{ width: "auto" }}><option value="all">All Types</option>${types.map((t) => html`<option key=${t} value=${t}>${t.replace(/-/g, " ")}</option>`)}</select>

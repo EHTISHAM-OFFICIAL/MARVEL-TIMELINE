@@ -142,6 +142,7 @@ function App() {
   const actions = {
     setStatus: store.setStatus,
     setSeasonState: store.setSeasonState,
+    setTracking: store.setTracking,
     setRating: store.setRating,
     setNotes: store.setNotes,
     toggleFavorite: store.toggleFavorite,

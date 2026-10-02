@@ -3,25 +3,20 @@ import { useMemo } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
-import { getUniverse, statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder, getProjectState } from "../utils/helpers.js";
+import { CommandCenter } from "../components/CommandCenter.js";
+import { getUniverse, statusOf, passesMode, expandProjectsBySeasons, displayReleaseOrder, getProjectState } from "../utils/helpers.js";
 
 export function Home({ userData, user, siteConfig, onOpen, onNavigate }) {
   const prefs=userData.preferences;
   const visible=useMemo(()=>expandProjectsBySeasons(PROJECTS).filter(p=>passesMode(p,prefs.explorationMode)&&!prefs.hiddenUniverses.includes(p.universe)),[prefs.explorationMode,prefs.hiddenUniverses]);
-  const completedMovies=visible.filter(p=>statusOf(p.id,userData)==="completed"&&!isSeries(p)).length;
-  const completedShows=visible.filter(p=>statusOf(p.id,userData)==="completed"&&isSeries(p)).length;
-  const done=completedMovies+completedShows;
   const watching=visible.filter(p=>statusOf(p.id,userData)==="watching");
-  const favorites=visible.filter(p=>getProjectState(p,userData).favorite);
-  const episodeStats=visible.reduce((a,p)=>{if(isSeries(p)){const e=episodeProgress(p,userData);a.watched+=e.watched;a.total+=e.total;}return a;},{watched:0,total:0});
   const nextUp=useMemo(()=>{const order=visible.slice().sort((a,b)=>prefs.defaultTimeline==="chronological"?(a.chronologicalOrderIndex??99999)-(b.chronologicalOrderIndex??99999):displayReleaseOrder(a)-displayReleaseOrder(b));return order.find(p=>statusOf(p.id,userData)==="not-started");},[visible,userData,prefs.defaultTimeline]);
   const recent=useMemo(()=>visible.filter(p=>statusOf(p.id,userData)==="completed"&&getProjectState(p,userData).watchedDate).sort((a,b)=>(getProjectState(b,userData).watchedDate||"").localeCompare(getProjectState(a,userData).watchedDate||"")).slice(0,6),[visible,userData]);
   const featured=visible.slice().sort((a,b)=>displayReleaseOrder(a)-displayReleaseOrder(b)).slice(0,8);
-  const percent=visible.length?Math.round(done/visible.length*100):0;
   return html`
     <div className="home-page">
       <section className="home-hero"><div className="hero-grid"></div><div className="hero-content"><div className="hero-kicker">THE MARVEL ARCHIVE</div><h1>YOUR MARVEL<br/><span>JOURNEY.</span></h1><p>One cinematic command center for everything you are watching, completing, rating and discovering.</p><div className="hero-actions">${nextUp?html`<button className="btn btn-primary" onClick=${()=>onOpen(nextUp.id)}>▶ Continue to ${nextUp.title}</button>`:null}<button className="btn" onClick=${()=>onNavigate("timeline")}>Explore Timeline →</button></div></div><div className="hero-orbit"><div className="hero-orbit-ring"></div><div className="hero-orbit-core">M</div></div></section>
-      <section className="home-command"><div><span className="eyebrow">COMMAND CENTER</span><h2>Your journey at a glance</h2></div><div className="home-progress-ring" style=${{"--progress":percent*3.6+"deg"}}><strong>${percent}%</strong><small>complete</small></div><div className="home-stat"><b>${completedMovies}</b><span>Movies completed</span></div><div className="home-stat"><b>${completedShows}</b><span>Series / TV shows completed</span></div><div className="home-stat"><b>${watching.length}</b><span>Currently watching</span></div><div className="home-stat"><b>${episodeStats.watched}</b><span>Episodes watched</span></div><div className="home-stat"><b>${favorites.length}</b><span>Favorites</span></div></section>
+      <${CommandCenter} visible=${visible} userData=${userData} onOpen=${onOpen} onNavigate=${onNavigate} />
       ${nextUp?html`<section className="home-next card" style=${{"--accent":getUniverse(nextUp.universe).color}} onClick=${()=>onOpen(nextUp.id)}><div><span className="eyebrow">NEXT DESTINATION · ${prefs.defaultTimeline==="chronological"?"STORY ORDER":"RELEASE ORDER"}</span><h2>${nextUp.title}</h2><p>${nextUp.shortDescription}</p></div><div className="next-arrow">→</div></section>`:null}
       ${watching.length?html`<section><div className="section-header"><h2>Continue Watching</h2><button className="text-btn" onClick=${()=>onNavigate("progress")}>View progress →</button></div><div className="poster-grid home-poster-grid">${watching.slice(0,6).map(p=>html`<${PosterProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen}/>` )}</div></section>`:null}
       <section><div className="section-header"><h2>Featured Archive</h2><button className="text-btn" onClick=${()=>onNavigate("timeline")}>Open full timeline →</button></div><div className="poster-grid home-poster-grid">${featured.map(p=>html`<${PosterProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen}/>` )}</div></section>

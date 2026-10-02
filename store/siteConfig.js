@@ -27,6 +27,9 @@ const THEME_CACHE_KEY="mt-theme-cache";
 function parseHex(value){const m=/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(value||"").trim());if(!m)return null;let h=m[1];if(h.length===3)h=[...h].map(c=>c+c).join("");const n=parseInt(h,16);return[(n>>16)&255,(n>>8)&255,n&255];}
 function luminance(value){const rgb=parseHex(value);if(!rgb)return null;const[r,g,b]=rgb.map(c=>{c/=255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4);});return .2126*r+.7152*g+.0722*b;}
 function contrast(a,b){const x=luminance(a),y=luminance(b);if(x==null||y==null)return 1;return(Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
+// Nudge the accent just far enough (toward black or white, whichever helps its label text) that
+// text drawn on it clears WCAG AA (4.5:1). Themes that already pass are returned unchanged.
+function solidAccent(red,onRed){const base=parseHex(red);if(!base)return red;const toward=onRed==="#ffffff"?0:255;for(let t=0;t<=1;t+=.04){const c=base.map(v=>Math.round(v+(toward-v)*t));const hex="#"+c.map(v=>v.toString(16).padStart(2,"0")).join("");if(contrast(onRed,hex)>=4.6)return hex;}return red;}
 // "light" or "dark", decided from the theme's own background, so custom admin themes are classified correctly.
 export function themeMode(vars){const l=luminance({...DEFAULT_VARS,...(vars||{})}.bg);return l!=null&&l>.3?"light":"dark";}
 function paintTheme(id,vars){
@@ -34,8 +37,10 @@ function paintTheme(id,vars){
  const all={...DEFAULT_VARS,...(vars||{})};
  Object.entries(all).forEach(([k,v])=>{root.style.setProperty("--"+k,v);if(CSS_ALIASES[k])root.style.setProperty("--"+CSS_ALIASES[k],v);});
  const mode=themeMode(all),light=mode==="light";
+ const onRed=contrast("#ffffff",all.red)>=contrast("#14141c",all.red)?"#ffffff":"#14141c";
  const derived={
-  "on-red":contrast("#ffffff",all.red)>=contrast("#14141c",all.red)?"#ffffff":"#14141c",
+  "on-red":onRed,
+  "red-solid":solidAccent(all.red,onRed),
   "scrim":light?"rgba(20,28,40,.48)":"rgba(0,0,0,.74)",
   "shadow-ink":light?"#1c2838":"#000000",
   "hover-tint":light?"rgba(20,28,40,.045)":"rgba(255,255,255,.04)",

@@ -199,3 +199,25 @@
 @media(max-width:1100px){.ji-stats{grid-template-columns:repeat(4,minmax(0,1fr))}.ji-stat:last-child{grid-column:auto}}
 @media(max-width:760px){.ji{padding:16px}.ji-heading{align-items:stretch;flex-direction:column}.ji-era{text-align:left}.ji-grid{grid-template-columns:1fr}.ji-panel-wide{grid-column:auto}.ji-universes{grid-template-columns:repeat(2,minmax(0,1fr))}.ji-trophies{grid-template-columns:1fr}.ji-milestones{grid-template-columns:repeat(2,minmax(0,1fr))}.ji-milestone:last-child{grid-column:1/-1}}
 @media(max-width:520px){.ji-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ji-stat:last-child{grid-column:1/-1}.ji-universes,.ji-first-last{grid-template-columns:1fr}.ji-panel-head{align-items:flex-start;flex-direction:column}.ji-panel-head .text-btn{padding-left:0}}
+
+
+/* ---- Advanced stats ------------------------------------------------------- */
+.cc-head-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.cc-advanced-toggle{display:grid;grid-template-columns:1fr auto;grid-template-areas:"title icon" "sub icon";align-items:center;column-gap:10px;min-width:150px;padding:9px 11px;border:1px solid var(--border);border-radius:11px;background:var(--bg-3);color:var(--text);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+.cc-advanced-toggle:hover{border-color:var(--border-bright);background:var(--card-hover)}
+.cc-advanced-toggle.active{border-color:color-mix(in srgb,var(--red) 45%,var(--border));background:color-mix(in srgb,var(--red) 7%,var(--bg-3))}
+.cc-advanced-toggle span{grid-area:title;font-size:13px;font-weight:700;line-height:1.2}
+.cc-advanced-toggle small{grid-area:sub;margin-top:2px;color:var(--text-dim);font-size:11px;line-height:1.2}
+.cc-advanced-toggle b{grid-area:icon;display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:color-mix(in srgb,var(--text) 8%,transparent);font-size:17px;line-height:1}
+.cc-advanced-stats{margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.cc-advanced-stats .ji{margin:0;padding:0;background:transparent;border:0;border-radius:0}
+.cc-advanced-stats .ji-heading{margin-bottom:16px}
+.cc-advanced-stats .ji-heading h2{font-size:19px}
+.cc-advanced-stats .ji-stats{margin-bottom:12px}
+.cc-advanced-stats .ji-grid{gap:10px}
+
+@media(max-width:720px){
+  .cc-head-actions{width:100%;justify-content:space-between}
+  .cc-advanced-toggle{flex:1;min-width:0}
+}
+@media(prefers-reduced-motion:reduce){.cc-advanced-toggle{transition:none}}

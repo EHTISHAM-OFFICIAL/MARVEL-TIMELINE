@@ -73,3 +73,64 @@ select:focus-visible, input:focus-visible { outline: 2px solid var(--red); outli
 .poster-fallback strong { color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
 .poster-fallback small { color: rgba(255,255,255,.78); }
 .poster-card .poster-shade { z-index: 1; }
+
+/* ===== Feature 1: Home poster grids never overflow (was a fixed 6-column grid) ===== */
+.home-poster-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); }
+@media (max-width: 900px) { .home-poster-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); } }
+
+/* ===== Feature 2: poster placeholder with icon, year and type ===== */
+.poster-fallback { align-items: flex-start; }
+.poster-fallback-icon { margin: auto auto 12px; font-size: 54px; line-height: 1; filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--accent) 55%, transparent)); opacity: .92; }
+.poster-fallback strong { font-size: 16px; line-height: 1.2; }
+.poster-fallback small { letter-spacing: .6px; }
+
+/* ===== Feature 3: Connection Map ===== */
+.graph-svg { touch-action: none; }
+.map-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 4px 0 12px; }
+.map-toolbar .btn.sm { padding: 8px 14px; }
+.map-toolbar .btn[disabled] { opacity: .5; cursor: not-allowed; }
+.map-legend { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-dim); }
+.map-legend .dot, .map-hover .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--text-faint); margin-left: 8px; }
+.map-legend .dot:first-child { margin-left: 0; }
+.dot.done { background: var(--green); } .dot.now { background: var(--gold); } .dot.todo { background: var(--text-faint); }
+.graph-wrap { position: relative; }
+.map-node:focus-visible { outline: none; }
+.map-node:focus-visible rect:not(.map-focus-ring) { stroke-width: 3; }
+.map-focus-ring { fill: none; stroke: var(--red); stroke-width: 3; animation: mapPulse 1.1s ease-in-out infinite; }
+@keyframes mapPulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+.map-hover { position: absolute; z-index: 5; width: 282px; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; pointer-events: none; background: var(--bg-2); border: 1px solid var(--border-bright); border-top: 3px solid var(--accent, var(--red)); border-radius: 12px; box-shadow: 0 16px 40px color-mix(in srgb, var(--shadow-ink) 45%, transparent); color: var(--text); }
+.map-hover strong { font-size: 14.5px; line-height: 1.25; }
+.map-hover .mh-meta { font-size: 12px; color: var(--text-dim); text-transform: capitalize; }
+.map-hover .mh-uni { font-size: 12px; font-weight: 700; color: color-mix(in srgb, var(--accent) 65%, var(--text)); }
+.map-hover .mh-status { font-size: 12px; color: var(--text-dim); text-transform: capitalize; display: inline-flex; align-items: center; }
+.map-hover .mh-status .dot { margin: 0 6px 0 0; }
+.map-hover .mh-desc { font-size: 12.5px; line-height: 1.45; color: var(--text-dim); }
+.map-hover em { font-size: 11px; color: var(--text-faint); font-style: normal; margin-top: 2px; }
+@media (hover: none) { .map-hover { display: none; } }
+
+/* ===== Feature 4: What should I watch next? ===== */
+.wn { margin: 18px 0; padding: 22px 24px; border-left: 4px solid var(--accent, var(--red)); background: linear-gradient(120deg, color-mix(in srgb, var(--accent, var(--red)) 12%, var(--card)), var(--card) 60%); cursor: default; }
+.wn:hover { transform: none; }
+.wn-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wn h2 { margin: 2px 0 0; font-size: clamp(22px, 3.2vw, 30px); line-height: 1.15; }
+.wn-facts { margin: 0; font-size: 13px; color: var(--text-dim); }
+.wn-reason { margin: 4px 0 0; display: inline-flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; padding: 6px 12px; border-radius: 999px; font-size: 13.5px; font-weight: 600; background: color-mix(in srgb, var(--accent, var(--red)) 16%, transparent); border: 1px solid color-mix(in srgb, var(--accent, var(--red)) 35%, transparent); color: var(--text); }
+.wn-desc { margin: 6px 0 0; max-width: 70ch; font-size: 14px; line-height: 1.55; color: var(--text-dim); }
+.wn-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.wn-actions .btn[disabled] { opacity: .5; cursor: not-allowed; }
+.wn-empty h2 { font-size: 22px; }
+
+/* ===== Feature 5: shareable profile card ===== */
+.share-open { white-space: nowrap; flex-shrink: 0; }
+.share-overlay { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 16px; background: color-mix(in srgb, var(--shadow-ink, #000) 70%, transparent); backdrop-filter: blur(6px); overflow-y: auto; }
+.share-dialog { width: min(760px, 100%); display: flex; flex-direction: column; gap: 14px; padding: 18px; background: var(--bg-2); border: 1px solid var(--border-bright); border-radius: 18px; box-shadow: var(--shadow); }
+.share-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.share-head h2 { margin: 0; font-size: 19px; }
+.share-canvas { width: 100%; height: auto; aspect-ratio: 1200 / 630; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); }
+.share-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); cursor: pointer; }
+.share-toggle small { color: var(--text-faint); font-size: 12px; }
+.share-toggle input { width: 18px; height: 18px; min-height: 0; accent-color: var(--red); }
+.share-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.share-note { min-height: 20px; margin: 0; font-size: 13px; color: var(--green); }
+@media (max-width: 700px) { .share-open { width: 100%; } .wn { padding: 18px; } .wn-actions .btn { flex: 1 1 100%; } }
+

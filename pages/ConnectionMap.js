@@ -2,13 +2,20 @@ import { html } from "htm/react";
 import { useState, useMemo, useRef, useEffect } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
 import { UNIVERSES } from "../data/universes.js";
-import { getUniverse, statusOf, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
+import { getUniverse, statusOf, expandProjectsBySeasons, displayReleaseOrder, passesMode, formatRuntime } from "../utils/helpers.js";
+
+const HOME_VIEW = { x: 20, y: 20, scale: 0.75 };
+const NODE_W = 190, NODE_H = 42;
 
 export function ConnectionMap({ userData, onOpen }) {
   const prefs = userData.preferences;
   const svgRef = useRef(null);
   const dragRef = useRef(null);
-  const [transform, setTransform] = useState({ x: 20, y: 20, scale: 0.5 });
+  const [transform, setTransform] = useState(HOME_VIEW);
+  const wrapRef = useRef(null);
+  const movedRef = useRef(false);
+  const [hover, setHover] = useState(null);
+  const [focusId, setFocusId] = useState(null);
   const [filter, setFilter] = useState("all");
 
   const visible = useMemo(() => expandProjectsBySeasons(PROJECTS).filter((p) =>
@@ -35,6 +42,11 @@ export function ConnectionMap({ userData, onOpen }) {
     return result;
   }, [nodes]);
 
+  // The first title (in release order) you have not started yet, inside what the map currently shows.
+  const nextNode = useMemo(() => nodes
+    .filter((n) => passesMode(n.project, prefs.explorationMode) && statusOf(n.id, userData) === "not-started")
+    .sort((a, b) => displayReleaseOrder(a.project) - displayReleaseOrder(b.project))[0] || null, [nodes, userData, prefs.explorationMode]);
+
   const nodeMap = useMemo(() => Object.fromEntries(nodes.map((n) => [n.id, n])), [nodes]);
 
   const canvasBounds = useMemo(() => ({ width: Math.max(230, (filter === "all" ? UNIVERSES.length : 1) * 230), height: Math.max(100, nodes.reduce((m,n) => Math.max(m,n.y + 70), 0)) }), [nodes, filter]);
@@ -48,9 +60,27 @@ export function ConnectionMap({ userData, onOpen }) {
     return { ...t, x: Math.max(minX, Math.min(maxX, t.x)), y: Math.max(minY, Math.min(maxY, t.y)) };
   };
 
-  const onMouseDown = (e) => { if (e.button !== 0) return; dragRef.current = { x:e.clientX, y:e.clientY, ox:transform.x, oy:transform.y }; };
+  const jumpToNext = () => {
+    if (!nextNode) return;
+    const el = svgRef.current;
+    const vw = el?.clientWidth || 900, vh = el?.clientHeight || 600, scale = 1;
+    setTransform(clampTransform({ x: vw / 2 - (nextNode.x + NODE_W / 2) * scale, y: vh / 2 - (nextNode.y + NODE_H / 2) * scale, scale }));
+    setFocusId(nextNode.id); setHover(null);
+  };
+  useEffect(() => { if (!focusId) return; const t = setTimeout(() => setFocusId(null), 6000); return () => clearTimeout(t); }, [focusId]);
+
+  const showHover = (n, e) => {
+    if (dragRef.current || (e.pointerType && e.pointerType !== "mouse")) return;
+    const wrap = wrapRef.current?.getBoundingClientRect(), box = e.currentTarget.getBoundingClientRect();
+    if (!wrap) return;
+    const flip = box.right - wrap.left + 300 > wrap.width;
+    setHover({ id: n.id, x: flip ? box.left - wrap.left - 292 : box.right - wrap.left + 10, y: Math.max(8, Math.min(box.top - wrap.top - 10, wrap.height - 190)) });
+  };
+
+  const onMouseDown = (e) => { if (e.pointerType === "mouse" && e.button !== 0) return; movedRef.current = false; dragRef.current = { x:e.clientX, y:e.clientY, ox:transform.x, oy:transform.y }; };
   const onMouseMove = (e) => {
     if (!dragRef.current) return;
+    if (Math.abs(e.clientX - dragRef.current.x) + Math.abs(e.clientY - dragRef.current.y) > 5) { movedRef.current = true; setHover(null); }
     setTransform(clampTransform({ ...transform, x: dragRef.current.ox + e.clientX - dragRef.current.x, y: dragRef.current.oy + e.clientY - dragRef.current.y }));
   };
   const onMouseUp = () => { dragRef.current = null; };
@@ -72,21 +102,26 @@ export function ConnectionMap({ userData, onOpen }) {
       <p className="subtitle">Every visible universe gets its own lane. Filter the map or explore the complete Marvel catalog.</p>
 
       <div className="map-filters">
-        <button className=${"chip " + (filter === "all" ? "active" : "")} onClick=${() => setFilter("all")}>All Universes</button>
+        <button className=${"chip " + (filter === "all" ? "active" : "")} onClick=${() => { setFilter("all"); setFocusId(null); setTransform(HOME_VIEW); }}>All Universes</button>
         ${UNIVERSES.map((u) => html`
-          <button key=${u.id} className=${"chip " + (filter === u.id ? "active" : "")} style=${{ borderColor: filter === u.id ? u.color : undefined }} onClick=${() => { setFilter(u.id); setTransform({x:20,y:20,scale:0.5}); }}>
+          <button key=${u.id} className=${"chip " + (filter === u.id ? "active" : "")} style=${{ borderColor: filter === u.id ? u.color : undefined }} onClick=${() => { setFilter(u.id); setFocusId(null); setTransform(HOME_VIEW); }}>
             ${u.name}
           </button>
         `)}
       </div>
 
-      <div className="graph-wrap">
+      <div className="map-toolbar">
+        <button type="button" className="btn btn-primary sm" onClick=${jumpToNext} disabled=${!nextNode} title=${nextNode ? "Center the map on " + nextNode.project.title : "Nothing left unwatched on this map"}>🎯 Jump to my next unwatched</button>
+        <span className="map-legend" aria-label="Legend"><i className="dot done"></i>Completed <i className="dot now"></i>Watching <i className="dot todo"></i>Not started</span>
+      </div>
+
+      <div className="graph-wrap" ref=${wrapRef}>
         <div className="graph-controls">
           <button onClick=${() => setTransform((t) => clampTransform({...t, scale:Math.min(1.5,t.scale+0.15)}))}>+</button>
           <button onClick=${() => setTransform((t) => clampTransform({...t, scale:Math.max(0.2,t.scale-0.15)}))}>−</button>
-          <button onClick=${() => setTransform({x:20,y:20,scale:0.5})}>⌂</button>
+          <button onClick=${() => { setFocusId(null); setTransform(HOME_VIEW); }} aria-label="Reset view" title="Reset view">⌂</button>
         </div>
-        <svg ref=${svgRef} className="graph-svg" onMouseDown=${onMouseDown} onMouseMove=${onMouseMove} onMouseUp=${onMouseUp} onMouseLeave=${onMouseUp}>
+        <svg ref=${svgRef} className="graph-svg" onPointerDown=${onMouseDown} onPointerMove=${onMouseMove} onPointerUp=${onMouseUp} onPointerCancel=${onMouseUp} onPointerLeave=${onMouseUp}>
           <rect x="0" y="0" width="100%" height="100%" fill="var(--bg-2)" />
           <g transform=${"translate("+transform.x+","+transform.y+") scale("+transform.scale+")"}>
             ${filter === "all" ? UNIVERSES.map((u,ui) => {
@@ -108,7 +143,11 @@ export function ConnectionMap({ userData, onOpen }) {
               const status=statusOf(n.id,userData);
               const title=n.project.title.length>22?n.project.title.slice(0,21)+"…":n.project.title;
               return html`
-                <g key=${n.id} transform=${"translate("+n.x+","+n.y+")"} style=${{cursor:"pointer"}} onClick=${() => onOpen(n.id)}>
+                <g key=${n.id} className="map-node" transform=${"translate("+n.x+","+n.y+")"} style=${{cursor:"pointer"}} tabIndex="0" role="button" aria-label=${n.project.title + ", " + status.replace(/-/g," ")}
+                  onClick=${() => { if (movedRef.current) { movedRef.current = false; return; } onOpen(n.id); }}
+                  onKeyDown=${(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(n.id); } }}
+                  onPointerEnter=${(e) => showHover(n, e)} onPointerLeave=${() => setHover(null)} onFocus=${(e) => showHover(n, e)} onBlur=${() => setHover(null)}>
+                  ${focusId === n.id ? html`<rect className="map-focus-ring" x="-5" y="-5" width=${NODE_W + 10} height=${NODE_H + 10} rx="12" />` : null}
                   <rect width="190" height="42" rx="8" fill="var(--card)" stroke=${n.color} strokeWidth="1.5" />
                   <circle cx="11" cy="21" r="4.5" fill=${status==="completed"?"var(--green)":status==="watching"?"var(--gold)":"var(--text-faint)"} />
                   <text x="22" y="18" fontSize="10.5" fontWeight="600" fill="var(--text)">${title}</text>
@@ -118,8 +157,19 @@ export function ConnectionMap({ userData, onOpen }) {
             })}
           </g>
         </svg>
+        ${hover && nodeMap[hover.id] ? (() => {
+          const hp = nodeMap[hover.id].project, hs = statusOf(hp.id, userData), hu = getUniverse(hp.universe);
+          return html`<div className="map-hover" style=${{ left: hover.x + "px", top: hover.y + "px", "--accent": hu.color }} role="tooltip">
+            <strong>${hp.title}</strong>
+            <span className="mh-meta">${[hp.releaseYear, hp.type.replace(/-/g, " "), hp.runtimeMinutes ? formatRuntime(hp.runtimeMinutes) : null].filter(Boolean).join(" · ")}</span>
+            <span className="mh-uni">${hu.name}</span>
+            <span className="mh-status"><i className=${"dot " + (hs === "completed" ? "done" : hs === "watching" ? "now" : "todo")}></i>${hs.replace(/-/g, " ")}</span>
+            ${hp.shortDescription ? html`<span className="mh-desc">${hp.shortDescription}</span>` : null}
+            <em>Click to open details</em>
+          </div>`;
+        })() : null}
       </div>
-      <p className="text-faint" style=${{fontSize:"12px",marginTop:"12px"}}>${nodes.length} nodes · ${edges.length} direct sequence links. Drag to pan and scroll to zoom.</p>
+      <p className="text-faint" style=${{fontSize:"12px",marginTop:"12px"}}>${nodes.length} nodes · ${edges.length} direct sequence links. Drag (or swipe) to pan, scroll or use + / − to zoom, hover a title for details.</p>
     </div>
   `;
 }

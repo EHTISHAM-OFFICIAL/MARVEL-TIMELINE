@@ -388,7 +388,7 @@ function App() {
       pageEl = html`<${Search} userData=${userData} onOpen=${openProject} />`;
       break;
     case "progress":
-      pageEl = html`<${Progress} userData=${userData} onOpen=${openProject} />`;
+      pageEl = html`<${Progress} userData=${userData} onOpen=${openProject} displayName=${authState.user?.displayName || ""} />`;
       break;
     case "favorites":
       pageEl = html`<${Favorites}

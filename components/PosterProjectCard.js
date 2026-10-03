@@ -4,6 +4,7 @@ import { getUniverse, statusOf, episodeProgress, isSeries, getProjectState } fro
 import { getTMDBPoster, hasTMDBToken } from "../utils/tmdb.js";
 
 const posterCache = new Map();
+const TYPE_ICON = { movie: "🎬", "animated-movie": "🎨", "tv-series": "📺", "limited-series": "📺", "animated-series": "🎨", special: "✨" };
 
 function PosterImage({ project }) {
   const [src, setSrc] = useState(() => posterCache.get(project.id) || "");
@@ -22,7 +23,7 @@ function PosterImage({ project }) {
   return html`
     <div className=${"poster-media " + (loaded ? "has-image" : "")}>
       ${src ? html`<img src=${src} alt=${project.title + " poster"} loading="lazy" onLoad=${() => setLoaded(true)} onError=${() => { setLoaded(false); setMissing(true); }} className=${loaded ? "loaded" : ""} />` : null}
-      <div className="poster-fallback"><span className="poster-fallback-mark">MARVEL</span><strong>${project.title}</strong><small>${missing ? "Poster unavailable" : "Loading poster…"}</small></div>
+      <div className="poster-fallback"><span className="poster-fallback-mark">MARVEL</span><span className="poster-fallback-icon" aria-hidden="true">${TYPE_ICON[project.type] || "🎞️"}</span><strong>${project.title}</strong><small>${[project.releaseYear, project.type.replace(/-/g, " ")].filter(Boolean).join(" · ")}${missing ? "" : " · loading…"}</small></div>
       <div className="poster-shade"></div>
     </div>
   `;

@@ -4,10 +4,11 @@ import { StatusDot } from "../components/StatusBadge.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
 import { statusOf, passesMode, isSeries, episodeProgress, expandProjectsBySeasons, displayReleaseOrder } from "../utils/helpers.js";
 import { TrophyRoom } from "../components/TrophyRoom.js";
+import { ShareCard } from "../components/ShareCard.js";
 import { computeAchievements } from "../utils/achievements.js";
 import { useSiteConfig, themeMode } from "../store/siteConfig.js";
 
-export function Progress({ userData, onOpen }) {
+export function Progress({ userData, onOpen, displayName = "" }) {
   const prefs = userData.preferences;
   const [journeyLayout, setJourneyLayout] = useState("grid");
   const visible = useMemo(
@@ -51,10 +52,20 @@ export function Progress({ userData, onOpen }) {
 
   return html`
     <div>
-      <h1>MY MARVEL JOURNEY</h1>
-      <p className="subtitle">
-        Your visual progress through the Marvel catalog
-      </p>
+      <div className="page-heading-row">
+        <div>
+          <h1>MY MARVEL JOURNEY</h1>
+          <p className="subtitle">
+            Your visual progress through the Marvel catalog
+          </p>
+        </div>
+        <${ShareCard}
+          name=${displayName}
+          brand=${siteConfig.site?.brand}
+          trophies=${trophies}
+          stats=${{ percent: order.length ? Math.round((completed.length / order.length) * 100) : 0, movies: completedMovies, shows: completedShows, episodes: episodeStats.watched }}
+        />
+      </div>
 
       <div className="stat-grid" style=${{ marginBottom: "24px" }}>
         <div className="stat">

@@ -2467,3 +2467,42 @@ select:disabled {
   .admin-watch-item{grid-template-columns:minmax(0,1fr) auto}
   .admin-watch-item-count{min-width:72px}
 }
+
+
+/* Command Center ordering controls */
+.cc-tools {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cc-order {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+.cc-order label {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+.cc-order select {
+  width: auto;
+  min-width: 142px;
+  padding: 8px 30px 8px 10px;
+}
+.cc-filter {
+  flex: 1 1 180px;
+}
+@media (max-width: 640px) {
+  .cc-order,
+  .cc-filter {
+    width: 100%;
+    flex-basis: 100%;
+  }
+  .cc-order select {
+    flex: 1;
+  }
+}

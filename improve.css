@@ -1,0 +1,75 @@
+/* improve.css - readability, spacing and alignment fixes layered on top of existing styles. Loaded after fun.css. */
+
+/* 1. Page header: breathing room between heading row and content, toggle aligned to the subtitle */
+.page-heading-row { margin-bottom: 22px; align-items: flex-end; flex-wrap: wrap; row-gap: 12px; }
+.page-heading-row > div:first-child { min-width: 0; flex: 1 1 320px; }
+.page-heading-row .subtitle { max-width: 70ch; }
+.view-toggle { margin-top: 0; max-width: 100%; min-width: 0; }
+.view-toggle button { white-space: nowrap; }
+@media (max-width: 480px) { .view-toggle button { padding-left: 8px; padding-right: 8px; } }
+
+/* 2. Sidebar: uniform icon column, no text shift on the active item */
+.nav-item { border-left: 3px solid transparent; padding-left: 10px; }
+.nav-item.active { border-left-color: var(--red); }
+.nav-item .ico { width: 24px; flex: 0 0 24px; font-size: 16px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", system-ui, sans-serif; }
+.mobile-nav .nav-item { border-left: 0; padding-left: 0; }
+.mobile-nav .nav-item .ico { width: auto; flex: none; }
+
+/* 3. Sidebar account: readable text, sign-out sits beside the profile instead of floating below it */
+.sidebar-account-wrap { display: flex; align-items: center; gap: 8px; margin: 12px 10px 14px; }
+.sidebar-account-wrap .sidebar-account { flex: 1; min-width: 0; margin: 0; width: auto; text-align: left; font: inherit; color: inherit; cursor: pointer; transition: border-color .15s, background .15s; }
+.sidebar-account-wrap .sidebar-account:hover { border-color: var(--border-bright); background: var(--bg-3); }
+.sidebar-account-copy strong { font-size: 12.5px; }
+.sidebar-account-copy span { font-size: 11px; }
+.sidebar-logout { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; display: inline-grid; place-items: center; transition: border-color .15s, color .15s, background .15s; }
+.sidebar-logout:hover { background: color-mix(in srgb, var(--red) 12%, var(--bg-3)); }
+
+/* 4. Universes: equal-height cards, readable footer, hint no longer shouts */
+.universe-card { display: flex; flex-direction: column; }
+.universe-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
+.universe-footer .text-faint { font-size: 12px; font-weight: 600; color: var(--text-dim); letter-spacing: .2px; }
+.universe-footer .btn { flex-shrink: 0; }
+.universe-card .u-name { line-height: 1.25; }
+
+/* 5. Poster cards: legible micro-text, stable heights whether or not a title is starred */
+.poster-type { font-size: 10px; letter-spacing: .7px; }
+.poster-topline { min-height: 18px; }
+.poster-fallback small { font-size: 10.5px; }
+.poster-card .badge { font-size: 10px; padding: 2px 7px; }
+.poster-grid { align-items: stretch; }
+.poster-card { display: flex; flex-direction: column; }
+.poster-card-body { flex: 1; }
+
+/* 6. Generic micro-text floor: nothing below 10px anywhere that matters */
+.sidebar .logo span { font-size: 10.5px; line-height: 1.35; }
+.nav-item { font-size: 14px; }
+
+/* 7. Sections: clearer rhythm between stacked blocks */
+.main > div > .section-header { margin-top: 28px; }
+.main > div > * + .poster-grid, .main > div > * + .universe-grid { margin-top: 4px; }
+
+/* 8. Filter rows and form controls: a consistent height and focus state */
+select, input[type="text"], input[type="search"], input:not([type]) { min-height: 42px; }
+select:focus-visible, input:focus-visible { outline: 2px solid var(--red); outline-offset: 1px; }
+
+/* 9. Franchise tiles: a little personality and a visible hover target */
+.franchise-grid .universe-card, .universe-card[class*="franchise"] { min-height: 78px; }
+
+/* 10. Mobile fixes */
+@media (max-width: 700px) {
+  .page-heading-row { flex-direction: column; align-items: stretch; flex-wrap: nowrap; margin-bottom: 16px; }
+  .page-heading-row > div:first-child { flex: 0 0 auto; }
+  .view-toggle { width: 100%; }
+}
+/* Hero ornament must never sit on top of the copy on small screens: tuck it into the corner, behind the text */
+@media (max-width: 900px) {
+  .hero-orbit { top: 18px; right: -90px; transform: none; opacity: .22; pointer-events: none; z-index: 0; }
+}
+@media (max-width: 600px) {
+  .hero-orbit { display: none; }
+}
+
+/* 11. Poster placeholder always sits on a dark gradient, so its text must be light in every theme (was unreadable in light themes) */
+.poster-fallback strong { color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+.poster-fallback small { color: rgba(255,255,255,.78); }
+.poster-card .poster-shade { z-index: 1; }

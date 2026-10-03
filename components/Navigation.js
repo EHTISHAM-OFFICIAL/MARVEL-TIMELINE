@@ -2,18 +2,18 @@ import { html } from "htm/react";
 import { useState } from "htm/react";
 
 export const NAV_ITEMS = [
-  { id: "home", label: "Home", icon: "◉" }, { id: "timeline", label: "Timeline", icon: "▤" },
-  { id: "universes", label: "Universes", icon: "◈" }, { id: "franchises", label: "Franchises", icon: "◆" },
-  { id: "tv", label: "TV & Streaming", icon: "▣" }, { id: "animation", label: "Animation", icon: "◐" },
-  { id: "map", label: "Connection Map", icon: "⬡" }, { id: "search", label: "Search", icon: "🔍" },
-  { id: "progress", label: "My Progress", icon: "▲" }, { id: "favorites", label: "Favorites", icon: "★" },
-  { id: "settings", label: "Settings", icon: "⚙" },
+  { id: "home", label: "Home", icon: "🏠" }, { id: "timeline", label: "Timeline", icon: "🗓️" },
+  { id: "universes", label: "Universes", icon: "🌌" }, { id: "franchises", label: "Franchises", icon: "🦸" },
+  { id: "tv", label: "TV & Streaming", icon: "📺" }, { id: "animation", label: "Animation", icon: "🎨" },
+  { id: "map", label: "Connection Map", icon: "🕸️" }, { id: "search", label: "Search", icon: "🔍" },
+  { id: "progress", label: "My Progress", icon: "🏆" }, { id: "favorites", label: "Favorites", icon: "⭐" },
+  { id: "settings", label: "Settings", icon: "⚙️" },
 ];
 
 export const MOBILE_NAV = [
-  { id: "home", label: "Home", icon: "◉" }, { id: "timeline", label: "Timeline", icon: "▤" },
-  { id: "universes", label: "Universes", icon: "◈" }, { id: "search", label: "Search", icon: "🔍" },
-  { id: "progress", label: "Progress", icon: "▲" }, { id: "settings", label: "Settings", icon: "⚙" },
+  { id: "home", label: "Home", icon: "🏠" }, { id: "timeline", label: "Timeline", icon: "🗓️" },
+  { id: "universes", label: "Universes", icon: "🌌" }, { id: "search", label: "Search", icon: "🔍" },
+  { id: "progress", label: "Progress", icon: "🏆" }, { id: "settings", label: "Settings", icon: "⚙️" },
 ];
 
 const ADMIN_NAV = [
@@ -53,7 +53,7 @@ export function Sidebar({ page, onNavigate, user, onSignOut, onDeleteAccount, is
               <span style=${{ display: "block", fontSize: "10px", color: "var(--text-faint)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis" }}>${user?.email || ""}</span>
             </div>
             <button className="profile-menu-item" style=${{ display: "flex", alignItems: "center", gap: "9px", width: "100%", padding: "9px", border: "0", borderRadius: "8px", background: "transparent", color: "var(--text)", textAlign: "left", cursor: "pointer", font: "inherit", fontSize: "12px" }} onClick=${() => { setProfileOpen(false); onNavigate("settings"); }}>
-              <span>⚙</span> Account Settings
+              <span>⚙️</span> Account Settings
             </button>
             <button className="profile-menu-item danger" style=${{ display: "flex", alignItems: "center", gap: "9px", width: "100%", padding: "9px", marginTop: "2px", border: "0", borderRadius: "8px", background: "transparent", color: "var(--red-bright)", textAlign: "left", cursor: "pointer", font: "inherit", fontSize: "12px" }} onClick=${handleDelete}>
               <span>⌫</span> Delete Account

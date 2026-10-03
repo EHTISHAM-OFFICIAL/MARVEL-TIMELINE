@@ -16,6 +16,7 @@ import { Search } from "./pages/Search.js";
 import { Progress } from "./pages/Progress.js";
 import { Favorites } from "./pages/Favorites.js";
 import { Settings } from "./pages/Settings.js";
+import { TrophyToaster } from "./components/TrophyToaster.js";
 import { Admin } from "./pages/admin-panel.js?v=20260930-admin-module1";
 import { useAdminAccess } from "./store/admin.js";
 import {
@@ -23,6 +24,7 @@ import {
   applyThemePackage,
   hasAppliedTheme,
   isMaintenanceActive,
+  themeMode,
 } from "./store/siteConfig.js";
 
 function App() {
@@ -445,6 +447,13 @@ function App() {
       page=${page}
       onNavigate=${navigate}
       isAdmin=${adminAccess.isAdmin}
+    />
+    <${TrophyToaster}
+      userData=${userData}
+      uid=${authState.user?.uid}
+      ready=${store.ready && !adminAccess.isAdmin}
+      isLightTheme=${(id) => themeMode(siteConfig.themes?.[id]?.vars) === "light"}
+      onOpenTrophies=${() => navigate("progress")}
     />
     ${openProjectId
       ? html`<${ProjectDetail}

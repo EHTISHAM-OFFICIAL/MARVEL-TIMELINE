@@ -1,4 +1,4 @@
-import { html, useMemo, useState } from "htm/react";
+import { html, useEffect, useMemo, useRef, useState } from "htm/react";
 import { CATEGORIES, TIERS } from "../utils/achievements.js";
 
 export const TIER_ICONS = { bronze: "🥉", silver: "🥈", gold: "🥇", platinum: "💠", legendary: "🌟" };
@@ -74,6 +74,47 @@ function Detail({ a, onClose }) {
   `;
 }
 
+// Horizontally scrollable tab strip: drag with a mouse, wheel, or use the arrow buttons; fades show there is more.
+function CatScroller({ children }) {
+  const ref = useRef(null);
+  const [edge, setEdge] = useState({ l: false, r: false });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setEdge({ l: el.scrollLeft > 2, r: el.scrollLeft + el.clientWidth < el.scrollWidth - 2 });
+    let down = false, moved = false, startX = 0, startLeft = 0;
+    const onDown = (e) => { if (e.pointerType !== "mouse" || e.button !== 0) return; down = true; moved = false; startX = e.clientX; startLeft = el.scrollLeft; };
+    const onMove = (e) => { if (!down) return; const dx = e.clientX - startX; if (Math.abs(dx) > 4) { moved = true; el.classList.add("dragging"); } if (moved) el.scrollLeft = startLeft - dx; };
+    const onUp = () => { down = false; el.classList.remove("dragging"); };
+    const onClickCapture = (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } };
+    const onWheel = (e) => { if (el.scrollWidth <= el.clientWidth || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; e.preventDefault(); el.scrollLeft += e.deltaY; };
+    el.addEventListener("scroll", update, { passive: true });
+    el.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    el.addEventListener("click", onClickCapture, true);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("resize", update);
+    update();
+    const t = setTimeout(update, 300);
+    return () => {
+      clearTimeout(t);
+      el.removeEventListener("scroll", update); el.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp);
+      el.removeEventListener("click", onClickCapture, true); el.removeEventListener("wheel", onWheel);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+  const nudge = (dir) => ref.current && ref.current.scrollBy({ left: dir * Math.max(160, ref.current.clientWidth * 0.7), behavior: "smooth" });
+  return html`
+    <div className=${"tr-cats-wrap" + (edge.l ? " can-left" : "") + (edge.r ? " can-right" : "")}>
+      <button type="button" className="tr-cats-arrow left" aria-label="Scroll categories left" tabIndex="-1" onClick=${() => nudge(-1)}>‹</button>
+      <div className="tr-cats" role="tablist" aria-label="Trophy categories" ref=${ref}>${children}</div>
+      <button type="button" className="tr-cats-arrow right" aria-label="Scroll categories right" tabIndex="-1" onClick=${() => nudge(1)}>›</button>
+    </div>
+  `;
+}
+
 export function TrophyRoom({ result }) {
   const [cat, setCat] = useState("all");
   const [filter, setFilter] = useState("all");
@@ -137,10 +178,10 @@ export function TrophyRoom({ result }) {
         : null}
 
       <div className="tr-tools">
-        <div className="tr-cats" role="tablist" aria-label="Trophy categories">
+        <${CatScroller}>
           <button type="button" role="tab" aria-selected=${cat === "all"} className=${"tr-cat" + (cat === "all" ? " active" : "")} onClick=${() => setCat("all")}>All<span>${unlockedCount}/${availableCount}</span></button>
-          ${CATEGORIES.map((c) => html`<button key=${c.id} type="button" role="tab" aria-selected=${cat === c.id} className=${"tr-cat" + (cat === c.id ? " active" : "")} onClick=${() => setCat(c.id)}><span aria-hidden="true">${c.icon}</span> ${c.label}<span>${catCount(c.id)}</span></button>`)}
-        </div>
+          ${CATEGORIES.map((c) => html`<button key=${c.id} type="button" role="tab" aria-selected=${cat === c.id} className=${"tr-cat" + (cat === c.id ? " active" : "")} onClick=${(e) => { setCat(c.id); e.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" }); }}><span aria-hidden="true">${c.icon}</span> ${c.label}<span>${catCount(c.id)}</span></button>`)}
+        </${CatScroller}>
         <div className="tr-filter" role="radiogroup" aria-label="Filter trophies">
           ${FILTERS.map((f) => html`<button key=${f.id} type="button" role="radio" aria-checked=${filter === f.id} className=${"tr-chip" + (filter === f.id ? " active" : "")} onClick=${() => setFilter(f.id)}>${f.label}</button>`)}
         </div>

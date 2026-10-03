@@ -250,6 +250,15 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
   const [expanded, setExpanded] = useState(false);
   const [sortBy, setSortBy] = useState("release");
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const toggleAdvancedStats = () => {
+    const nextOpen = !advancedOpen;
+    setAdvancedOpen(nextOpen);
+    if (nextOpen) {
+      window.requestAnimationFrame(() => {
+        document.getElementById("cc-advanced-stats")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  };
 
   const counts = {
     all: model.lists.all.length,
@@ -307,7 +316,7 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
           </p>
         </div>
         <div className="cc-head-actions">
-          <button type="button" className=${"cc-advanced-toggle" + (advancedOpen ? " active" : "")} onClick=${() => setAdvancedOpen(!advancedOpen)} aria-expanded=${advancedOpen} aria-controls="cc-advanced-stats">
+          <button type="button" className=${"cc-advanced-toggle" + (advancedOpen ? " active" : "")} onClick=${toggleAdvancedStats} aria-expanded=${advancedOpen} aria-controls="cc-advanced-stats">
             <span>Advanced stats</span><small>${advancedOpen ? "Hide details" : "Personal insights"}</small><b>${advancedOpen ? "−" : "+"}</b>
           </button>
           <div className="cc-ring" role="img" aria-label=${model.percent + " percent complete"} style=${{ "--progress": model.percent * 3.6 + "deg" }}>

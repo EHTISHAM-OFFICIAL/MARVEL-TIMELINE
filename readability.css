@@ -1,0 +1,101 @@
+/* Global readability system
+   One typography language across the site. This layer only adjusts text hierarchy;
+   it does not change layout, tracking logic, data, or theme architecture. */
+
+:root {
+  --ui-text-xs: 11px;
+  --ui-text-sm: 12px;
+  --ui-text-md: 13px;
+  --ui-text-body: 14px;
+  --ui-text-label: 12px;
+  --ui-leading-tight: 1.35;
+  --ui-leading-body: 1.55;
+}
+
+/* The faint colour is reserved for genuinely secondary metadata, not readable content. */
+:root {
+  --text-faint: color-mix(in srgb, var(--text-dim) 72%, var(--bg));
+}
+
+/* Global readable defaults for common secondary UI. */
+.subtitle { font-size: 14px; line-height: var(--ui-leading-body); }
+label { font-size: 13px; }
+.card .meta { font-size: 12px; }
+.card .desc { font-size: 13px; line-height: 1.5; }
+.badge { font-size: 11px; }
+.chip { font-size: 12.5px; }
+.stat .label { font-size: 12px; }
+.timeline-label small { font-size: 12px; }
+.timeline-item .year { font-size: 12px; }
+.timeline-item .t-meta { font-size: 12px; }
+.detail-section h3 { font-size: 12px; }
+.spoiler { font-size: 13px; }
+.graph-legend { font-size: 12px; }
+.graph-legend div { font-size: 12px; }
+.universe-card .earth { font-size: 11px; }
+.universe-card .u-desc { font-size: 13px; }
+.ach .ach-desc { font-size: 12px; }
+.empty .empty-desc { font-size: 13px; }
+
+/* Navigation should never feel like fine print. */
+.nav-item { font-size: 14px; }
+.logo span { font-size: 11px; }
+.tab { font-size: 14px; }
+
+/* Existing compact mobile navigation was too small for comfortable scanning. */
+.mobile-nav .nav-item { font-size: 11px; }
+
+/* Forms: readable without making controls oversized. */
+input[type="text"],
+input[type="search"],
+input[type="date"],
+textarea,
+select { font-size: 14px; }
+
+/* Command Center */
+.cc-ring small { font-size: 11px; }
+.cc-stat-label { font-size: 13px; }
+.cc-stat-hint { font-size: 12.5px; }
+.cc-count { font-size: 12px; }
+.cc-row-meta { font-size: 13px; }
+.cc-row-eps em { font-size: 12.5px; }
+.cc-row-side time,
+.cc-rating { font-size: 13px; }
+.cc-status { font-size: 12px; }
+.cc-season { font-size: 12.5px; }
+.cc-foot { font-size: 13px; }
+.cc-empty p { font-size: 14px; }
+
+/* Personal journey layer: keep hierarchy compact, but never microscopic. */
+.ji-era span { font-size: 11px; }
+.ji-stat span { font-size: 12.5px; }
+.ji-stat small { font-size: 11px; }
+.ji-meta { font-size: 12px; }
+.ji-title-main small { font-size: 11px; }
+.ji-title-rating { font-size: 12.5px; }
+.ji-empty { font-size: 13px; }
+.ji-rating-row { font-size: 12px; }
+.ji-universe-top b { font-size: 12px; }
+.ji-universe-top em { font-size: 11px; }
+.ji-universe small { font-size: 11px; }
+.ji-identity p { font-size: 13px; }
+.ji-track-labels { font-size: 11px; }
+.ji-timeline p { font-size: 13px; }
+.ji-milestone b { font-size: 12px; }
+.ji-milestone small { font-size: 11px; }
+.ji-first-last small { font-size: 10px; }
+.ji-first-last b { font-size: 12.5px; }
+.ji-trophy small { font-size: 11px; }
+
+/* Never let the smallest screens collapse the supporting text back into fine print. */
+@media (max-width: 768px) {
+  body { font-size: 15px; }
+  .card .meta,
+  .card .desc,
+  .universe-card .u-desc,
+  .timeline-item .t-meta,
+  .ach .ach-desc,
+  .empty .empty-desc { font-size: 13px; }
+  .nav-item { font-size: 14px; }
+  .mobile-nav .nav-item { font-size: 11px; }
+}

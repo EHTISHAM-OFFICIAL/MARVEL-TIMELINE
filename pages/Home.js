@@ -5,6 +5,7 @@ import { ProjectCard } from "../components/ProjectCard.js";
 import { PosterProjectCard } from "../components/PosterProjectCard.js";
 import { CommandCenter } from "../components/CommandCenter.js";
 import { WatchNext } from "../components/WatchNext.js";
+import { JourneyInsights } from "../components/JourneyInsights.js";
 import { getUniverse, statusOf, passesMode, expandProjectsBySeasons, displayReleaseOrder, getProjectState } from "../utils/helpers.js";
 
 export function Home({ userData, user, siteConfig, onOpen, onNavigate }) {
@@ -19,6 +20,7 @@ export function Home({ userData, user, siteConfig, onOpen, onNavigate }) {
       <section className="home-hero"><div className="hero-grid"></div><div className="hero-content"><div className="hero-kicker">THE MARVEL ARCHIVE</div><h1>YOUR MARVEL<br/><span>JOURNEY.</span></h1><p>One cinematic command center for everything you are watching, completing, rating and discovering.</p><div className="hero-actions">${nextUp?html`<button className="btn btn-primary" onClick=${()=>onOpen(nextUp.id)}>▶ Continue to ${nextUp.title}</button>`:null}<button className="btn" onClick=${()=>onNavigate("timeline")}>Explore Timeline →</button></div></div><div className="hero-orbit"><div className="hero-orbit-ring"></div><div className="hero-orbit-core">M</div></div></section>
       <${CommandCenter} visible=${visible} userData=${userData} onOpen=${onOpen} onNavigate=${onNavigate} />
       <${WatchNext} visible=${visible} userData=${userData} timeline=${prefs.defaultTimeline} onOpen=${onOpen} />
+      <${JourneyInsights} visible=${visible} userData=${userData} onOpen=${onOpen} onNavigate=${onNavigate} />
       ${nextUp?html`<section className="home-next card" style=${{"--accent":getUniverse(nextUp.universe).color}} onClick=${()=>onOpen(nextUp.id)}><div><span className="eyebrow">NEXT DESTINATION · ${prefs.defaultTimeline==="chronological"?"STORY ORDER":"RELEASE ORDER"}</span><h2>${nextUp.title}</h2><p>${nextUp.shortDescription}</p></div><div className="next-arrow">→</div></section>`:null}
       ${watching.length?html`<section><div className="section-header"><h2>Continue Watching</h2><button className="text-btn" onClick=${()=>onNavigate("progress")}>View progress →</button></div><div className="poster-grid home-poster-grid">${watching.slice(0,6).map(p=>html`<${PosterProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen}/>` )}</div></section>`:null}
       <section><div className="section-header"><h2>Featured Archive</h2><button className="text-btn" onClick=${()=>onNavigate("timeline")}>Open full timeline →</button></div><div className="poster-grid home-poster-grid">${featured.map(p=>html`<${PosterProjectCard} key=${p.id} project=${p} userData=${userData} onOpen=${onOpen}/>` )}</div></section>

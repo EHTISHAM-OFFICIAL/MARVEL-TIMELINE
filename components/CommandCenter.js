@@ -1,5 +1,6 @@
 import { html, useEffect, useMemo, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
+import { JourneyInsights } from "./JourneyInsights.js";
 import {
   getUniverse,
   getProjectState,
@@ -248,6 +249,7 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
   const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [sortBy, setSortBy] = useState("release");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const counts = {
     all: model.lists.all.length,
@@ -304,9 +306,14 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
             <b>${model.done}</b> of <b>${model.total}</b> titles completed${model.episodes.total ? html` · <b>${model.episodes.watched}</b> of <b>${model.episodes.total}</b> episodes watched` : null}
           </p>
         </div>
-        <div className="cc-ring" role="img" aria-label=${model.percent + " percent complete"} style=${{ "--progress": model.percent * 3.6 + "deg" }}>
-          <strong>${model.percent}<span>%</span></strong>
-          <small>complete</small>
+        <div className="cc-head-actions">
+          <button type="button" className=${"cc-advanced-toggle" + (advancedOpen ? " active" : "")} onClick=${() => setAdvancedOpen(!advancedOpen)} aria-expanded=${advancedOpen} aria-controls="cc-advanced-stats">
+            <span>Advanced stats</span><small>${advancedOpen ? "Hide details" : "Personal insights"}</small><b>${advancedOpen ? "−" : "+"}</b>
+          </button>
+          <div className="cc-ring" role="img" aria-label=${model.percent + " percent complete"} style=${{ "--progress": model.percent * 3.6 + "deg" }}>
+            <strong>${model.percent}<span>%</span></strong>
+            <small>complete</small>
+          </div>
         </div>
       </header>
 
@@ -360,6 +367,12 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
             : null}
         </div>
       </div>
+
+      ${advancedOpen
+        ? html`<div id="cc-advanced-stats" className="cc-advanced-stats">
+            <${JourneyInsights} visible=${visible} userData=${userData} onOpen=${onOpen} onNavigate=${onNavigate} />
+          </div>`
+        : null}
     </section>
   `;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "htm/react";
 import { doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { db } from "../firebase.js";
+import { db } from "../services/firebase.js";
 
 export const DEFAULT_VARS={bg:"#0a0a0f",bg2:"#12121a",bg3:"#1a1a26",card:"#16161f",cardHover:"#1e1e2c",border:"#2a2a3a",borderBright:"#3a3a52",text:"#e8e8f0",textDim:"#9a9ab0",textFaint:"#87879b",red:"#e62429",redBright:"#ff3b40",gold:"#f5b800",green:"#2ecc71",blue:"#3498db",purple:"#9b59b6",radius:"12px",radiusSm:"8px",shadow:"0 8px 32px rgba(0,0,0,.5)",glow1:"rgba(230,36,41,.12)",glow2:"rgba(155,89,182,.06)"};
 export const DEFAULT_THEMES={
@@ -18,25 +18,7 @@ export const DEFAULT_THEMES={
 export const DEFAULT_SITE_CONFIG={version:1,site:{brand:"MARVEL TIMELINE",tagline:"MCU & Marvel Connections Tracker",welcomeTitle:"WELCOME BACK",welcomeText:"Your Marvel archive is ready.",maintenance:false,maintenanceReopenAt:null},activeTheme:"midnight",themes:DEFAULT_THEMES,posters:{}};
 let runtimeConfig=DEFAULT_SITE_CONFIG;
 export function getRuntimeConfig(){return runtimeConfig;}
-export const DEFAULT_POSTERS={
-  "captain-america-brave-new-world-2025":"https://image.tmdb.org/t/p/w500/pzIddUEMWhWzfvLI3TwxUG2wGoi.jpg",
-  "thunderbolts-2025":"https://image.tmdb.org/t/p/w500/hqcexYHbiTBfDIdDWxrxPtVndBX.jpg",
-  "spider-man-brand-new-day-2026":"https://image.tmdb.org/t/p/w500/bjiS5ipwxb9JFy3XRRN4OAilSeX.jpg",
-  "madame-web-2024":"https://image.tmdb.org/t/p/w500/rULWuutDcN5NvtiZi4FRPzRYWSh.jpg",
-  "venom-last-dance-2024":"https://image.tmdb.org/t/p/w500/aosm8NMQ3UyoBVpSxyimorCQykC.jpg",
-  "kraven-the-hunter-2024":"https://image.tmdb.org/t/p/w500/nrlfJoxP1EkBVE9pU62L287Jl4D.jpg",
-  "new-mutants-2020":"https://image.tmdb.org/t/p/w500/xiDGcXJTvu1lazFRYip6g1eLt9c.jpg"
-};
-function mergePosterConfig(posters){
- const incoming=posters&&typeof posters==="object"&&!Array.isArray(posters)?posters:{};
- const merged={...DEFAULT_POSTERS};
- Object.entries(incoming).forEach(([key,value])=>{if(typeof value==="string"&&value.trim())merged[key]=value.trim();});
- return merged;
-}
-export function setRuntimeConfig(config){
- runtimeConfig={...DEFAULT_SITE_CONFIG,...config,site:{...DEFAULT_SITE_CONFIG.site,...(config?.site||{})},themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:mergePosterConfig(config?.posters)};
- return runtimeConfig;
-}
+export function setRuntimeConfig(config){runtimeConfig={...DEFAULT_SITE_CONFIG,...config,site:{...DEFAULT_SITE_CONFIG.site,...(config?.site||{})},themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:config?.posters||{}};return runtimeConfig;}
 export function isMaintenanceActive(config=runtimeConfig){const site=config?.site||{};if(!site.maintenance)return false;const reopen=site.maintenanceReopenAt?new Date(site.maintenanceReopenAt).getTime():NaN;return Number.isFinite(reopen)&&Date.now()>=reopen?false:true;}
 // The stylesheet reads hyphenated names (--bg-2, --text-dim ...) while theme packages
 // (and the admin theme editor) store camelCase keys. Publish BOTH so nothing stays on a stale default.

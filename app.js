@@ -1,6 +1,6 @@
 import { html, render } from "htm/react";
 import { useState, useEffect, useCallback } from "htm/react";
-import { useAuth, logout, deleteAccount, authErrorMessage } from "./auth.js";
+import { useAuth, logout, deleteAccount, authErrorMessage } from "./services/auth.js";
 import { useUserData } from "./store/userData.js";
 import { AuthScreen } from "./components/AuthScreen.js";
 import { Sidebar, MobileNav } from "./components/Navigation.js";
@@ -14,12 +14,12 @@ import { Animation } from "./pages/Animation.js";
 import { ConnectionMap } from "./pages/ConnectionMap.js";
 import { Search } from "./pages/Search.js";
 import { Progress } from "./pages/Progress.js";
-import { MarvelHQ } from "./pages/hq/MarvelHQ.js";
+import { MarvelHQ } from "./pages/MarvelHQ.js";
 import { requestGoal } from "./components/hq/Roadmap.js";
 import { Favorites } from "./pages/Favorites.js";
 import { Settings } from "./pages/Settings.js";
 import { TrophyToaster } from "./components/TrophyToaster.js";
-import { Admin } from "./pages/admin/AdminPanel.js?v=20261005-admin-structure";
+import { Admin } from "./pages/admin-panel.js?v=20260930-admin-module1";
 import { useAdminAccess } from "./store/admin.js";
 import {
   useSiteConfig,

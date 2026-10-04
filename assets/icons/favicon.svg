@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Marvel Timeline">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a1d29"/><stop offset="1" stop-color="#090a0f"/></linearGradient>
+    <linearGradient id="ln" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4b4b"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient>
+    <radialGradient id="gl" cx=".5" cy=".62" r=".6"><stop offset="0" stop-color="#ff3b3b" stop-opacity=".30"/><stop offset="1" stop-color="#ff3b3b" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#gl)"/>
+  <path d="M15 48V18l17 19 17-19v30" fill="none" stroke="url(#ln)" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="37" r="4.6" fill="#fff"/>
+  <circle cx="32" cy="37" r="4.6" fill="none" stroke="#090a0f" stroke-width="1.6"/>
+</svg>

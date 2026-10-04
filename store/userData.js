@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "htm/react";
 import { doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { UNIVERSES } from "../data/universes.js";
-import { db } from "../firebase.js";
-import { ADMIN_UID } from "../auth.js";
+import { db } from "../services/firebase.js";
+import { ADMIN_UID } from "../services/auth.js";
 
 const STORAGE_KEY = "marvel-timeline-user-data-v1";
 

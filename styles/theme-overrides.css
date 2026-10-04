@@ -1,0 +1,35 @@
+/* Mode-based theme rules.
+   applyThemePackage() classifies every theme (built-in or created in the admin
+   panel) as data-mode="light" or "dark" from its background colour, so these
+   rules apply universally, with no list of theme names to maintain.
+
+   Colours themselves come from the theme variables (--bg, --card, --text ...),
+   which are published under both their camelCase and hyphenated names. */
+
+:root[data-mode="light"] { color-scheme: light; }
+:root[data-mode="dark"]  { color-scheme: dark; }
+
+::selection { background: color-mix(in srgb, var(--red) 30%, transparent); color: var(--text); }
+html { scrollbar-color: var(--border-bright) transparent; }
+
+/* ---- Light mode refinements ---------------------------------------- */
+/* Softer atmospheric glow so the page stays clean and bright. */
+:root[data-mode="light"] body::before {
+  background:
+    radial-gradient(ellipse 75% 45% at 50% -10%, color-mix(in srgb, var(--red) 8%, transparent), transparent 62%),
+    radial-gradient(ellipse 55% 40% at 100% 100%, color-mix(in srgb, var(--purple) 6%, transparent), transparent 65%);
+}
+
+/* Surfaces separate by border + a hairline shadow rather than heavy drop shadows. */
+:root[data-mode="light"] .card,
+:root[data-mode="light"] .stat,
+:root[data-mode="light"] .universe-card,
+:root[data-mode="light"] .poster-card,
+:root[data-mode="light"] .settings-card {
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--shadow-ink) 8%, transparent);
+}
+:root[data-mode="light"] .sidebar,
+:root[data-mode="light"] .mobile-nav {
+  background: color-mix(in srgb, var(--bg-2) 94%, transparent);
+}
+:root[data-mode="light"] .ach.locked { opacity: .62; }

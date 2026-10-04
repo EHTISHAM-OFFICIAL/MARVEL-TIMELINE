@@ -12,7 +12,7 @@ import {
 } from "../utils/helpers.js";
 import { SpoilerSection } from "./SpoilerSection.js";
 
-export function ProjectDetail({ projectId, userData, actions, onClose }) {
+export function ProjectDetail({ projectId, userData, actions, onClose, onPlan }) {
   const project = getProject(projectId);
   useEffect(() => {
     const onKey = (e) => {
@@ -109,6 +109,9 @@ export function ProjectDetail({ projectId, userData, actions, onClose }) {
           <div className="detail-section">
             <h3>Why It Matters</h3>
             <p>${project.whyItMatters}</p>
+            ${onPlan
+              ? html`<button className="btn ghost sm" onClick=${() => onPlan(project.id)}>🧭 Plan my catch-up for this</button>`
+              : null}
           </div>
           ${project.chronologicalNote
             ? html`

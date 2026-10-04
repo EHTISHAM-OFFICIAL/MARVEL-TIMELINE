@@ -33,7 +33,7 @@ export function universeStats(userData) {
 
 /* ---------- Character Journeys ---------- */
 // Two catalog names that refer to the same person are merged for browsing only; the data itself is untouched.
-const ALIAS = { Logan: "Wolverine", "Professor X": "Charles Xavier" };
+const ALIAS = { Logan: "Wolverine", "Professor X": "Charles Xavier", "Doctor Strange": "Stephen Strange", "Thunderbolt Ross": "Thaddeus Ross" };
 export const canonicalName = (n) => ALIAS[n] || n;
 
 export function characterIndex(visible) {

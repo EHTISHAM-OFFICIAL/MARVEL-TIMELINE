@@ -1,7 +1,7 @@
 import { html, useEffect, useState } from "htm/react";
-import { PROJECTS } from "../../data/projects.js";
-import { expandProjectsBySeasons, getProjectState } from "../../utils/helpers.js";
-import { DEFAULT_SITE_CONFIG, applyThemePackage } from "../../store/siteConfig.js";
+import { PROJECTS } from "../data/projects.js";
+import { expandProjectsBySeasons, getProjectState } from "../utils/helpers.js";
+import { DEFAULT_SITE_CONFIG, applyThemePackage } from "../store/siteConfig.js";
 import {
   loadAdminConfig,
   loadAdminUsers,
@@ -9,7 +9,7 @@ import {
   saveAdminThemeConfig,
   savePrivateConfig,
   setAdminUser,
-} from "../../store/admin.js";
+} from "../store/admin.js";
 
 const fields = [
   ["bg", "Background"],

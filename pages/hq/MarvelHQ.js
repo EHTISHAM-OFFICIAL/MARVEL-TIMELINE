@@ -1,16 +1,16 @@
 import { html, useEffect, useMemo, useState } from "htm/react";
-import { computeAchievements, visibleProjects } from "../utils/achievements.js";
-import { universeStats, cardsFromTrophies, buildIdentity } from "../utils/hq.js";
-import { useSiteConfig, themeMode } from "../store/siteConfig.js";
-import { CatScroller } from "../components/TrophyRoom.js";
-import { Multiverse } from "../components/hq/Multiverse.js";
-import { Characters } from "../components/hq/Characters.js";
-import { Sagas } from "../components/hq/Sagas.js";
-import { Radar } from "../components/hq/Radar.js";
-import { Vault } from "../components/hq/Vault.js";
-import { Cards } from "../components/hq/Cards.js";
-import { IQ, loadIQ, iqScore } from "../components/hq/IQ.js";
-import { Identity } from "../components/hq/Identity.js";
+import { computeAchievements, visibleProjects } from "../../utils/achievements.js";
+import { universeStats, cardsFromTrophies, buildIdentity } from "../../utils/hq.js";
+import { useSiteConfig, themeMode } from "../../store/siteConfig.js";
+import { CatScroller } from "../../components/TrophyRoom.js";
+import { Multiverse } from "../../components/hq/Multiverse.js";
+import { Characters } from "../../components/hq/Characters.js";
+import { Sagas } from "../../components/hq/Sagas.js";
+import { Radar } from "../../components/hq/Radar.js";
+import { Vault } from "../../components/hq/Vault.js";
+import { Cards } from "../../components/hq/Cards.js";
+import { IQ, loadIQ, iqScore } from "../../components/hq/IQ.js";
+import { Identity } from "../../components/hq/Identity.js";
 
 const TABS = [
   { id: "multiverse", icon: "🌌", label: "Multiverse" },

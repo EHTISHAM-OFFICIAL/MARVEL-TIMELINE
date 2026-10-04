@@ -18,7 +18,11 @@ export const DEFAULT_THEMES={
 export const DEFAULT_SITE_CONFIG={version:1,site:{brand:"MARVEL TIMELINE",tagline:"MCU & Marvel Connections Tracker",welcomeTitle:"WELCOME BACK",welcomeText:"Your Marvel archive is ready.",maintenance:false,maintenanceReopenAt:null},activeTheme:"midnight",themes:DEFAULT_THEMES,posters:{}};
 let runtimeConfig=DEFAULT_SITE_CONFIG;
 export function getRuntimeConfig(){return runtimeConfig;}
+<<<<<<< HEAD
 export function setRuntimeConfig(config){runtimeConfig={...DEFAULT_SITE_CONFIG,...config,site:{...DEFAULT_SITE_CONFIG.site,...(config?.site||{})},themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:config?.posters||{}};return runtimeConfig;}
+=======
+function mergePosterConfig(posters){const incoming=posters&&typeof posters==="object"&&!Array.isArray(posters)?posters:{};const merged={...DEFAULT_POSTERS};Object.entries(incoming).forEach(([key,value])=>{if(typeof value==="string"&&value.trim())merged[key]=value.trim();});return merged;}\nexport function setRuntimeConfig(config){runtimeConfig={...DEFAULT_SITE_CONFIG,...config,site:{...DEFAULT_SITE_CONFIG.site,...(config?.site||{})},themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:mergePosterConfig(config?.posters)};return runtimeConfig;}
+>>>>>>> 7e9bc91eea963ff83f48120c45d250164a6e091e
 export function isMaintenanceActive(config=runtimeConfig){const site=config?.site||{};if(!site.maintenance)return false;const reopen=site.maintenanceReopenAt?new Date(site.maintenanceReopenAt).getTime():NaN;return Number.isFinite(reopen)&&Date.now()>=reopen?false:true;}
 // The stylesheet reads hyphenated names (--bg-2, --text-dim ...) while theme packages
 // (and the admin theme editor) store camelCase keys. Publish BOTH so nothing stays on a stale default.

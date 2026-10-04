@@ -1,4 +1,4 @@
-import { getRuntimeConfig } from "../store/siteConfig.js";
+import { getRuntimeConfig, DEFAULT_POSTERS } from "../store/siteConfig.js";
 
 export function getTMDBToken() {
   return "";

@@ -4,6 +4,7 @@ import { universeStats, cardsFromTrophies, buildIdentity } from "../../utils/hq.
 import { useSiteConfig, themeMode } from "../../store/siteConfig.js";
 import { CatScroller } from "../../components/TrophyRoom.js";
 import { Multiverse } from "../../components/hq/Multiverse.js";
+import { Roadmap } from "../../components/hq/Roadmap.js";
 import { Characters } from "../../components/hq/Characters.js";
 import { Sagas } from "../../components/hq/Sagas.js";
 import { Radar } from "../../components/hq/Radar.js";
@@ -14,6 +15,7 @@ import { Identity } from "../../components/hq/Identity.js";
 
 const TABS = [
   { id: "multiverse", icon: "🌌", label: "Multiverse" },
+  { id: "roadmap", icon: "🧭", label: "Roadmap" },
   { id: "characters", icon: "🦸", label: "Characters" },
   { id: "sagas", icon: "📜", label: "Sagas" },
   { id: "radar", icon: "📡", label: "Radar" },
@@ -50,6 +52,7 @@ export function MarvelHQ({ userData, user, onOpen, onNavigate }) {
 
   let body;
   switch (tab) {
+    case "roadmap": body = html`<${Roadmap} userData=${userData} onOpen=${onOpen} />`; break;
     case "characters": body = html`<${Characters} visible=${visible} userData=${userData} onOpen=${onOpen} />`; break;
     case "sagas": body = html`<${Sagas} visible=${visible} userData=${userData} onOpen=${onOpen} />`; break;
     case "radar": body = html`<${Radar} visible=${visible} userData=${userData} onOpen=${onOpen} />`; break;

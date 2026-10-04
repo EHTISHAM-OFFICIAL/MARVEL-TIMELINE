@@ -1,6 +1,6 @@
 import { html, render } from "htm/react";
 import { useState, useEffect, useCallback } from "htm/react";
-import { useAuth, logout, deleteAccount, authErrorMessage } from "./services/auth.js";
+import { useAuth, logout, deleteAccount, authErrorMessage } from "./auth.js";
 import { useUserData } from "./store/userData.js";
 import { AuthScreen } from "./components/AuthScreen.js";
 import { Sidebar, MobileNav } from "./components/Navigation.js";
@@ -19,7 +19,7 @@ import { requestGoal } from "./components/hq/Roadmap.js";
 import { Favorites } from "./pages/Favorites.js";
 import { Settings } from "./pages/Settings.js";
 import { TrophyToaster } from "./components/TrophyToaster.js";
-import { Admin } from "./pages/admin-panel.js?v=20260930-admin-module1";
+import { Admin } from "./pages/AdminPanel.js";
 import { useAdminAccess } from "./store/admin.js";
 import {
   useSiteConfig,

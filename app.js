@@ -14,6 +14,7 @@ import { Animation } from "./pages/Animation.js";
 import { ConnectionMap } from "./pages/ConnectionMap.js";
 import { Search } from "./pages/Search.js";
 import { Progress } from "./pages/Progress.js";
+import { MarvelHQ } from "./pages/MarvelHQ.js";
 import { Favorites } from "./pages/Favorites.js";
 import { Settings } from "./pages/Settings.js";
 import { TrophyToaster } from "./components/TrophyToaster.js";
@@ -32,6 +33,8 @@ function App() {
   const adminAccess = useAdminAccess(authState.user);
   const isAdminRoute = () =>
     window.location.pathname.replace(/\/+$/, "") === "/admin";
+  const isHQRoute = () =>
+    window.location.pathname.replace(/\/+$/, "") === "/hq";
   // On /admin, never start the normal user-data path while administrator verification has failed.
   // That used to produce a misleading second "Missing or insufficient permissions" error.
   const accountMode =
@@ -40,7 +43,7 @@ function App() {
       : adminAccess.isAdmin;
   const store = useUserData(authState.user, accountMode);
   const siteConfig = useSiteConfig(authState.user);
-  const getRoute = () => (isAdminRoute() ? "admin" : "home");
+  const getRoute = () => (isAdminRoute() ? "admin" : isHQRoute() ? "hq" : "home");
   const [maintenanceTick, setMaintenanceTick] = useState(0),
     [page, setPage] = useState(getRoute);
   const [openProjectId, setOpenProjectId] = useState(null);
@@ -113,7 +116,13 @@ function App() {
       setPage("admin");
       return;
     }
-    if (window.location.pathname === "/admin")
+    if (id === "hq") {
+      if (window.location.pathname.replace(/\/+$/, "") !== "/hq")
+        window.history.pushState({}, "", "/hq");
+      setPage("hq");
+      return;
+    }
+    if (window.location.pathname === "/admin" || window.location.pathname.replace(/\/+$/, "") === "/hq")
       window.history.pushState({}, "", "/");
     setPage(id);
   }, []);
@@ -348,6 +357,14 @@ function App() {
         userData=${userData}
         user=${authState.user}
         siteConfig=${siteConfig}
+        onOpen=${openProject}
+        onNavigate=${navigate}
+      />`;
+      break;
+    case "hq":
+      pageEl = html`<${MarvelHQ}
+        userData=${userData}
+        user=${authState.user}
         onOpen=${openProject}
         onNavigate=${navigate}
       />`;

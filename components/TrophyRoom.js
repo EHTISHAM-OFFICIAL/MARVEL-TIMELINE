@@ -75,7 +75,7 @@ function Detail({ a, onClose }) {
 }
 
 // Horizontally scrollable tab strip: drag with a mouse, wheel, or use the arrow buttons; fades show there is more.
-function CatScroller({ children }) {
+export function CatScroller({ children }) {
   const ref = useRef(null);
   const [edge, setEdge] = useState({ l: false, r: false });
   useEffect(() => {

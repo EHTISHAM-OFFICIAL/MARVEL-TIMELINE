@@ -6,7 +6,7 @@ import { getTMDBPoster, hasTMDBToken } from "../utils/tmdb.js";
 const posterCache = new Map();
 const TYPE_ICON = { movie: "🎬", "animated-movie": "🎨", "tv-series": "📺", "limited-series": "📺", "animated-series": "🎨", special: "✨" };
 
-function PosterImage({ project }) {
+export function PosterImage({ project }) {
   const [src, setSrc] = useState(() => posterCache.get(project.id) || "");
   const [loaded, setLoaded] = useState(Boolean(src));
   const [missing, setMissing] = useState(false);

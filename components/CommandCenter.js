@@ -1,6 +1,5 @@
 import { html, useEffect, useMemo, useState } from "htm/react";
 import { PROJECTS } from "../data/projects.js";
-import { JourneyInsights } from "./JourneyInsights.js";
 import {
   getUniverse,
   getProjectState,
@@ -19,13 +18,6 @@ const TABS = [
 ];
 
 const PAGE_SIZE = 8;
-
-const SORT_OPTIONS = [
-  { id: "release", label: "Release order" },
-  { id: "date", label: "Watched date" },
-  { id: "rating", label: "Rating" },
-  { id: "phase", label: "Phase" },
-];
 
 const TYPE_LABELS = {
   movie: "Movie",
@@ -88,7 +80,6 @@ function buildModel(visible, userData) {
       favorite: Boolean(s.favorite),
       ep: isSeries(p) ? episodeProgress(p, userData) : null,
       order: displayReleaseOrder(p),
-      phase: Number.isFinite(Number(p.phase)) ? Number(p.phase) : Number.MAX_SAFE_INTEGER,
       title: p.title,
     };
   };
@@ -118,8 +109,6 @@ function buildModel(visible, userData) {
       info.slice().reverse().find((s) => s.status === "completed") ||
       info[0];
     const dates = list.map((p) => state(p).watchedDate || "").filter(Boolean).sort();
-    const ratings = list.map((p) => Number(state(p).rating || 0)).filter((r) => r > 0);
-    const rating = ratings.length ? Math.round((ratings.reduce((a, r) => a + r, 0) / ratings.length) * 10) / 10 : 0;
     shows.push({
       kind: "show",
       key: id,
@@ -133,20 +122,18 @@ function buildModel(visible, userData) {
       favorite: list.some((p) => Boolean(state(p).favorite)),
       open: open.project,
       order: displayReleaseOrder(info[0].project),
-      phase: Number.isFinite(Number(base.phase)) ? Number(base.phase) : Number.MAX_SAFE_INTEGER,
-      rating,
       title: base.title,
     });
   });
 
+  const newestFirst = (a, b) => (b.date || "").localeCompare(a.date || "") || a.order - b.order;
   const movieEntries = doneMovies.map(itemEntry);
-  const completedShows = shows.filter((show) => show.status === "completed");
   const lists = {
-    all: [...movieEntries, ...completedShows],
-    movies: movieEntries.slice(),
-    series: shows.slice(),
-    watching: watching.map(itemEntry),
-    favorites: favorites.map(itemEntry),
+    all: [...movieEntries, ...shows].sort(newestFirst),
+    movies: movieEntries.slice().sort(newestFirst),
+    series: shows.slice().sort(newestFirst),
+    watching: watching.map(itemEntry).sort(newestFirst),
+    favorites: favorites.map(itemEntry).sort(newestFirst),
   };
 
   return {
@@ -224,7 +211,6 @@ function ShowRow({ entry, onOpen }) {
         <span className="cc-row-side">
           <${StatusChip} status=${entry.status} />
           ${entry.date ? html`<time dateTime=${entry.date}>${formatDate(entry.date)}</time>` : null}
-          ${entry.rating ? html`<span className="cc-rating">★ ${entry.rating}/10</span>` : null}
         </span>
       </button>
       ${multi
@@ -248,17 +234,6 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
   const [tab, setTab] = useState("all");
   const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState(false);
-  const [sortBy, setSortBy] = useState("release");
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const toggleAdvancedStats = () => {
-    const nextOpen = !advancedOpen;
-    setAdvancedOpen(nextOpen);
-    if (nextOpen) {
-      window.requestAnimationFrame(() => {
-        document.getElementById("cc-advanced-stats")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    }
-  };
 
   const counts = {
     all: model.lists.all.length,
@@ -269,20 +244,7 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
   };
   const q = query.trim().toLowerCase();
   const filtered = model.lists[tab].filter((e) => !q || e.title.toLowerCase().includes(q));
-  const sortEntries = (items) => items.slice().sort((a, b) => {
-    if (sortBy === "date") {
-      const ad = a.date || "0000-00-00", bd = b.date || "0000-00-00";
-      return bd.localeCompare(ad) || a.order - b.order;
-    }
-    if (sortBy === "rating") {
-      const ar = Number(a.rating || 0), br = Number(b.rating || 0);
-      return (br - ar) || a.order - b.order;
-    }
-    if (sortBy === "phase") return (a.phase - b.phase) || a.order - b.order;
-    return a.order - b.order;
-  });
-  const ordered = sortEntries(filtered);
-  const shown = expanded ? ordered : ordered.slice(0, PAGE_SIZE);
+  const shown = expanded ? filtered : filtered.slice(0, PAGE_SIZE);
   const pick = (id) => { setTab(id); setExpanded(false); };
   useEffect(() => {
     const el = document.getElementById("cc-tab-" + tab);
@@ -315,14 +277,9 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
             <b>${model.done}</b> of <b>${model.total}</b> titles completed${model.episodes.total ? html` · <b>${model.episodes.watched}</b> of <b>${model.episodes.total}</b> episodes watched` : null}
           </p>
         </div>
-        <div className="cc-head-actions">
-          <button type="button" className=${"cc-advanced-toggle" + (advancedOpen ? " active" : "")} onClick=${toggleAdvancedStats} aria-expanded=${advancedOpen} aria-controls="cc-advanced-stats">
-            <span>Advanced stats</span><small>${advancedOpen ? "Hide details" : "Personal insights"}</small><b>${advancedOpen ? "−" : "+"}</b>
-          </button>
-          <div className="cc-ring" role="img" aria-label=${model.percent + " percent complete"} style=${{ "--progress": model.percent * 3.6 + "deg" }}>
-            <strong>${model.percent}<span>%</span></strong>
-            <small>complete</small>
-          </div>
+        <div className="cc-ring" role="img" aria-label=${model.percent + " percent complete"} style=${{ "--progress": model.percent * 3.6 + "deg" }}>
+          <strong>${model.percent}<span>%</span></strong>
+          <small>complete</small>
         </div>
       </header>
 
@@ -343,12 +300,6 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
                 ${t.label}<span className="cc-count">${counts[t.id]}</span>
               </button>`)}
           </div>
-          <div className="cc-order">
-            <label htmlFor="cc-order-select">Order by</label>
-            <select id="cc-order-select" value=${sortBy} onChange=${(e) => { setSortBy(e.target.value); setExpanded(false); }} aria-label="Order watched titles by">
-              ${SORT_OPTIONS.map((option) => html`<option key=${option.id} value=${option.id}>${option.label}</option>`)}
-            </select>
-          </div>
           <div className="cc-filter">
             <input type="search" value=${query} onInput=${(e) => { setQuery(e.target.value); setExpanded(false); }} placeholder="Filter titles…" aria-label="Filter titles in this list" />
           </div>
@@ -368,20 +319,14 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
                   ? html`<button type="button" className="btn" onClick=${() => onNavigate("timeline")}>Open the timeline →</button>`
                   : null}
               </div>`}
-          ${ordered.length > PAGE_SIZE
+          ${filtered.length > PAGE_SIZE
             ? html`<div className="cc-foot">
-                <span>Showing ${shown.length} of ${ordered.length}</span>
-                <button type="button" className="text-btn" onClick=${() => setExpanded(!expanded)} aria-expanded=${expanded}>${expanded ? "Show fewer" : "Show all " + ordered.length + " →"}</button>
+                <span>Showing ${shown.length} of ${filtered.length}</span>
+                <button type="button" className="text-btn" onClick=${() => setExpanded(!expanded)} aria-expanded=${expanded}>${expanded ? "Show fewer" : "Show all " + filtered.length + " →"}</button>
               </div>`
             : null}
         </div>
       </div>
-
-      ${advancedOpen
-        ? html`<div id="cc-advanced-stats" className="cc-advanced-stats">
-            <${JourneyInsights} visible=${visible} userData=${userData} onOpen=${onOpen} onNavigate=${onNavigate} />
-          </div>`
-        : null}
     </section>
   `;
 }

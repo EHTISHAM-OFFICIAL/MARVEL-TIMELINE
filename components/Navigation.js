@@ -2,7 +2,7 @@ import { html } from "htm/react";
 import { useState } from "htm/react";
 
 export const NAV_ITEMS = [
-  { id: "home", label: "Home", icon: "🏠" }, { id: "timeline", label: "Timeline", icon: "🗓️" },
+  { id: "home", label: "Home", icon: "🏠" }, { id: "hq", label: "Marvel HQ", icon: "🛡️" }, { id: "timeline", label: "Timeline", icon: "🗓️" },
   { id: "universes", label: "Universes", icon: "🌌" }, { id: "franchises", label: "Franchises", icon: "🦸" },
   { id: "tv", label: "TV & Streaming", icon: "📺" }, { id: "animation", label: "Animation", icon: "🎨" },
   { id: "map", label: "Connection Map", icon: "🕸️" }, { id: "search", label: "Search", icon: "🔍" },
@@ -11,7 +11,7 @@ export const NAV_ITEMS = [
 ];
 
 export const MOBILE_NAV = [
-  { id: "home", label: "Home", icon: "🏠" }, { id: "timeline", label: "Timeline", icon: "🗓️" },
+  { id: "home", label: "Home", icon: "🏠" }, { id: "hq", label: "HQ", icon: "🛡️" }, { id: "timeline", label: "Timeline", icon: "🗓️" },
   { id: "universes", label: "Universes", icon: "🌌" }, { id: "search", label: "Search", icon: "🔍" },
   { id: "progress", label: "Progress", icon: "🏆" }, { id: "settings", label: "Settings", icon: "⚙️" },
 ];

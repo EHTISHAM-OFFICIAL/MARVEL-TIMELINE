@@ -1,6 +1,6 @@
 import { useEffect, useState } from "htm/react";
 import { doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { db } from "../services/firebase.js";
+import { db } from "../firebase.js";
 
 export const DEFAULT_VARS={bg:"#0a0a0f",bg2:"#12121a",bg3:"#1a1a26",card:"#16161f",cardHover:"#1e1e2c",border:"#2a2a3a",borderBright:"#3a3a52",text:"#e8e8f0",textDim:"#9a9ab0",textFaint:"#87879b",red:"#e62429",redBright:"#ff3b40",gold:"#f5b800",green:"#2ecc71",blue:"#3498db",purple:"#9b59b6",radius:"12px",radiusSm:"8px",shadow:"0 8px 32px rgba(0,0,0,.5)",glow1:"rgba(230,36,41,.12)",glow2:"rgba(155,89,182,.06)"};
 export const DEFAULT_THEMES={

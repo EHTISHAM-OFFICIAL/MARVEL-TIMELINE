@@ -149,7 +149,17 @@ export function Admin({ user, onSignOut }) {
     }
   };
   useEffect(() => {
-    refresh();
+    let cancelled = false;
+    (async () => {
+      await refresh();
+      // Keep the public poster catalog self-healing: whenever the administrator
+      // opens the console, newly added catalog entries are resolved from TMDB
+      // using the protected credential. The token is never published to clients.
+      if (cancelled) return;
+      const token = privateConfig.tmdb?.readAccessToken || "";
+      if (token) await syncPosters({ silent: true });
+    })();
+    return () => { cancelled = true; };
   }, []);
   const totals = users.reduce(
     (a, u) => {
@@ -216,66 +226,100 @@ export function Admin({ user, onSignOut }) {
       setBusy(false);
     }
   };
-  const syncPosters = async () => {
+  const syncPosters = async ({ silent = false } = {}) => {
     const token = privateConfig.tmdb?.readAccessToken || "";
     if (!token) {
-      setNotice("Save a TMDB token first.");
-      return;
+      if (!silent) setNotice("Save a TMDB token first.");
+      return false;
     }
-    setBusy(true);
-    setNotice("Syncing poster URLs from TMDB…");
+    if (!silent) {
+      setBusy(true);
+      setNotice("Syncing poster URLs from TMDB…");
+    }
     try {
       const posters = { ...(config.posters || {}) };
+      const normalize = (value) =>
+        String(value || "")
+          .toLowerCase()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]+/g, "")
+          .trim();
       for (const p of PROJECTS) {
-        const q = p.title.replace(/\s+Season\s+\d+$/i, "").trim();
-        const params = new URLSearchParams({
-          query: q,
-          include_adult: "false",
-          language: "en-US",
-          page: "1",
-        });
-        const res = await fetch(
-          "https://api.themoviedb.org/3/search/multi?" + params,
-          {
-            headers: {
-              Authorization: "Bearer " + token,
-              accept: "application/json",
-            },
-          },
-        );
-        if (!res.ok) continue;
-        const data = await res.json();
         const wanted =
           p.type === "movie" ||
           p.type === "animated-movie" ||
           p.type === "special"
             ? "movie"
             : "tv";
-        const matches = (data.results || []).filter(
-          (x) => x.media_type === wanted && x.poster_path,
-        );
-        const best = matches.sort((a, b) => {
-          const ay = Number(
-              String(a.release_date || a.first_air_date || "").slice(0, 4),
-            ),
-            by = Number(
-              String(b.release_date || b.first_air_date || "").slice(0, 4),
-            );
-          return (
-            (by === p.releaseYear ? 1 : 0) - (ay === p.releaseYear ? 1 : 0)
+        let best = null;
+
+        // Canonical TMDB IDs are preferred whenever the catalog entry has one.
+        // This prevents similarly named titles from receiving the wrong poster.
+        if (p.tmdbId) {
+          const endpoint = wanted === "movie"
+            ? "movie/" + encodeURIComponent(p.tmdbId)
+            : "tv/" + encodeURIComponent(p.tmdbId);
+          const res = await fetch(
+            "https://api.themoviedb.org/3/" + endpoint + "?language=en-US",
+            {
+              headers: {
+                Authorization: "Bearer " + token,
+                accept: "application/json",
+              },
+            },
           );
-        })[0];
+          if (res.ok) {
+            const item = await res.json();
+            if (item.poster_path) best = item;
+          }
+        }
+
+        // Fallback for future entries that do not have a TMDB ID yet.
+        if (!best) {
+          const q = p.title.replace(/\s+Season\s+\d+$/i, "").trim();
+          const params = new URLSearchParams({
+            query: q,
+            include_adult: "false",
+            language: "en-US",
+            page: "1",
+          });
+          const res = await fetch(
+            "https://api.themoviedb.org/3/search/" + wanted + "?" + params,
+            {
+              headers: {
+                Authorization: "Bearer " + token,
+                accept: "application/json",
+              },
+            },
+          );
+          if (!res.ok) continue;
+          const data = await res.json();
+          const target = normalize(q);
+          const matches = (data.results || []).filter((x) => x.poster_path);
+          best = matches
+            .map((x) => {
+              const title = x.title || x.name || "";
+              const year = Number(String(x.release_date || x.first_air_date || "").slice(0, 4));
+              const exact = normalize(title) === target;
+              const yearMatch = year === Number(p.releaseYear);
+              return { item: x, score: (exact ? 100 : 0) + (yearMatch ? 50 : 0) };
+            })
+            .sort((a, b) => b.score - a.score)[0]?.item || null;
+        }
+
         if (best?.poster_path)
           posters[p.id] = "https://image.tmdb.org/t/p/w500" + best.poster_path;
       }
       const next = { ...config, posters };
       await saveAdminThemeConfig(next);
       setConfig(next);
-      setNotice("Poster catalog synced and published.");
+      if (!silent) setNotice("Poster catalog synced and published.");
+      return true;
     } catch (e) {
-      setNotice(e.message || "Poster sync failed.");
+      if (!silent) setNotice(e.message || "Poster sync failed.");
+      return false;
     } finally {
-      setBusy(false);
+      if (!silent) setBusy(false);
     }
   };
   const nav = [

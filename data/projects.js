@@ -1109,6 +1109,7 @@ export const PROJECTS = [
 
   {
     id: "captain-america-brave-new-world-2025",
+    tmdbId: 822119,
     title: "Captain America: Brave New World",
     type: "movie",
     releaseDate: "2025-02-14",
@@ -1131,6 +1132,7 @@ export const PROJECTS = [
 
   {
     id: "thunderbolts-2025",
+    tmdbId: 986056,
     title: "Thunderbolts*",
     type: "movie",
     releaseDate: "2025-05-02",
@@ -1629,6 +1631,7 @@ export const PROJECTS = [
 
   {
     id: "madame-web-2024",
+    tmdbId: 634492,
     title: "Madame Web",
     type: "movie",
     releaseDate: "2024-02-14",
@@ -1649,6 +1652,7 @@ export const PROJECTS = [
 
   {
     id: "venom-last-dance-2024",
+    tmdbId: 912649,
     title: "Venom: The Last Dance",
     type: "movie",
     releaseDate: "2024-10-25",
@@ -1670,6 +1674,7 @@ export const PROJECTS = [
 
   {
     id: "kraven-the-hunter-2024",
+    tmdbId: 539972,
     title: "Kraven the Hunter",
     type: "movie",
     releaseDate: "2024-12-13",
@@ -1690,6 +1695,7 @@ export const PROJECTS = [
 
   {
     id: "new-mutants-2020",
+    tmdbId: 340102,
     title: "The New Mutants",
     type: "movie",
     releaseDate: "2020-08-28",
@@ -2163,6 +2169,7 @@ export const PROJECTS = [
   },
   {
     id: "spider-man-brand-new-day-2026",
+    tmdbId: 969681,
     title: "Spider-Man: Brand New Day",
     type: "movie",
     releaseDate: "2026-07-31",

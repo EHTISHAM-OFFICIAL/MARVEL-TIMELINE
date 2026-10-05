@@ -34,7 +34,7 @@ export function hasTMDBToken() {
   return Object.keys(getRuntimeConfig().posters || {}).length > 0;
 }
 
-export async function getTMDBPoster(project) {
+export function getTMDBPoster(project) {
   const runtimePosters = getRuntimeConfig().posters || {};
   const idAlias = project?.tmdbId ? TMDB_ID_FALLBACKS[Number(project.tmdbId)] : "";
   return (

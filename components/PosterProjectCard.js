@@ -1,7 +1,7 @@
 import { html, useEffect, useState } from "htm/react";
 import { StatusDot } from "./StatusBadge.js";
 import { getUniverse, statusOf, episodeProgress, isSeries, getProjectState } from "../utils/helpers.js";
-import { getTMDBPoster, hasTMDBToken } from "../utils/tmdb.js";
+import { getTMDBPoster } from "../utils/tmdb.js";
 
 const posterCache = new Map();
 const TYPE_ICON = { movie: "🎬", "animated-movie": "🎨", "tv-series": "📺", "limited-series": "📺", "animated-series": "🎨", special: "✨" };
@@ -13,13 +13,12 @@ export function PosterImage({ project }) {
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
-    if (!hasTMDBToken()) { setMissing(true); return () => controller.abort(); }
     getTMDBPoster(project, controller.signal).then((image) => {
       if (cancelled) return;
       if (image) { posterCache.set(project.id, image); setSrc(image); setLoaded(false); setMissing(false); } else setMissing(true);
     });
     return () => { cancelled = true; controller.abort(); };
-  }, [project.id, project.title, project.releaseYear]);
+  }, [project.id, project.title, project.releaseYear, project.tmdbId, project.baseProjectId]);
   return html`
     <div className=${"poster-media " + (loaded ? "has-image" : "")}>
       ${src ? html`<img src=${src} alt=${project.title + " poster"} loading="lazy" onLoad=${() => setLoaded(true)} onError=${() => { setLoaded(false); setMissing(true); }} className=${loaded ? "loaded" : ""} />` : null}

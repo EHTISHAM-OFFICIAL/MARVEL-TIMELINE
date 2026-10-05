@@ -262,6 +262,7 @@ function App() {
         aria-modal="true"
         aria-labelledby="admin-authorized-title"
       >
+        <div className="admin-authorized-logo" aria-hidden="true"><img src="/assets/icons/favicon.svg" alt="" /></div>
         <div className="admin-authorized-badge">✓</div>
         <span className="admin-authorized-kicker">SECURITY CHECK PASSED</span>
         <h1 id="admin-authorized-title">AUTHORIZED</h1>

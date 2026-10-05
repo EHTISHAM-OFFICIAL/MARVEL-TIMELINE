@@ -235,7 +235,7 @@ export function Admin({ user, onSignOut }) {
       setNotice("Syncing poster URLs from TMDB…");
     }
     try {
-      const posters = { ...(config.posters || {}) };
+      const posters = { ...(DEFAULT_SITE_CONFIG.posters || {}), ...(config.posters || {}) };
       const normalize = (value) =>
         String(value || "")
           .toLowerCase()

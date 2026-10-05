@@ -211,7 +211,12 @@ function App() {
     siteConfig.site,
   ]);
   if (authState.loading)
-    return html`<BrandedLoading message="Loading your Marvel archive…" />`;
+    return html`<main className="auth-loading">
+      <div>
+        <div className="auth-spinner"></div>
+        <p>Loading your Marvel archive…</p>
+      </div>
+    </main>`;
   const maintenanceActive = isMaintenanceActive(siteConfig);
   if (maintenanceActive && !isAdminRoute())
     return html`<main className="maintenance-screen">
@@ -241,7 +246,12 @@ function App() {
   if (!authState.user)
     return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading)
-    return html`<BrandedLoading message="Verifying administrator access…" eyebrow="SECURE ADMIN CHECK" />`;
+    return html`<main className="auth-loading">
+      <div>
+        <div className="auth-spinner"></div>
+        <p>Verifying administrator access…</p>
+      </div>
+    </main>`;
   if (showAdminAuthorizedPrompt && authState.user && adminAccess.isAdmin)
     return html`<main className="admin-authorized-overlay">
       <section
@@ -343,7 +353,12 @@ function App() {
           </div>
         </div>
       </main>`;
-    return html`<BrandedLoading message="Syncing your Marvel archive…" eyebrow="SYNCING YOUR ARCHIVE" />`;
+    return html`<main className="auth-loading">
+      <div>
+        <div className="auth-spinner"></div>
+        <p>Syncing your Marvel archive…</p>
+      </div>
+    </main>`;
   }
   if (
     siteConfig.site?.maintenance &&

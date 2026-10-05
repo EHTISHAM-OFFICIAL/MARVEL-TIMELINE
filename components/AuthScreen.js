@@ -89,10 +89,11 @@ export function AuthScreen({ adminMode = false }) {
       <div className="auth-atmosphere"></div>
       <section className="auth-shell">
         <div className="auth-brand">
-          <div className="auth-logo">
-            ${adminMode ? "MARVEL ADMIN" : "MARVEL"}<span
-              >${adminMode ? "Control Center" : "Timeline Tracker"}</span
-            >
+          <div className="auth-logo-wrap">
+            <div className="auth-logo-mark" aria-hidden="true"><img src="/assets/icons/favicon.svg" alt="" /></div>
+            <div className="auth-logo">
+              ${adminMode ? "MARVEL ADMIN" : "MARVEL"}<span>${adminMode ? "Control Center" : "Timeline Tracker"}</span>
+            </div>
           </div>
           <p>
             ${adminMode

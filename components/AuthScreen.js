@@ -5,7 +5,7 @@ import {
   login,
   resetPassword,
   signup,
-} from "../services/auth.js";
+} from "../auth.js";
 
 export function AuthScreen({ adminMode = false }) {
   const [mode, setMode] = useState("login");

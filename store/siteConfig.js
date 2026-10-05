@@ -15,7 +15,16 @@ export const DEFAULT_THEMES={
  dailyBugle:{id:"dailyBugle",name:"Daily Bugle",description:"Editorial white and headline red",vars:{...DEFAULT_VARS,bg:"#f7f5f0",bg2:"#fffdf8",bg3:"#ece9e1",card:"#fffdf8",cardHover:"#f4f1e9",border:"#d7d2c7",borderBright:"#a9a39a",text:"#1b1a18",textDim:"#55514b",textFaint:"#6c665d",red:"#b5151d",redBright:"#8f0d14",gold:"#8b6500",green:"#18744b",blue:"#1d5f91",purple:"#68458d",shadow:"0 10px 28px rgba(50,44,34,.12)",glow1:"rgba(181,21,29,.07)",glow2:"rgba(104,69,141,.05)"}},
  wakandaLight:{id:"wakandaLight",name:"Wakanda Light",description:"Ivory, violet and royal gold",vars:{...DEFAULT_VARS,bg:"#f4f0f7",bg2:"#fffdfd",bg3:"#ebe5ef",card:"#fffdfd",cardHover:"#f7f2f9",border:"#d6cbdc",borderBright:"#b19fba",text:"#211b27",textDim:"#5a4e61",textFaint:"#6d6174",red:"#7040a4",redBright:"#5c2e8d",gold:"#8a6500",green:"#18744b",blue:"#285f96",purple:"#7040a4",shadow:"0 10px 30px rgba(62,39,74,.12)",glow1:"rgba(112,64,164,.07)",glow2:"rgba(138,101,0,.04)"}}
 };
-export const DEFAULT_SITE_CONFIG={version:1,site:{brand:"MARVEL TIMELINE",tagline:"MCU & Marvel Connections Tracker",welcomeTitle:"WELCOME BACK",welcomeText:"Your Marvel archive is ready.",maintenance:false,maintenanceReopenAt:null},activeTheme:"midnight",themes:DEFAULT_THEMES,posters:{}};
+const BUILTIN_POSTERS={
+  "thunderbolts-2025":"https://image.tmdb.org/t/p/w500/hqcexYHbiTBfDIdDWxrxPtVndBX.jpg",
+  "spider-man-brand-new-day-2026":"https://image.tmdb.org/t/p/w500/9JCQtDCSpPR2ld55yNlEg1VwcQo.jpg",
+  "captain-america-brave-new-world-2025":"https://image.tmdb.org/t/p/w500/pzIddUEMWhWzfvLI3TwxUG2wGoi.jpg",
+  "madame-web-2024":"https://image.tmdb.org/t/p/w500/rULWuutDcN5NvtiZi4FRPzRYWSh.jpg",
+  "venom-the-last-dance-2024":"https://image.tmdb.org/t/p/w500/aosm8NMQ3UyoBVpSxyimorCQykC.jpg",
+  "kraven-the-hunter-2024":"https://image.tmdb.org/t/p/w500/nrlfJoxP1EkBVE9pU62L287Jl4D.jpg",
+  "the-new-mutants-2020":"https://image.tmdb.org/t/p/w500/xiDGcXJTvu1lazFRYip6g1eLt9c.jpg"
+};
+export const DEFAULT_SITE_CONFIG={version:1,site:{brand:"MARVEL TIMELINE",tagline:"MCU & Marvel Connections Tracker",welcomeTitle:"WELCOME BACK",welcomeText:"Your Marvel archive is ready.",maintenance:false,maintenanceReopenAt:null},activeTheme:"midnight",themes:DEFAULT_THEMES,posters:BUILTIN_POSTERS};
 let runtimeConfig=DEFAULT_SITE_CONFIG;
 export function getRuntimeConfig(){return runtimeConfig;}
 export function setRuntimeConfig(config){runtimeConfig={...DEFAULT_SITE_CONFIG,...config,site:{...DEFAULT_SITE_CONFIG.site,...(config?.site||{})},themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:config?.posters||{}};return runtimeConfig;}

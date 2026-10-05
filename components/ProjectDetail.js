@@ -270,9 +270,6 @@ export function ProjectDetail({ projectId, userData, actions, onClose, onPlan })
             <div className="flex-between mb-16">
               <div>
                 <h3 style=${{ margin: 0 }}>My Tracking</h3>
-                <span className="text-faint"
-                  >Saved locally in this browser.</span
-                >
               </div>
               <button
                 className=${"favorite-btn " + (userP.favorite ? "on" : "")}

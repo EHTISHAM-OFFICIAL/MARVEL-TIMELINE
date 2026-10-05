@@ -120,6 +120,12 @@ function buildModel(visible, userData) {
       status: completed === info.length ? "completed" : anyWatching ? "watching" : "in-progress",
       date: dates.length ? dates[dates.length - 1] : "",
       favorite: list.some((p) => Boolean(state(p).favorite)),
+      rating: (() => {
+        const rated = list.map((p) => Number(state(p).rating) || 0).filter(Boolean);
+        return rated.length ? rated.reduce((a, b) => a + b, 0) / rated.length : 0;
+      })(),
+      chronological: Math.min(...list.map((p) => Number(p.chronologicalOrderIndex) || Number.MAX_SAFE_INTEGER)),
+      phase: Number(base.phase) || Number.MAX_SAFE_INTEGER,
       open: open.project,
       order: displayReleaseOrder(info[0].project),
       title: base.title,
@@ -233,6 +239,7 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
   const model = useMemo(() => buildModel(visible, userData), [visible, userData]);
   const [tab, setTab] = useState("all");
   const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState("release");
   const [expanded, setExpanded] = useState(false);
 
   const counts = {
@@ -243,7 +250,13 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
     favorites: model.lists.favorites.length,
   };
   const q = query.trim().toLowerCase();
-  const filtered = model.lists[tab].filter((e) => !q || e.title.toLowerCase().includes(q));
+  const sortEntries = (entries) => entries.slice().sort((a, b) => {
+    if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0) || a.order - b.order;
+    if (sortBy === "chronological") return (a.chronological || a.order) - (b.chronological || b.order) || a.order - b.order;
+    if (sortBy === "phase") return (a.phase || Number.MAX_SAFE_INTEGER) - (b.phase || Number.MAX_SAFE_INTEGER) || a.order - b.order;
+    return a.order - b.order;
+  });
+  const filtered = sortEntries(model.lists[tab].filter((e) => !q || e.title.toLowerCase().includes(q)));
   const shown = expanded ? filtered : filtered.slice(0, PAGE_SIZE);
   const pick = (id) => { setTab(id); setExpanded(false); };
   useEffect(() => {
@@ -301,6 +314,15 @@ export function CommandCenter({ visible, userData, onOpen, onNavigate }) {
               </button>`)}
           </div>
           <div className="cc-filter">
+            <label className="cc-sort" aria-label="Sort watched titles">
+              <span>Sort by</span>
+              <select value=${sortBy} onChange=${(e) => { setSortBy(e.target.value); setExpanded(false); }}>
+                <option value="release">Release order</option>
+                <option value="rating">Rating</option>
+                <option value="chronological">Chronological</option>
+                <option value="phase">Phase</option>
+              </select>
+            </label>
             <input type="search" value=${query} onInput=${(e) => { setQuery(e.target.value); setExpanded(false); }} placeholder="Filter titles…" aria-label="Filter titles in this list" />
           </div>
         </div>

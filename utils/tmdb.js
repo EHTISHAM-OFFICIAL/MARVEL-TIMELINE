@@ -16,5 +16,5 @@ export function hasTMDBToken() {
 
 export async function getTMDBPoster(project) {
   const posters = getRuntimeConfig().posters || {};
-  return posters?.[project.id] || posters?.[project.baseProjectId || project.id] || "";
+  const aliases = { 912649: "venom-the-last-dance-2024", 340102: "the-new-mutants-2020" };\n  const alias = project.tmdbId ? aliases[String(project.tmdbId)] : "";\n  return posters?.[project.id] || posters?.[project.baseProjectId || project.id] || (alias ? posters?.[alias] : "") || "";
 }

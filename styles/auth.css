@@ -252,6 +252,20 @@
   color: var(--text-dim);
   font-size: 14px;
 }
+.auth-loading-brand {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--red) 38%, var(--border-bright));
+  box-shadow: 0 14px 38px color-mix(in srgb, var(--red) 12%, transparent);
+}
+.auth-loading-brand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 .auth-loading .btn {
   margin-top: 16px;
 }
@@ -531,6 +545,20 @@
   border-radius: 22px;
   background: var(--card);
   box-shadow: 0 30px 100px color-mix(in srgb, var(--red) 12%, transparent), var(--shadow);
+}
+.admin-authorized-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 17px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--red) 40%, var(--border-bright));
+  box-shadow: 0 16px 44px color-mix(in srgb, var(--red) 12%, transparent);
+}
+.admin-authorized-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .admin-authorized-badge {
   width: 58px;

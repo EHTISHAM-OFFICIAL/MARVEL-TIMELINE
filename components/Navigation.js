@@ -38,8 +38,11 @@ export function Sidebar({ page, onNavigate, user, onSignOut, onDeleteAccount, is
   return html`
     <aside className=${"sidebar " + (isAdmin && page === "admin" ? "admin-sidebar" : "")}>
       <div className="logo">
-        ${isAdmin && page === "admin" ? "MARVEL ADMIN" : (siteConfig?.site?.brand || "MARVEL")}
-        <span>${isAdmin && page === "admin" ? "Control Center" : (siteConfig?.site?.tagline || "Timeline Tracker")}</span>
+        <div className="logo-mark" aria-hidden="true"><img src="/assets/icons/favicon.svg" alt="" /></div>
+        <div className="logo-copy">
+          <strong>${isAdmin && page === "admin" ? "MARVEL ADMIN" : (siteConfig?.site?.brand || "MARVEL")}</strong>
+          <span>${isAdmin && page === "admin" ? "Control Center" : (siteConfig?.site?.tagline || "Timeline Tracker")}</span>
+        </div>
       </div>
       <nav>${items.map((item) => html`
         <button key=${item.id} className=${"nav-item " + (page === item.id ? "active" : "")} onClick=${() => onNavigate(item.id)}>

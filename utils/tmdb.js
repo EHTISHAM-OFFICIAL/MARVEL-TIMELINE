@@ -31,7 +31,7 @@ export function setTMDBToken() {
 export function clearTMDBToken() {}
 
 export function hasTMDBToken() {
-  return true;
+  return Object.keys(getRuntimeConfig().posters || {}).length > 0;
 }
 
 export async function getTMDBPoster(project) {

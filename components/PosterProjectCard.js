@@ -7,27 +7,34 @@ const posterCache = new Map();
 const TYPE_ICON = { movie: "🎬", "animated-movie": "🎨", "tv-series": "📺", "limited-series": "📺", "animated-series": "🎨", special: "✨" };
 
 export function PosterImage({ project }) {
-  const [src, setSrc] = useState(() => posterCache.get(project.id) || "");
-  const [loaded, setLoaded] = useState(Boolean(src));
-  const [missing, setMissing] = useState(false);
+  const poster = getTMDBPoster(project);
+  const [src, setSrc] = useState(poster || "");
+  const [loaded, setLoaded] = useState(false);
+  const [missing, setMissing] = useState(!poster);
+
   useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
-    getTMDBPoster(project, controller.signal).then((image) => {
-      if (cancelled) return;
-      if (image) { posterCache.set(project.id, image); setSrc(image); setLoaded(false); setMissing(false); } else setMissing(true);
-    });
-    return () => { cancelled = true; controller.abort(); };
+    const next = getTMDBPoster(project);
+    setSrc(next || "");
+    setLoaded(false);
+    setMissing(!next);
   }, [project.id, project.title, project.releaseYear, project.tmdbId, project.baseProjectId]);
+
   return html`
     <div className=${"poster-media " + (loaded ? "has-image" : "")}>
-      ${src ? html`<img src=${src} alt=${project.title + " poster"} loading="lazy" onLoad=${() => setLoaded(true)} onError=${() => { setLoaded(false); setMissing(true); }} className=${loaded ? "loaded" : ""} />` : null}
+      ${src ? html`<img
+        src=${src}
+        alt=${project.title + " poster"}
+        loading="eager"
+        decoding="async"
+        onLoad=${() => { setLoaded(true); setMissing(false); }}
+        onError=${() => { setLoaded(false); setMissing(true); }}
+        className=${loaded ? "loaded" : ""}
+      />` : null}
       <div className="poster-fallback"><span className="poster-fallback-mark">MARVEL</span><span className="poster-fallback-icon" aria-hidden="true">${TYPE_ICON[project.type] || "🎞️"}</span><strong>${project.title}</strong><small>${[project.releaseYear, project.type.replace(/-/g, " ")].filter(Boolean).join(" · ")}${missing ? "" : " · loading…"}</small></div>
       <div className="poster-shade"></div>
     </div>
   `;
 }
-
 export function PosterProjectCard({ project, userData, onOpen }) {
   const u = getUniverse(project.universe);
   const status = statusOf(project.id, userData);

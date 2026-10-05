@@ -8,7 +8,7 @@ import {
   serverTimestamp,
   setDoc,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { db } from "../services/firebase.js";
+import { db } from "../firebase.js";
 import { DEFAULT_SITE_CONFIG, setRuntimeConfig } from "./siteConfig.js";
 
 // Fixed bootstrap administrator. Firestore Rules enforce the same UID.

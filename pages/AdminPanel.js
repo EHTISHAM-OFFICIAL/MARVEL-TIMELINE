@@ -149,18 +149,16 @@ export function Admin({ user, onSignOut }) {
     }
   };
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      await refresh();
-      // Keep the public poster catalog self-healing: whenever the administrator
-      // opens the console, newly added catalog entries are resolved from TMDB
-      // using the protected credential. The token is never published to clients.
-      if (cancelled) return;
-      const token = privateConfig.tmdb?.readAccessToken || "";
-      if (token) await syncPosters({ silent: true });
-    })();
-    return () => { cancelled = true; };
+    refresh();
   }, []);
+
+  useEffect(() => {
+    // Once the protected TMDB credential has loaded, reconcile the public poster
+    // catalog automatically. This runs only in the administrator console.
+    if (privateConfig.tmdb?.readAccessToken) {
+      syncPosters({ silent: true });
+    }
+  }, [privateConfig.tmdb?.readAccessToken]);
   const totals = users.reduce(
     (a, u) => {
       const m = metrics(u);

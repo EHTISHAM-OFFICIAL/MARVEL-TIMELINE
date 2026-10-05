@@ -29,6 +29,23 @@ import {
   themeMode,
 } from "./store/siteConfig.js";
 
+function BrandedLoading({ message, eyebrow = "MARVEL TIMELINE" }) {
+  return html`
+    <main className="auth-loading branded-loading">
+      <div className="branded-loading-shell">
+        <div className="branded-loading-logo" aria-hidden="true">
+          <img src="/assets/icons/favicon.svg" alt="" />
+        </div>
+        <div className="branded-loading-wordmark">MARVEL <span>TIMELINE</span></div>
+        <div className="branded-loading-rule" aria-hidden="true"></div>
+        <span className="branded-loading-eyebrow">${eyebrow}</span>
+        <div className="auth-spinner" aria-hidden="true"></div>
+        <p>${message}</p>
+      </div>
+    </main>
+  `;
+}
+
 function App() {
   const authState = useAuth();
   const adminAccess = useAdminAccess(authState.user);
@@ -194,12 +211,7 @@ function App() {
     siteConfig.site,
   ]);
   if (authState.loading)
-    return html`<main className="auth-loading">
-      <div>
-        <div className="auth-spinner"></div>
-        <p>Loading your Marvel archive…</p>
-      </div>
-    </main>`;
+    return html`<BrandedLoading message="Loading your Marvel archive…" />`;
   const maintenanceActive = isMaintenanceActive(siteConfig);
   if (maintenanceActive && !isAdminRoute())
     return html`<main className="maintenance-screen">
@@ -229,12 +241,7 @@ function App() {
   if (!authState.user)
     return html`<${AuthScreen} adminMode=${isAdminRoute()} />`;
   if (isAdminRoute() && adminAccess.loading)
-    return html`<main className="auth-loading">
-      <div>
-        <div className="auth-spinner"></div>
-        <p>Verifying administrator access…</p>
-      </div>
-    </main>`;
+    return html`<BrandedLoading message="Verifying administrator access…" eyebrow="SECURE ADMIN CHECK" />`;
   if (showAdminAuthorizedPrompt && authState.user && adminAccess.isAdmin)
     return html`<main className="admin-authorized-overlay">
       <section
@@ -336,12 +343,7 @@ function App() {
           </div>
         </div>
       </main>`;
-    return html`<main className="auth-loading">
-      <div>
-        <div className="auth-spinner"></div>
-        <p>Syncing your Marvel archive…</p>
-      </div>
-    </main>`;
+    return html`<BrandedLoading message="Syncing your Marvel archive…" eyebrow="SYNCING YOUR ARCHIVE" />`;
   }
   if (
     siteConfig.site?.maintenance &&

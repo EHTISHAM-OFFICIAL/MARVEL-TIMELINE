@@ -213,6 +213,7 @@ function App() {
   if (authState.loading)
     return html`<main className="auth-loading">
       <div>
+        <div className="auth-loading-brand" aria-hidden="true"><img src="/assets/icons/favicon.svg" alt="" /></div>
         <div className="auth-spinner"></div>
         <p>Loading your Marvel archive…</p>
       </div>
@@ -248,6 +249,7 @@ function App() {
   if (isAdminRoute() && adminAccess.loading)
     return html`<main className="auth-loading">
       <div>
+        <div className="auth-loading-brand" aria-hidden="true"><img src="/assets/icons/favicon.svg" alt="" /></div>
         <div className="auth-spinner"></div>
         <p>Verifying administrator access…</p>
       </div>
@@ -355,6 +357,7 @@ function App() {
       </main>`;
     return html`<main className="auth-loading">
       <div>
+        <div className="auth-loading-brand" aria-hidden="true"><img src="/assets/icons/favicon.svg" alt="" /></div>
         <div className="auth-spinner"></div>
         <p>Syncing your Marvel archive…</p>
       </div>

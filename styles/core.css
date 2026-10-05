@@ -85,20 +85,49 @@ body::before {
   overflow-y: auto;
 }
 .logo {
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
   padding: 8px 12px 20px;
   text-transform: uppercase;
 }
-.logo span {
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--red) 38%, var(--border));
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--red) 12%, transparent);
+}
+.logo-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.logo-copy {
+  min-width: 0;
+}
+.logo-copy strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 1.1;
+  font-weight: 850;
+  letter-spacing: 2.2px;
+  color: var(--red);
+}
+.logo-copy span {
   color: var(--text);
   font-weight: 400;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   display: block;
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: 9px;
+  margin-top: 4px;
+  white-space: nowrap;
 }
 .nav-item {
   display: flex;

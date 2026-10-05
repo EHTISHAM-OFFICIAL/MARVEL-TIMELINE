@@ -27,7 +27,7 @@ const BUILTIN_POSTERS={
 export const DEFAULT_SITE_CONFIG={version:1,site:{brand:"MARVEL TIMELINE",tagline:"MCU & Marvel Connections Tracker",welcomeTitle:"WELCOME BACK",welcomeText:"Your Marvel archive is ready.",maintenance:false,maintenanceReopenAt:null},activeTheme:"midnight",themes:DEFAULT_THEMES,posters:BUILTIN_POSTERS};
 let runtimeConfig=DEFAULT_SITE_CONFIG;
 export function getRuntimeConfig(){return runtimeConfig;}
-export function setRuntimeConfig(config){runtimeConfig={...DEFAULT_SITE_CONFIG,...config,site:{...DEFAULT_SITE_CONFIG.site,...(config?.site||{})},themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:config?.posters||{}};return runtimeConfig;}
+export function setRuntimeConfig(config){runtimeConfig={...DEFAULT_SITE_CONFIG,...config,site:{...DEFAULT_SITE_CONFIG.site,...(config?.site||{})},themes:{...DEFAULT_THEMES,...(config?.themes||{})},posters:{...BUILTIN_POSTERS,...(config?.posters||{})}};return runtimeConfig;}
 export function isMaintenanceActive(config=runtimeConfig){const site=config?.site||{};if(!site.maintenance)return false;const reopen=site.maintenanceReopenAt?new Date(site.maintenanceReopenAt).getTime():NaN;return Number.isFinite(reopen)&&Date.now()>=reopen?false:true;}
 // The stylesheet reads hyphenated names (--bg-2, --text-dim ...) while theme packages
 // (and the admin theme editor) store camelCase keys. Publish BOTH so nothing stays on a stale default.
